@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paidviewersbot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --primary-text-color: #1c1e21;
+            --secondary-text-color: #606770;
+            --accent-color: #007bff;
+            --accent-hover-color: #0056b3;
+            --button-text-color: #ffffff;
+            --border-color: #dddfe2;
+            --card-bg-color: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--primary-text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Home Page Styles */
+        .balance-card {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .balance-card h2 {
+            margin: 0;
+            font-size: 1.5em;
+            color: var(--secondary-text-color);
+        }
+
+        .balance-amount {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 10px 0;
+        }
+
+        .rules-card {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .rules-card p {
+            margin: 10px 0;
+            color: var(--secondary-text-color);
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent-color);
+            color: var(--button-text-color);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .action-button:hover {
+            background-color: var(--accent-hover-color);
+        }
+
+        .action-button:disabled {
+            background-color: #a0c3ff;
+            cursor: not-allowed;
+        }
+
+        /* Tasks Page Styles */
+        .tasks-container {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .tasks-container h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .tasks-container p {
+            font-size: 1.1em;
+            color: var(--secondary-text-color);
+        }
+        
+        /* Invite Friends Page Styles */
+        .invite-container {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .invite-container p {
+            margin-bottom: 20px;
+            color: var(--secondary-text-color);
+        }
+
+        .referral-link-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .referral-link-container input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px 0 0 8px;
+            font-size: 1em;
+            background-color: #f0f2f5;
+        }
+
+        .copy-button {
+            padding: 10px 20px;
+            background-color: var(--accent-color);
+            color: var(--button-text-color);
+            border: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .copy-button:hover {
+            background-color: var(--accent-hover-color);
+        }
+
+        /* Withdraw Page Styles */
+        .withdraw-container {
+            padding: 20px;
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .withdraw-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .withdraw-container p {
+            text-align: center;
+            color: var(--secondary-text-color);
+            margin-bottom: 20px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        
+        .warning-message {
+            color: #d9534f;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background-color: var(--card-bg-color);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            color: var(--secondary-text-color);
+            font-size: 1em;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-button.active {
+            color: var(--accent-color);
+            background-color: #e7f3ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-content">
+        <!-- Home Page -->
+        <div id="home-page" class="page active">
+            <div class="balance-card">
+                <h2>Current Balance</h2>
+                <p id="balance-amount" class="balance-amount">$0.00</p>
+            </div>
+            <div class="rules-card">
+                <p><strong>Daily Ads Limit:</strong> 40 ads</p>
+                <p><strong>Daily Earning Limit:</strong> $0.20</p>
+            </div>
+            <button id="watch-ad-button" class="action-button">Watch Ad</button>
+        </div>
+
+        <!-- Tasks Page -->
+        <div id="tasks-page" class="page">
+            <div class="tasks-container">
+                <h2>Tasks</h2>
+                <p>No tasks available.</p>
+            </div>
+        </div>
+
+        <!-- Invite Friends Page -->
+        <div id="invite-page" class="page">
+            <div class="invite-container">
+                <h2>Invite Friends</h2>
+                <p>Get one-time bonuses at 10 = $0.05, 50 = $0.25, and 100 = $0.50 referrals.</p>
+                <div class="referral-link-container">
+                    <input type="text" id="referral-link" readonly>
+                    <button id="copy-link-button" class="copy-button">Copy Link</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Withdraw Page -->
+        <div id="withdraw-page" class="page">
+            <div class="withdraw-container">
+                <h2>Withdraw</h2>
+                <p>Minimum withdrawal amount: $1.00</p>
+                <input type="text" id="wallet-address" class="input-field" placeholder="Enter USDT (BEP20) wallet address">
+                <button id="withdraw-button" class="action-button">Withdraw</button>
+                <p id="warning-message" class="warning-message"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-button active" data-page="home-page">🏠 Home</button>
+        <button class="nav-button" data-page="tasks-page">📋 Tasks</button>
+        <button class="nav-button" data-page="invite-page">👥 Invite</button>
+        <button class="nav-button" data-page="withdraw-page">💵 Withdraw</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+
+            // State management
+            let user = {
+                balance: 0.00,
+                adsWatchedToday: 0,
+                lastAdWatchedDate: new Date().toISOString().slice(0, 10),
+                referralId: tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 'testuser123'
+            };
+
+            const EARNING_PER_AD = 0.005;
+            const DAILY_AD_LIMIT = 40;
+            const MINIMUM_WITHDRAWAL = 1.00;
+
+            // DOM elements
+            const pages = document.querySelectorAll('.page');
+            const navButtons = document.querySelectorAll('.nav-button');
+            const balanceAmount = document.getElementById('balance-amount');
+            const watchAdButton = document.getElementById('watch-ad-button');
+            const referralLinkInput = document.getElementById('referral-link');
+            const copyLinkButton = document.getElementById('copy-link-button');
+            const walletAddressInput = document.getElementById('wallet-address');
+            const withdrawButton = document.getElementById('withdraw-button');
+            const warningMessage = document.getElementById('warning-message');
+
+            // --- Navigation Logic ---
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const pageId = button.getAttribute('data-page');
+
+                    pages.forEach(page => page.classList.remove('active'));
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+
+                    document.getElementById(pageId).classList.add('active');
+                    button.classList.add('active');
+                });
+            });
+            
+            // --- UI Update Function ---
+            function updateUI() {
+                balanceAmount.textContent = `$${user.balance.toFixed(2)}`;
+                referralLinkInput.value = `https://t.me/Paidviewersbot?start=${user.referralId}`;
+                checkAdLimits();
+            }
+
+            // --- Home Page Logic ---
+            function checkAdLimits() {
+                const today = new Date().toISOString().slice(0, 10);
+                if (user.lastAdWatchedDate !== today) {
+                    user.adsWatchedToday = 0;
+                    user.lastAdWatchedDate = today;
+                }
+
+                if (user.adsWatchedToday >= DAILY_AD_LIMIT) {
+                    watchAdButton.textContent = 'Daily Limit Reached';
+                    watchAdButton.disabled = true;
+                } else {
+                    watchAdButton.textContent = 'Watch Ad';
+                    watchAdButton.disabled = false;
+                }
+            }
+
+            watchAdButton.addEventListener('click', () => {
+                if (user.adsWatchedToday < DAILY_AD_LIMIT) {
+                    user.adsWatchedToday++;
+                    user.balance += EARNING_PER_AD;
+                    updateUI();
+                }
+            });
+
+            // --- Invite Friends Page Logic ---
+            copyLinkButton.addEventListener('click', () => {
+                referralLinkInput.select();
+                document.execCommand('copy');
+                copyLinkButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyLinkButton.textContent = 'Copy Link';
+                }, 2000);
+            });
+
+            // --- Withdraw Page Logic ---
+            withdrawButton.addEventListener('click', () => {
+                const walletAddress = walletAddressInput.value.trim();
+                
+                if (user.balance < MINIMUM_WITHDRAWAL) {
+                    warningMessage.textContent = `You need at least $${MINIMUM_WITHDRAWAL.toFixed(2)} to withdraw.`;
+                    return;
+                }
+
+                if (!walletAddress) {
+                    warningMessage.textContent = 'Please enter a wallet address.';
+                    return;
+                }
+                
+                // A simple regex for BEP20 address validation. For a real app, use a library.
+                const bep20Regex = /^(0x)[0-9a-fA-F]{40}$/;
+                if (!bep20Regex.test(walletAddress)) {
+                    warningMessage.textContent = 'Invalid address — you may lose your USDT.';
+                    return;
+                }
+                
+                // Process withdrawal (simulation)
+                user.balance -= MINIMUM_WITHDRAWAL;
+                warningMessage.textContent = 'Withdrawal request submitted!';
+                walletAddressInput.value = '';
+                updateUI();
+            });
+
+            // Initial load
+            updateUI();
+        });
+    </script>
+</body>
+</html>
