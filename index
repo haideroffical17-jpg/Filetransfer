@@ -1,451 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<script src='//libtl.com/sdk.js' data-zone='9722588' data-sdk='show_9722588'></script>
-
-
-// Rewarded interstitial
-
-show_9722588().then(() => {
-    // You need to add your user reward function here, which will be executed after the user watches the ad.
-    // For more details, please refer to the detailed instructions.
-    alert('You have seen an ad!');
-})
-
-        
-
- 
-// Rewarded Popup
-
-show_9722588('pop').then(() => {
-    // user watch ad till the end or close it in interstitial format
-    // your code to reward user for rewarded format
-}).catch(e => {
-    // user get error during playing ad
-    // do nothing or whatever you want
-})
-
-    
-// In-App Interstitial
-
-show_9722588({
-  type: 'inApp',
-  inAppSettings: {
-    frequency: 2,
-    capping: 0.1,
-    interval: 30,
-    timeout: 5,
-    everyPage: false
-  }
-})
-
-/*
-This value is decoded as follows:
-- show automatically 2 ads
-  within 0.1 hours (6 minutes)
-  with a 30-second interval between them
-  and a 5-second delay before the first one is shown.
-  The last digit, 0, means that the session will be saved when you navigate between pages.
-  If you set the last digit as 1, then at any transition between pages,
-  the session will be reset, and the ads will start again.
-*/
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paidviewersbot</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Simple Translator for All Languages</title>
+
+    <!-- CSS styles are included directly in the HTML file inside the <style> tag -->
     <style>
-        :root {
-            --bg-color: #f0f2f5;
-            --primary-text-color: #1c1e21;
-            --secondary-text-color: #606770;
-            --accent-color: #007bff;
-            --accent-hover-color: #0056b3;
-            --button-text-color: #ffffff;
-            --border-color: #dddfe2;
-            --card-bg-color: #ffffff;
-        }
-
+        /* Basic styles for the entire page */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--primary-text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
             display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* Home Page Styles */
-        .balance-card {
-            background-color: var(--card-bg-color);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .balance-card h2 {
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             margin: 0;
-            font-size: 1.5em;
-            color: var(--secondary-text-color);
-        }
-
-        .balance-amount {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: var(--accent-color);
-            margin: 10px 0;
-        }
-
-        .rules-card {
-            background-color: var(--card-bg-color);
-            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            box-sizing: border-box; /* Ensures padding doesn't affect final width */
         }
 
-        .rules-card p {
-            margin: 10px 0;
-            color: var(--secondary-text-color);
-        }
-
-        .action-button {
+        /* The main container for the translator app */
+        .translator-container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             width: 100%;
+            max-width: 600px;
+        }
+
+        /* Title and description styles */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        p {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        /* Style for the text input area */
+        textarea {
+            width: 100%;
+            height: 150px;
             padding: 15px;
-            background-color: var(--accent-color);
-            color: var(--button-text-color);
-            border: none;
             border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: 600;
+            border: 1px solid #dfe6e9;
+            font-size: 16px;
+            resize: vertical; /* Allows the user to resize the textarea vertically */
+            box-sizing: border-box;
+        }
+
+        /* Container for the language dropdown and button */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            gap: 20px;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dfe6e9;
+            background-color: #fff;
+            font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
 
-        .action-button:hover {
-            background-color: var(--accent-hover-color);
+        /* Translate button style */
+        #translate-btn {
+            background-color: #3498db;
+            color: #ffffff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth transition on hover */
         }
 
-        .action-button:disabled {
-            background-color: #a0c3ff;
+        #translate-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        #translate-btn:disabled {
+            background-color: #bdc3c7;
             cursor: not-allowed;
         }
 
-        /* Tasks Page Styles */
-        .tasks-container {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: var(--card-bg-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        /* Styles for the output area */
+        .output-container {
+            margin-top: 30px;
         }
 
-        .tasks-container h2 {
-            font-size: 1.8em;
+        h2 {
+            color: #2c3e50;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 10px;
             margin-bottom: 20px;
         }
 
-        .tasks-container p {
-            font-size: 1.1em;
-            color: var(--secondary-text-color);
-        }
-        
-        /* Invite Friends Page Styles */
-        .invite-container {
-            text-align: center;
+        .output-box {
+            background-color: #ecf0f1;
             padding: 20px;
-            background-color: var(--card-bg-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .invite-container p {
-            margin-bottom: 20px;
-            color: var(--secondary-text-color);
-        }
-
-        .referral-link-container {
-            display: flex;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .referral-link-container input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px 0 0 8px;
-            font-size: 1em;
-            background-color: #f0f2f5;
-        }
-
-        .copy-button {
-            padding: 10px 20px;
-            background-color: var(--accent-color);
-            color: var(--button-text-color);
-            border: none;
-            border-radius: 0 8px 8px 0;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .copy-button:hover {
-            background-color: var(--accent-hover-color);
-        }
-
-        /* Withdraw Page Styles */
-        .withdraw-container {
-            padding: 20px;
-            background-color: var(--card-bg-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .withdraw-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .withdraw-container p {
-            text-align: center;
-            color: var(--secondary-text-color);
-            margin-bottom: 20px;
-        }
-        
-        .input-field {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 1em;
-            margin-bottom: 20px;
-            box-sizing: border-box;
+            min-height: 100px;
+            font-size: 16px;
+            color: #34495e;
+            white-space: pre-wrap; /* Preserves line breaks in the translated text */
+            word-wrap: break-word;
         }
         
-        .warning-message {
-            color: #d9534f;
+        /* Footer credits */
+        footer {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #95a5a6;
         }
 
-        /* Bottom Navigation */
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            background-color: var(--card-bg-color);
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+        footer a {
+            color: #3498db;
+            text-decoration: none;
         }
 
-        .nav-button {
-            background: none;
-            border: none;
-            color: var(--secondary-text-color);
-            font-size: 1em;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 8px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .nav-button.active {
-            color: var(--accent-color);
-            background-color: #e7f3ff;
+        footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="main-content">
-        <!-- Home Page -->
-        <div id="home-page" class="page active">
-            <div class="balance-card">
-                <h2>Current Balance</h2>
-                <p id="balance-amount" class="balance-amount">$0.00</p>
-            </div>
-            <div class="rules-card">
-                <p><strong>Daily Ads Limit:</strong> 40 ads</p>
-                <p><strong>Daily Earning Limit:</strong> $0.20</p>
-            </div>
-            <button id="watch-ad-button" class="action-button">Watch Ad</button>
+    <!-- This is the HTML structure of the application -->
+    <div class="translator-container">
+        <h1>Translator</h1>
+        <p>Translate text into different languages with this simple tool.</p>
+
+        <!-- Text area for user to enter text -->
+        <div class="input-container">
+            <textarea id="text-input" placeholder="Enter text to translate..."></textarea>
         </div>
 
-        <!-- Tasks Page -->
-        <div id="tasks-page" class="page">
-            <div class="tasks-container">
-                <h2>Tasks</h2>
-                <p>No tasks available.</p>
+        <!-- Controls for language selection and the translate button -->
+        <div class="controls">
+            <div class="language-select-container">
+                <label for="language-select">Translate To:</label>
+                <!-- Dropdown will be filled with languages by JavaScript -->
+                <select id="language-select">
+                    <option>Loading languages...</option>
+                </select>
             </div>
+            <button id="translate-btn">Translate</button>
         </div>
 
-        <!-- Invite Friends Page -->
-        <div id="invite-page" class="page">
-            <div class="invite-container">
-                <h2>Invite Friends</h2>
-                <p>Get one-time bonuses at 10 = $0.05, 50 = $0.25, and 100 = $0.50 referrals.</p>
-                <div class="referral-link-container">
-                    <input type="text" id="referral-link" readonly>
-                    <button id="copy-link-button" class="copy-button">Copy Link</button>
-                </div>
+        <!-- Area to display the translated result -->
+        <div class="output-container">
+            <h2>Translated Text</h2>
+            <div id="translated-output" class="output-box">
+                Your translation will appear here...
             </div>
         </div>
-
-        <!-- Withdraw Page -->
-        <div id="withdraw-page" class="page">
-            <div class="withdraw-container">
-                <h2>Withdraw</h2>
-                <p>Minimum withdrawal amount: $1.00</p>
-                <input type="text" id="wallet-address" class="input-field" placeholder="Enter USDT (BEP20) wallet address">
-                <button id="withdraw-button" class="action-button">Withdraw</button>
-                <p id="warning-message" class="warning-message"></p>
-            </div>
-        </div>
+        
+        <footer>
+            <p>Powered by <a href="https://libretranslate.com/" target="_blank">LibreTranslate</a></p>
+        </footer>
     </div>
 
-    <div class="bottom-nav">
-        <button class="nav-button active" data-page="home-page">🏠 Home</button>
-        <button class="nav-button" data-page="tasks-page">📋 Tasks</button>
-        <button class="nav-button" data-page="invite-page">👥 Invite</button>
-        <button class="nav-button" data-page="withdraw-page">💵 Withdraw</button>
-    </div>
-
+    <!-- JavaScript logic is included directly in the HTML file inside the <script> tag -->
     <script>
+        // Wait for the HTML document to be fully loaded before running the script
         document.addEventListener('DOMContentLoaded', () => {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
-
-            // State management
-            let user = {
-                balance: 0.00,
-                adsWatchedToday: 0,
-                lastAdWatchedDate: new Date().toISOString().slice(0, 10),
-                referralId: tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 'testuser123'
-            };
-
-            const EARNING_PER_AD = 0.005;
-            const DAILY_AD_LIMIT = 40;
-            const MINIMUM_WITHDRAWAL = 1.00;
-
-            // DOM elements
-            const pages = document.querySelectorAll('.page');
-            const navButtons = document.querySelectorAll('.nav-button');
-            const balanceAmount = document.getElementById('balance-amount');
-            const watchAdButton = document.getElementById('watch-ad-button');
-            const referralLinkInput = document.getElementById('referral-link');
-            const copyLinkButton = document.getElementById('copy-link-button');
-            const walletAddressInput = document.getElementById('wallet-address');
-            const withdrawButton = document.getElementById('withdraw-button');
-            const warningMessage = document.getElementById('warning-message');
-
-            // --- Navigation Logic ---
-            navButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const pageId = button.getAttribute('data-page');
-
-                    pages.forEach(page => page.classList.remove('active'));
-                    navButtons.forEach(btn => btn.classList.remove('active'));
-
-                    document.getElementById(pageId).classList.add('active');
-                    button.classList.add('active');
-                });
-            });
             
-            // --- UI Update Function ---
-            function updateUI() {
-                balanceAmount.textContent = `$${user.balance.toFixed(2)}`;
-                referralLinkInput.value = `https://t.me/Paidviewersbot?start=${user.referralId}`;
-                checkAdLimits();
+            // Get references to the important HTML elements
+            const languageSelect = document.getElementById('language-select');
+            const textInput = document.getElementById('text-input');
+            const translateBtn = document.getElementById('translate-btn');
+            const translatedOutput = document.getElementById('translated-output');
+            
+            // API endpoint for LibreTranslate
+            const libreTranslateAPI = 'https://libretranslate.de';
+
+            // --- Function to load all available languages into the dropdown ---
+            async function loadLanguages() {
+                try {
+                    // Fetch the list of languages from the API
+                    const response = await fetch(`${libreTranslateAPI}/languages`);
+                    const languages = await response.json();
+                    
+                    // Clear the "Loading..." message
+                    languageSelect.innerHTML = '';
+
+                    // Add each language as an option in the dropdown
+                    languages.forEach(lang => {
+                        const option = document.createElement('option');
+                        option.value = lang.code; // e.g., 'en', 'es', 'fr'
+                        option.textContent = lang.name; // e.g., 'English', 'Spanish', 'French'
+                        languageSelect.appendChild(option);
+                    });
+
+                } catch (error) {
+                    console.error('Error loading languages:', error);
+                    translatedOutput.textContent = 'Failed to load languages. Please check your internet connection.';
+                }
             }
 
-            // --- Home Page Logic ---
-            function checkAdLimits() {
-                const today = new Date().toISOString().slice(0, 10);
-                if (user.lastAdWatchedDate !== today) {
-                    user.adsWatchedToday = 0;
-                    user.lastAdWatchedDate = today;
+            // --- Function to translate the text ---
+            async function translateText() {
+                const textToTranslate = textInput.value;
+                const targetLanguage = languageSelect.value;
+                
+                // If there's no text, do nothing
+                if (!textToTranslate.trim()) {
+                    return;
                 }
+                
+                // Show a loading message and disable the button to prevent multiple clicks
+                translatedOutput.textContent = 'Translating...';
+                translateBtn.disabled = true;
+                translateBtn.textContent = 'Translating...';
 
-                if (user.adsWatchedToday >= DAILY_AD_LIMIT) {
-                    watchAdButton.textContent = 'Daily Limit Reached';
-                    watchAdButton.disabled = true;
-                } else {
-                    watchAdButton.textContent = 'Watch Ad';
-                    watchAdButton.disabled = false;
+                try {
+                    // Send a POST request to the translation API
+                    const response = await fetch(`${libreTranslateAPI}/translate`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            q: textToTranslate,       // The text to translate
+                            source: 'auto',           // Auto-detect the source language
+                            target: targetLanguage,   // The language to translate to
+                            format: 'text'
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    // If the request was not successful, throw an error
+                    if (!response.ok) {
+                        throw new Error('Translation request failed.');
+                    }
+                    
+                    // Parse the JSON response
+                    const data = await response.json();
+                    
+                    // Display the translated text
+                    translatedOutput.textContent = data.translatedText;
+
+                } catch (error) {
+                    console.error('Error translating text:', error);
+                    translatedOutput.textContent = 'An error occurred during translation. Please try again.';
+                } finally {
+                    // Re-enable the button after the translation is complete or an error occurs
+                    translateBtn.disabled = false;
+                    translateBtn.textContent = 'Translate';
                 }
             }
 
-            watchAdButton.addEventListener('click', () => {
-                if (user.adsWatchedToday < DAILY_AD_LIMIT) {
-                    user.adsWatchedToday++;
-                    user.balance += EARNING_PER_AD;
-                    updateUI();
-                }
-            });
-
-            // --- Invite Friends Page Logic ---
-            copyLinkButton.addEventListener('click', () => {
-                referralLinkInput.select();
-                document.execCommand('copy');
-                copyLinkButton.textContent = 'Copied!';
-                setTimeout(() => {
-                    copyLinkButton.textContent = 'Copy Link';
-                }, 2000);
-            });
-
-            // --- Withdraw Page Logic ---
-            withdrawButton.addEventListener('click', () => {
-                const walletAddress = walletAddressInput.value.trim();
-                
-                if (user.balance < MINIMUM_WITHDRAWAL) {
-                    warningMessage.textContent = `You need at least $${MINIMUM_WITHDRAWAL.toFixed(2)} to withdraw.`;
-                    return;
-                }
-
-                if (!walletAddress) {
-                    warningMessage.textContent = 'Please enter a wallet address.';
-                    return;
-                }
-                
-                // A simple regex for BEP20 address validation. For a real app, use a library.
-                const bep20Regex = /^(0x)[0-9a-fA-F]{40}$/;
-                if (!bep20Regex.test(walletAddress)) {
-                    warningMessage.textContent = 'Invalid address — you may lose your USDT.';
-                    return;
-                }
-                
-                // Process withdrawal (simulation)
-                user.balance -= MINIMUM_WITHDRAWAL;
-                warningMessage.textContent = 'Withdrawal request submitted!';
-                walletAddressInput.value = '';
-                updateUI();
-            });
-
-            // Initial load
-            updateUI();
+            // --- Event Listeners ---
+            
+            // Call the function to load languages when the page loads
+            loadLanguages();
+            
+            // Add a click event listener to the translate button
+            translateBtn.addEventListener('click', translateText);
         });
     </script>
+
 </body>
 </html>
