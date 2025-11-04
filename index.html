@@ -1,849 +1,366 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ File Share - Working Version</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
-            width: 100%;
-            padding: 40px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 {
-            text-align: center;
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.9em;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            background: #f0f0f0;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .tab:hover:not(.active) {
-            background: #e0e0e0;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .drop-zone {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 60px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f8f9ff;
-        }
-
-        .drop-zone:hover, .drop-zone.drag-over {
-            background: #e8ebff;
-            border-color: #764ba2;
-            transform: scale(1.02);
-        }
-
-        .drop-zone-icon {
-            font-size: 4em;
-            margin-bottom: 15px;
-        }
-
-        .drop-zone-text {
-            color: #667eea;
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .drop-zone-subtext {
-            color: #999;
-            font-size: 0.9em;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .code-display {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            margin: 20px 0;
-            display: none;
-        }
-
-        .code-display.show {
-            display: block;
-            animation: pulse 0.5s ease;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .code-label {
-            font-size: 1em;
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-
-        .code-value {
-            font-size: 3.5em;
-            font-weight: 900;
-            letter-spacing: 12px;
-            font-family: 'Courier New', monospace;
-            user-select: all;
-            cursor: pointer;
-            background: rgba(255,255,255,0.2);
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .code-value:active {
-            transform: scale(0.95);
-        }
-
-        .copy-hint {
-            font-size: 0.85em;
-            margin-top: 15px;
-            opacity: 0.9;
-        }
-
-        .code-input-group {
-            margin-bottom: 20px;
-        }
-
-        .code-input {
-            width: 100%;
-            padding: 20px;
-            font-size: 2em;
-            text-align: center;
-            border: 3px solid #667eea;
-            border-radius: 10px;
-            text-transform: uppercase;
-            letter-spacing: 10px;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
-
-        .code-input:focus {
-            outline: none;
-            border-color: #764ba2;
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            display: none;
-            font-weight: 600;
-        }
-
-        .status.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        .status.info {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .status.success {
-            background: #e8f5e9;
-            color: #388e3c;
-        }
-
-        .status.error {
-            background: #ffebee;
-            color: #d32f2f;
-        }
-
-        .status.warning {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .progress-container {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .progress-container.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            color: #666;
-            font-size: 1em;
-            font-weight: 600;
-        }
-
-        .progress-bar-container {
-            background: #f0f0f0;
-            border-radius: 10px;
-            height: 35px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1em;
-            width: 0%;
-        }
-
-        .file-info {
-            display: none;
-            background: #f8f9ff;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border: 2px solid #e8ebff;
-        }
-
-        .file-info.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        .file-info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .file-info-row:last-child {
-            border-bottom: none;
-        }
-
-        .file-info-label {
-            color: #666;
-            font-weight: 600;
-            font-size: 0.95em;
-        }
-
-        .file-info-value {
-            color: #333;
-            word-break: break-all;
-            text-align: right;
-            max-width: 60%;
-            font-weight: 500;
-        }
-
-        .connection-status {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 15px;
-            background: #e8f5e9;
-            border-radius: 10px;
-            margin: 20px 0;
-            color: #388e3c;
-            font-weight: 600;
-        }
-
-        .connection-status.show {
-            display: flex;
-            animation: slideIn 0.3s ease;
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #4caf50;
-            animation: blink 2s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .speed-info {
-            text-align: center;
-            margin-top: 12px;
-            color: #667eea;
-            font-weight: 700;
-            font-size: 1.3em;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 25px;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            .code-value {
-                font-size: 2.5em;
-                letter-spacing: 8px;
-                padding: 15px;
-            }
-
-            .code-input {
-                font-size: 1.5em;
-                letter-spacing: 6px;
-                padding: 15px;
-            }
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Peer File Share — Simple WebRTC (Copy/Paste SDP)</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:18px;background:#f6f7fb;color:#111}
+  h1{font-size:20px;margin:0 0 8px}
+  .card{background:#fff;padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,50,0.06);margin-bottom:12px}
+  label{display:block;margin:10px 0 6px;font-weight:600}
+  textarea{width:100%;height:120px;padding:8px;border-radius:6px;border:1px solid #ddd;font-family:monospace}
+  button{padding:8px 12px;border-radius:8px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer}
+  button.gray{background:#6b7280}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  progress{width:100%}
+  #log{white-space:pre-wrap;font-family:monospace;background:#f3f4f6;padding:8px;border-radius:6px;border:1px dashed #e5e7eb;height:120px;overflow:auto}
+  small{color:#6b7280}
+  .peer-info{font-size:13px;color:#374151;margin-top:6px}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>⚡ File Share</h1>
-        <p class="subtitle">Simple • Fast • Works anywhere</p>
+  <h1>Peer File Share — WebRTC (manual signaling)</h1>
 
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('send')">📤 Send</button>
-            <button class="tab" onclick="switchTab('receive')">📥 Receive</button>
-        </div>
-
-        <!-- SEND TAB -->
-        <div id="send-tab" class="tab-content active">
-            <div class="drop-zone" id="dropZone">
-                <div class="drop-zone-icon">📁</div>
-                <div class="drop-zone-text">Drop File Here</div>
-                <div class="drop-zone-subtext">or click to browse</div>
-            </div>
-            <input type="file" id="fileInput" class="file-input">
-
-            <div class="file-info" id="fileInfo">
-                <div class="file-info-row">
-                    <span class="file-info-label">📄 Name:</span>
-                    <span class="file-info-value" id="fileName">-</span>
-                </div>
-                <div class="file-info-row">
-                    <span class="file-info-label">📦 Size:</span>
-                    <span class="file-info-value" id="fileSize">-</span>
-                </div>
-            </div>
-
-            <div class="code-display" id="codeDisplay">
-                <div class="code-label">📲 Share this code:</div>
-                <div class="code-value" id="shareCode" onclick="copyCode()">------</div>
-                <div class="copy-hint">👆 Tap to copy</div>
-            </div>
-
-            <div class="connection-status" id="senderConnectionStatus">
-                <span class="status-dot"></span>
-                <span id="senderStatusText">Waiting...</span>
-            </div>
-
-            <div class="status" id="sendStatus"></div>
-
-            <div class="progress-container" id="sendProgress">
-                <div class="progress-info">
-                    <span id="sendProgressText">Sending...</span>
-                    <span id="sendProgressPercent">0%</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="sendProgressBar">0%</div>
-                </div>
-                <div class="speed-info" id="sendSpeed"></div>
-            </div>
-        </div>
-
-        <!-- RECEIVE TAB -->
-        <div id="receive-tab" class="tab-content">
-            <div class="code-input-group">
-                <input 
-                    type="text" 
-                    class="code-input" 
-                    id="codeInput" 
-                    placeholder="CODE" 
-                    maxlength="6"
-                    autocomplete="off"
-                >
-            </div>
-            <button class="btn btn-primary" onclick="connectToSender()" id="connectBtn">Connect</button>
-
-            <div class="connection-status" id="receiverConnectionStatus">
-                <span class="status-dot"></span>
-                <span id="receiverStatusText">Receiving...</span>
-            </div>
-
-            <div class="file-info" id="receiveFileInfo">
-                <div class="file-info-row">
-                    <span class="file-info-label">📄 Name:</span>
-                    <span class="file-info-value" id="receiveFileName">-</span>
-                </div>
-                <div class="file-info-row">
-                    <span class="file-info-label">📦 Size:</span>
-                    <span class="file-info-value" id="receiveFileSize">-</span>
-                </div>
-            </div>
-
-            <div class="status" id="receiveStatus"></div>
-
-            <div class="progress-container" id="receiveProgress">
-                <div class="progress-info">
-                    <span id="receiveProgressText">Receiving...</span>
-                    <span id="receiveProgressPercent">0%</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="receiveProgressBar">0%</div>
-                </div>
-                <div class="speed-info" id="receiveSpeed"></div>
-            </div>
-        </div>
+  <div class="card">
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+      <div><strong>Status:</strong> <span id="status">idle</span></div>
+      <div class="peer-info">Note: Use modern browser. Serve via HTTPS or localhost.</div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // Using public Supabase instance for signaling
-        const { createClient } = supabase;
-        const supabaseClient = createClient(
-            'https://pxqxrblhygtqsfsfksyy.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4cXhyYmxoeWd0cXNmc2Zrc3l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQwNjcyMDAsImV4cCI6MjAxOTY0MzIwMH0.X0iYqN-yN5xF3z7J5Y9xZ0XQZ0Z0Z0Z0Z0Z0Z0Z0Z0Z'
-        );
+    <label>Choose file to send</label>
+    <input id="fileInput" type="file" />
 
-        let peerConnection = null;
-        let dataChannel = null;
-        let selectedFile = null;
-        let receiveBuffer = [];
-        let receivedSize = 0;
-        let fileMetadata = null;
-        let myCode = null;
-        let pollInterval = null;
+    <label>Chunk size (bytes)</label>
+    <input id="chunkSize" type="number" value="16384" min="1024" style="width:140px"/>
 
-        const configuration = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' }
-            ]
-        };
+    <div style="margin-top:10px" class="row">
+      <button id="createOfferBtn">Create Offer (I'm sender)</button>
+      <button id="acceptOfferBtn" class="gray">Accept Offer (I'm receiver)</button>
+      <button id="closeBtn" class="gray">Close / Reset</button>
+    </div>
 
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    <label style="margin-top:12px">Local SDP (copy & send to peer)</label>
+    <textarea id="localSDP" readonly></textarea>
+
+    <label>Remote SDP (paste peer's SDP here)</label>
+    <textarea id="remoteSDP" placeholder="Paste remote SDP here"></textarea>
+
+    <div style="margin-top:8px" class="row">
+      <button id="applyRemoteBtn">Apply Remote SDP</button>
+      <button id="copyLocalBtn" class="gray">Copy Local SDP</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Transfer</h2>
+    <div><strong>Peer connection:</strong> <span id="pcState">—</span></div>
+    <div style="margin-top:8px">
+      <label>Send progress</label>
+      <progress id="sendProgress" max="100" value="0"></progress>
+      <div id="sendInfo" style="font-size:13px;color:#374151"></div>
+    </div>
+
+    <div style="margin-top:8px">
+      <label>Receive progress</label>
+      <progress id="recvProgress" max="100" value="0"></progress>
+      <div id="recvInfo" style="font-size:13px;color:#374151"></div>
+    </div>
+
+    <div style="margin-top:8px">
+      <label>Log</label>
+      <div id="log"></div>
+    </div>
+  </div>
+
+<script>
+/*
+  Simple peer-to-peer file transfer using WebRTC DataChannel.
+  Signaling is manual: generate offer -> copy local SDP -> paste to remote -> remote generates answer -> copy answer -> paste back.
+  Works without a server. Use HTTPS or localhost.
+*/
+
+const logEl = id => document.getElementById(id);
+const fileInput = document.getElementById('fileInput');
+const createOfferBtn = document.getElementById('createOfferBtn');
+const acceptOfferBtn = document.getElementById('acceptOfferBtn');
+const localSDP = document.getElementById('localSDP');
+const remoteSDP = document.getElementById('remoteSDP');
+const applyRemoteBtn = document.getElementById('applyRemoteBtn');
+const copyLocalBtn = document.getElementById('copyLocalBtn');
+const closeBtn = document.getElementById('closeBtn');
+const statusSpan = document.getElementById('status');
+const pcState = document.getElementById('pcState');
+const sendProgress = document.getElementById('sendProgress');
+const recvProgress = document.getElementById('recvProgress');
+const sendInfo = document.getElementById('sendInfo');
+const recvInfo = document.getElementById('recvInfo');
+const chunkSizeInput = document.getElementById('chunkSize');
+const logBox = document.getElementById('log');
+
+let pc = null;
+let dataChannel = null;
+let receiveBuffer = [];
+let receivedSize = 0;
+let expectedFileSize = 0;
+let expectedFileName = '';
+let isSender = false;
+
+function log(...args) {
+  const t = new Date().toLocaleTimeString();
+  logBox.textContent += `[${t}] ${args.join(' ')}\n`;
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function reset() {
+  if (pc) {
+    try { pc.close(); } catch(e){}
+  }
+  pc = null;
+  dataChannel = null;
+  receiveBuffer = [];
+  receivedSize = 0;
+  expectedFileSize = 0;
+  expectedFileName = '';
+  localSDP.value = '';
+  remoteSDP.value = '';
+  statusSpan.textContent = 'idle';
+  pcState.textContent = '—';
+  sendProgress.value = 0; recvProgress.value = 0;
+  sendInfo.textContent = ''; recvInfo.textContent = '';
+  log('Reset connection.');
+}
+
+closeBtn.addEventListener('click', reset);
+copyLocalBtn.addEventListener('click', async ()=> {
+  try {
+    await navigator.clipboard.writeText(localSDP.value);
+    log('Local SDP copied to clipboard.');
+  } catch(e) {
+    log('Clipboard copy failed (maybe insecure context).');
+  }
+});
+
+createOfferBtn.addEventListener('click', async () => {
+  isSender = true;
+  await startAsCaller();
+});
+
+acceptOfferBtn.addEventListener('click', async () => {
+  isSender = false;
+  await startAsReceiver();
+});
+
+applyRemoteBtn.addEventListener('click', async () => {
+  if (!pc) { log('No PeerConnection created yet.'); return; }
+  const sdp = remoteSDP.value.trim();
+  if (!sdp) { log('Remote SDP is empty.'); return; }
+  try {
+    const desc = JSON.parse(sdp);
+    await pc.setRemoteDescription(desc);
+    log('Remote description applied.');
+    statusSpan.textContent = 'remote-applied';
+  } catch (e) {
+    log('Failed to set remote description:', e);
+  }
+});
+
+// ---- functions ----
+function createPeerConnection() {
+  const config = { iceServers: [{urls: ['stun:stun.l.google.com:19302']}] };
+  pc = new RTCPeerConnection(config);
+  pc.onicecandidate = e => {
+    if (e.candidate) {
+      // ICE candidates will be included automatically in the SDP when complete.
+      // For manual signaling we don't exchange candidates separately.
+    } else {
+      // ICE gathering finished — export local description
+      localSDP.value = JSON.stringify(pc.localDescription);
+      log('ICE gathering complete. Local SDP ready to copy/send.');
+    }
+  };
+  pc.onconnectionstatechange = () => {
+    pcState.textContent = pc.connectionState;
+    log('Connection state:', pc.connectionState);
+  };
+  pc.ondatachannel = ev => {
+    log('Data channel received (remote).');
+    setupDataChannel(ev.channel);
+  };
+  return pc;
+}
+
+function setupDataChannel(channel) {
+  dataChannel = channel;
+  dataChannel.binaryType = 'arraybuffer';
+  dataChannel.onopen = () => {
+    log('DataChannel open. Ready to transfer.');
+    statusSpan.textContent = 'connected';
+  };
+  dataChannel.onclose = () => log('DataChannel closed.');
+  dataChannel.onerror = e => log('DataChannel error', e);
+  dataChannel.onmessage = async (ev) => {
+    // First message might be metadata JSON
+    if (typeof ev.data === 'string') {
+      try {
+        const msg = JSON.parse(ev.data);
+        if (msg.type === 'meta') {
+          expectedFileSize = msg.size;
+          expectedFileName = msg.name;
+          receiveBuffer = [];
+          receivedSize = 0;
+          recvProgress.max = expectedFileSize;
+          recvProgress.value = 0;
+          recvInfo.textContent = `Receiving "${expectedFileName}" (${expectedFileSize} bytes)`;
+          log('Receiving metadata:', msg);
+          return;
         }
+      } catch(e) {
+        // not JSON — ignore
+      }
+    }
+    // binary chunk
+    const chunk = ev.data;
+    receiveBuffer.push(chunk);
+    receivedSize += chunk.byteLength ?? chunk.length ?? 0;
+    recvProgress.value = receivedSize;
+    recvInfo.textContent = `Received ${(receivedSize/1024|0)} KB / ${(expectedFileSize/1024|0)} KB`;
+    // If complete
+    if (expectedFileSize && receivedSize >= expectedFileSize) {
+      const received = new Blob(receiveBuffer);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(received);
+      a.download = expectedFileName || 'download';
+      a.textContent = `Click to download ${a.download}`;
+      // automatic click:
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      log('File received and download started:', expectedFileName);
+      recvInfo.textContent = `Received complete: ${expectedFileName} (${expectedFileSize} bytes)`;
+      receiveBuffer = [];
+      expectedFileSize = 0;
+      expectedFileName = '';
+    }
+  };
+}
 
-        function formatSpeed(bytesPerSecond) {
-            return formatFileSize(bytesPerSecond) + '/s';
-        }
+async function startAsCaller() {
+  reset();
+  createPeerConnection();
+  // Data channel for sending
+  const dc = pc.createDataChannel('file-transfer', {ordered:true});
+  setupDataChannel(dc);
+  // Create offer
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  statusSpan.textContent = 'offer-created';
+  localSDP.value = JSON.stringify(pc.localDescription);
+  log('Offer created. Copy local SDP and send to receiver. Receiver will paste their SDP back.');
+  // Note: ICE gathering will append candidate info and update localSDP when finished.
+}
 
-        function generateCode() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let code = '';
-            for (let i = 0; i < 6; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
+async function startAsReceiver() {
+  reset();
+  createPeerConnection();
+  statusSpan.textContent = 'waiting-for-offer';
+  log('Receiver ready. Paste the sender\'s Offer SDP into "Remote SDP" and click "Apply Remote SDP". After that, create an Answer in your console UI (will be automatic) and paste it back to sender if requested.');
+  // To make UX easier: the receiver will create answer automatically after applying remote SDP in applyRemoteBtn handler.
+  // We'll add a small listener to auto-create answer when remote desc is set:
+  pc.addEventListener('signalingstatechange', async function waitForRemote() {
+    try {
+      if (pc.remoteDescription && pc.remoteDescription.type === 'offer' && pc.signalingState === 'have-remote-offer') {
+        log('Remote offer detected — creating answer...');
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        localSDP.value = JSON.stringify(pc.localDescription);
+        log('Answer created. Copy local SDP and send back to sender.');
+      }
+    } catch (e) { log('Error creating answer:', e); }
+  });
+}
 
-        function copyCode() {
-            const code = document.getElementById('shareCode').textContent;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(code);
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = code;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            }
-            showStatus('sendStatus', '✅ Copied!', 'success');
-            setTimeout(() => {
-                document.getElementById('sendStatus').classList.remove('show');
-            }, 1500);
-        }
+// Sending file
+fileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!dataChannel || dataChannel.readyState !== 'open') {
+    log('DataChannel is not open. Create offer/connect first and wait until connected.');
+    return;
+  }
+  // send metadata first
+  const meta = { type:'meta', name: file.name, size: file.size };
+  dataChannel.send(JSON.stringify(meta));
+  log('Sent metadata:', meta);
+  const chunkSize = Math.max(1024, Number(chunkSizeInput.value) || 16384);
+  sendProgress.max = file.size;
+  sendProgress.value = 0;
+  sendInfo.textContent = `Sending "${file.name}" (${file.size} bytes)`;
+  const stream = file.stream ? file.stream() : null;
+  if (stream && stream.getReader) {
+    // use stream API when available (fast & memory efficient)
+    const reader = stream.getReader();
+    let sent = 0;
+    while(true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      // value is Uint8Array
+      // If value is larger than chunkSize, split it:
+      let offset = 0;
+      while (offset < value.byteLength) {
+        const end = Math.min(offset + chunkSize, value.byteLength);
+        const slice = value.slice(offset, end);
+        dataChannel.send(slice);
+        sent += slice.byteLength;
+        sendProgress.value = sent;
+        sendInfo.textContent = `${(sent/1024|0)} KB / ${(file.size/1024|0)} KB`;
+        offset = end;
+        // throttle if bufferFull:
+        await waitIfBufferFull();
+      }
+    }
+  } else {
+    // fallback: File.slice
+    let offset = 0;
+    const size = file.size;
+    while (offset < size) {
+      const chunk = file.slice(offset, offset + chunkSize);
+      const arrayBuffer = await chunk.arrayBuffer();
+      dataChannel.send(arrayBuffer);
+      offset += arrayBuffer.byteLength;
+      sendProgress.value = offset;
+      sendInfo.textContent = `${(offset/1024|0)} KB / ${(file.size/1024|0)} KB`;
+      await waitIfBufferFull();
+    }
+  }
+  log('File send complete:', file.name);
+  sendInfo.textContent = `Send complete: ${file.name}`;
+});
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            
-            if (tab === 'send') {
-                document.querySelector('.tab:first-child').classList.add('active');
-                document.getElementById('send-tab').classList.add('active');
-            } else {
-                document.querySelector('.tab:last-child').classList.add('active');
-                document.getElementById('receive-tab').classList.add('active');
-            }
+// Helper to wait if DataChannel bufferedAmount is high
+function waitIfBufferFull() {
+  return new Promise(resolve => {
+    const MAX_BUFFER = 16 * 1024 * 1024; // 16MB threshold (heuristic)
+    if (!dataChannel) return resolve();
+    if (dataChannel.bufferedAmount < MAX_BUFFER) return resolve();
+    // otherwise wait until bufferedAmountLow (no event for that, poll)
+    const iv = setInterval(() => {
+      if (dataChannel.bufferedAmount < MAX_BUFFER) {
+        clearInterval(iv);
+        resolve();
+      }
+    }, 50);
+  });
+}
 
-            resetStates();
-        }
-
-        function resetStates() {
-            selectedFile = null;
-            receiveBuffer = [];
-            receivedSize = 0;
-            fileMetadata = null;
-            
-            document.getElementById('fileInfo').classList.remove('show');
-            document.getElementById('codeDisplay').classList.remove('show');
-            document.getElementById('senderConnectionStatus').classList.remove('show');
-            document.getElementById('receiverConnectionStatus').classList.remove('show');
-            document.getElementById('sendStatus').classList.remove('show');
-            document.getElementById('receiveStatus').classList.remove('show');
-            document.getElementById('sendProgress').classList.remove('show');
-            document.getElementById('receiveProgress').classList.remove('show');
-            document.getElementById('receiveFileInfo').classList.remove('show');
-            document.getElementById('codeInput').value = '';
-            
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            if (dataChannel) {
-                dataChannel.close();
-                dataChannel = null;
-            }
-            if (pollInterval) {
-                clearInterval(pollInterval);
-                pollInterval = null;
-            }
-        }
-
-        function showStatus(elementId, message, type) {
-            const statusEl = document.getElementById(elementId);
-            statusEl.textContent = message;
-            statusEl.className = 'status show ' + type;
-        }
-
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-
-        dropZone.addEventListener('click', () => fileInput.click());
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFileSelect(files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileSelect(e.target.files[0]);
-            }
-        });
-
-        async function handleFileSelect(file) {
-            selectedFile = file;
-            
-            document.getElementById('fileName').textContent = file.name;
-            document.getElementById('fileSize').textContent = formatFileSize(file.size);
-            document.getElementById('fileInfo').classList.add('show');
-
-            myCode = generateCode();
-            document.getElementById('shareCode').textContent = myCode;
-            document.getElementById('codeDisplay').classList.add('show');
-            document.getElementById('senderConnectionStatus').classList.add('show');
-
-            showStatus('sendStatus', '✅ Ready! Share code', 'success');
-
-            await initializeSender();
-        }
-
-        async function initializeSender() {
-            try {
-                peerConnection = new RTCPeerConnection(configuration);
-
-                dataChannel = peerConnection.createDataChannel('fileTransfer', {
-                    ordered: true
-                });
-
-                setupDataChannelSender();
-
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-
-                await new Promise((resolve) => {
-                    if (peerConnection.iceGatheringState === 'complete') {
-                        resolve();
-                    } else {
-                        peerConnection.addEventListener('icegatheringstatechange', () => {
-                            if (peerConnection.iceGatheringState === 'complete') {
-                                resolve();
-                            }
-                        });
-                        setTimeout(resolve, 3000);
-                    }
-                });
-
-                // Store in Supabase
-                const { error } = await supabaseClient
-                    .from('file_transfers')
-                    .insert({
-                        code: myCode,
-                        offer: JSON.stringify(peerConnection.localDescription),
-                        file_name: selectedFile.name,
-                        file_size: selectedFile.size,
-                        file_type: selectedFile.type,
-                        created_at: new Date().toISOString()
-                    });
-
-                if (error) {
-                    console.error('Supabase error:', error);
-                    showStatus('sendStatus', '❌ Error: ' + error.message, 'error');
-                    return;
-                }
-
-                // Poll for answer
-                pollInterval = setInterval(async () => {
-                    const { data, error } = await supabaseClient
-                        .from('file_transfers')
-                        .select('answer')
-                        .eq('code', myCode)
-                        .single();
-
-                    if (data && data.answer && peerConnection.signalingState !== 'stable') {
-                        clearInterval(pollInterval);
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(data.answer)));
-                        document.getElementById('senderStatusText').textContent = '✅ Connected!';
-                    }
-                }, 1000);
-
-                setTimeout(() => {
-                    if (pollInterval) clearInterval(pollInterval);
-                }, 300000);
-
-            } catch (error) {
-                console.error('Error:', error);
-                showStatus('sendStatus', '❌ Error', 'error');
-            }
-        }
-
-        function setupDataChannelSender() {
-            dataChannel.onopen = () => {
-                console.log('Channel opened');
-                document.getElementById('senderStatusText').textContent = '🚀 Sending...';
-                sendFile();
-            };
-
-            dataChannel.onerror = (error) => {
-                console.error('Channel error:', error);
-                showStatus('sendStatus', '❌ Error', 'error');
-            };
-        }
-
-        async function sendFile() {
-            if (!selectedFile || !dataChannel) return;
-
-            document.getElementById('sendProgress').classList.add('show');
-            
-            const chunkSize = 16384;
-            let offset = 0;
-            const startTime = Date.now();
-
-            const metadata = {
-                type: 'metadata',
-                fileName: selectedFile.name,
-                fileSize: selectedFile.size,
-                fileType: selectedFile.type
-            };
-            dataChannel.send(JSON.stringify(metadata));
-
-            const readSlice = () => {
-                const slice = selectedFile.slice(offset, offset + chunkSize);
-                const reader = new FileReader();
-                
-                reader.onload = (e) => {
-                    if (dataChannel.readyState === 'open') {
-                        dataChannel.send(e.target.result);
-                        offset += e.target.result.byteLength;
-
-                        const progress = (offset / selectedFile.size) * 100;
-                        document.getElementById('sendProgressBar').style.width = progress + '%';
-                        document.getElementById('sendProgressBar').textContent = Math.round(progress) + '%';
-                        document.getElementById('sendProgressPercent').textContent = Math.round(progress) + '%';
-
-                        const elapsed = (Date.now() - startTime) / 1000;
-                        const speed = offset / elapsed;
-                        document.getElementById('sendSpeed').textContent = '⚡ ' + formatSpeed(speed);
-
-                        if (offset < selectedFile.size) {
-                            setTimeout(readSlice, 10);
-                        } else {
-                            dataChannel.send(JSON.stringify({ type: 'complete' }));
-                            showStatus('sendStatus', '✅ Sent!', 'success');
-                            document.getElementById('senderStatusText').textContent = '✅ Complete!';
-                            
-                            // Cleanup
-                            supabaseClient
-                                .from('file_transfers')
-                                .delete()
-                                .eq('code', myCode);
-                        }
-                    }
-                };
-
-                reader.readAsArrayBuffer(slice);
-            };
-
-            readSlice();
-        }
-
-        async function connectToSender() {
-            const code = document.getElementById('codeInput').value.toUpperCase().trim();
-            
-            if (code.length !== 6) {
-                showStatus('receiveStatus', '❌ Enter 6-digit code', 'error');
-                return;
-            }
-
-            showStatus('receiveStatus', '🔄 Connecting...', 'info');
-            document.getElementById('connectBtn').disabled = true;
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('file_transfers')
-                    .select('*')
-                    .eq('code', code)
-                    .single();
-
-                if (error || !data) {
-                    showStatus('receiveStatus', '❌ Invalid code', 'error');
-                    document.getElementById('connectBtn').disabled = false;
-                    return;
-                }
-
-                document.getElementById('receiveFileName').textContent = data.file_name;
-                document.getElementById('receiveFileSize').textContent = formatFileSize(data.file_size);
-                document.getElementById('receiveFileInfo').classList.add('show');
-
-                peerConnection = new RTCPeerConnection(configuration);
-
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(data.offer)));
-
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-
-                await new Promise((resolve) => {
-                    if (peerConnection.iceGatheringState === 'complete') {
-                        resolve();
-                    } else {
-                        peerConnection.addEventListener('icegatheringstatechange', () => {
-                            if (peerConnection.iceGatheringState === 'complete') {
+// initialize
+reset();
+log('App ready. To send: click "Create Offer" on sender device. Copy local SDP and paste into receiver device -> Apply -> Receiver will create Answer and show local SDP -> Copy that back to sender -> Sender paste it into remote SDP and Apply.');
+</script>
+</body>
+</html>
+                     if (peerConnection.iceGatheringState === 'complete') {
                                 resolve();
                             }
                         });
