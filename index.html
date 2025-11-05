@@ -277,6 +277,27 @@
             margin-bottom: 10px;
             color: #4a00e0;
         }
+
+        .debug-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .debug-toggle {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -321,9 +342,11 @@
                     <p id="uploadStatus">Ready to send</p>
                 </div>
 
-                <div class="active-codes">
-                    <h4><i class="fas fa-info-circle"></i> Important Note</h4>
-                    <p>This demo uses browser storage. For cross-browser sharing, both devices need to use the same browser or enable cross-origin storage.</p>
+                <button class="debug-toggle" id="debugToggle">Show Debug Info</button>
+                <div class="debug-info" id="debugInfo">
+                    <h4>Debug Information</h4>
+                    <p><strong>Generated Code:</strong> <span id="debugCode">None</span></p>
+                    <p><strong>Stored Codes:</strong> <span id="debugStoredCodes">None</span></p>
                 </div>
             </div>
             
@@ -376,9 +399,9 @@
     </div>
 
     <script>
-        // Global storage for active codes (simulating server-side storage)
-        // In a real application, this would be on a server
-        const activeCodes = {};
+        // Storage keys
+        const STORAGE_KEY = 'quickshare_active_codes';
+        const CODE_EXPIRY = 10 * 60 * 1000; // 10 minutes in milliseconds
 
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
@@ -405,6 +428,12 @@
             const downloadProgress = document.getElementById('downloadProgress');
             const downloadStatus = document.getElementById('downloadStatus');
             const downloadBtn = document.getElementById('downloadBtn');
+
+            // Debug elements
+            const debugToggle = document.getElementById('debugToggle');
+            const debugInfo = document.getElementById('debugInfo');
+            const debugCode = document.getElementById('debugCode');
+            const debugStoredCodes = document.getElementById('debugStoredCodes');
             
             // Variables
             let selectedFile = null;
@@ -437,6 +466,10 @@
             generateCodeBtn.addEventListener('click', generateShareCode);
             connectBtn.addEventListener('click', connectToSender);
             downloadBtn.addEventListener('click', downloadFile);
+            debugToggle.addEventListener('click', toggleDebugInfo);
+            
+            // Initialize - Clean up expired codes
+            cleanupExpiredCodes();
             
             // Functions
             function handleFileSelect(file) {
@@ -464,16 +497,22 @@
                 shareCode.textContent = shareCodeValue;
                 codeDisplay.style.display = 'block';
                 
-                // Store the code and file info in our "global storage"
-                activeCodes[shareCodeValue] = {
+                // Store the code and file info in localStorage
+                const fileData = {
                     fileName: selectedFile.name,
                     fileSize: selectedFile.size,
                     fileType: selectedFile.type,
                     timestamp: Date.now()
                 };
                 
+                saveCodeToStorage(shareCodeValue, fileData);
+                
+                // Update debug info
+                debugCode.textContent = shareCodeValue;
+                updateDebugStoredCodes();
+                
                 console.log("Generated code:", shareCodeValue);
-                console.log("Active codes:", activeCodes);
+                console.log("Stored codes:", getStoredCodes());
                 
                 // Start countdown timer (10 minutes)
                 let timeLeft = 600; // 10 minutes in seconds
@@ -488,7 +527,7 @@
                         clearInterval(countdownInterval);
                         codeDisplay.style.display = 'none';
                         // Remove expired code from storage
-                        delete activeCodes[shareCodeValue];
+                        removeCodeFromStorage(shareCodeValue);
                         alert('Share code has expired. Please generate a new one.');
                     }
                 }, 1000);
@@ -511,23 +550,23 @@
                 }
                 
                 console.log("Looking for code:", enteredCode);
-                console.log("Available codes:", Object.keys(activeCodes));
+                console.log("Available codes:", Object.keys(getStoredCodes()));
                 
-                // Check if the code exists in our global storage
-                if (!activeCodes[enteredCode]) {
+                // Check if the code exists in localStorage
+                const fileData = getCodeFromStorage(enteredCode);
+                
+                if (!fileData) {
                     showStatus('Invalid code or code has expired. Please check and try again.', 'error');
                     return;
                 }
                 
-                // Code is valid - get file info from storage
-                const fileInfo = activeCodes[enteredCode];
-                
+                // Code is valid
                 showStatus('Connected successfully! Receiving file information...', 'success');
                 
                 // Simulate file transfer
                 setTimeout(() => {
-                    receiverFileName.textContent = fileInfo.fileName;
-                    receiverFileSize.textContent = formatFileSize(fileInfo.fileSize);
+                    receiverFileName.textContent = fileData.fileName;
+                    receiverFileSize.textContent = formatFileSize(fileData.fileSize);
                     senderInfo.textContent = 'User-' + Math.floor(Math.random() * 1000);
                     
                     receiverFileInfo.style.display = 'block';
@@ -568,6 +607,79 @@
                 connectionStatus.className = 'status';
                 connectionStatus.classList.add(`status-${type}`);
                 connectionStatus.style.display = 'block';
+            }
+            
+            function toggleDebugInfo() {
+                if (debugInfo.style.display === 'none' || debugInfo.style.display === '') {
+                    debugInfo.style.display = 'block';
+                    debugToggle.textContent = 'Hide Debug Info';
+                    updateDebugStoredCodes();
+                } else {
+                    debugInfo.style.display = 'none';
+                    debugToggle.textContent = 'Show Debug Info';
+                }
+            }
+            
+            function updateDebugStoredCodes() {
+                const storedCodes = getStoredCodes();
+                debugStoredCodes.textContent = Object.keys(storedCodes).join(', ') || 'None';
+            }
+            
+            // Storage functions
+            function getStoredCodes() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    return stored ? JSON.parse(stored) : {};
+                } catch (e) {
+                    console.error('Error reading from localStorage:', e);
+                    return {};
+                }
+            }
+            
+            function saveCodeToStorage(code, fileData) {
+                try {
+                    const storedCodes = getStoredCodes();
+                    storedCodes[code] = fileData;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(storedCodes));
+                } catch (e) {
+                    console.error('Error saving to localStorage:', e);
+                }
+            }
+            
+            function getCodeFromStorage(code) {
+                const storedCodes = getStoredCodes();
+                return storedCodes[code] || null;
+            }
+            
+            function removeCodeFromStorage(code) {
+                try {
+                    const storedCodes = getStoredCodes();
+                    delete storedCodes[code];
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(storedCodes));
+                } catch (e) {
+                    console.error('Error removing from localStorage:', e);
+                }
+            }
+            
+            function cleanupExpiredCodes() {
+                try {
+                    const storedCodes = getStoredCodes();
+                    const now = Date.now();
+                    let cleaned = false;
+                    
+                    for (const code in storedCodes) {
+                        if (now - storedCodes[code].timestamp > CODE_EXPIRY) {
+                            delete storedCodes[code];
+                            cleaned = true;
+                        }
+                    }
+                    
+                    if (cleaned) {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(storedCodes));
+                    }
+                } catch (e) {
+                    console.error('Error cleaning expired codes:', e);
+                }
             }
             
             function formatFileSize(bytes) {
