@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickShare - Browser File Sharing</title>
+    <title>QuickShare - Direct File Sharing</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -127,15 +127,17 @@
         }
         
         .code {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: bold;
-            letter-spacing: 10px;
+            letter-spacing: 8px;
             color: #4a00e0;
             margin: 15px 0;
             background: white;
             padding: 20px;
             border-radius: 10px;
             border: 3px solid #8e2de2;
+            word-break: break-all;
+            font-family: monospace;
         }
         
         .file-info {
@@ -248,75 +250,82 @@
             cursor: pointer;
             font-weight: bold;
         }
+        
+        .data-section {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .data-text {
+            font-family: monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #38ef7d;
+            max-height: 100px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-paper-plane"></i> QuickShare PRO</h1>
-            <p>100% Working - Same Device File Sharing</p>
+            <h1><i class="fas fa-paper-plane"></i> QuickShare DIRECT</h1>
+            <p>File → Code → Share Code → Download</p>
         </header>
         
         <div class="app-body">
-            <h2 class="section-title"><i class="fas fa-upload"></i> File Sharing</h2>
-            
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                </div>
-                <h3>Click to select a file</h3>
-                <p>or drag and drop it here</p>
-                <input type="file" class="file-input" id="fileInput">
-            </div>
-
-            <div class="manual-section">
-                <h3><i class="fas fa-hand-point-right"></i> Manual Code Sharing</h3>
-                <p><strong>Same code dono browsers mein use karein</strong></p>
-                <div class="manual-input">
-                    <input type="text" id="manualCodeInput" maxlength="6" placeholder="123456" value="123456">
-                    <button class="manual-btn" id="setCodeBtn">
-                        <i class="fas fa-check"></i> Set Code
-                    </button>
-                </div>
-                <p><small>Tip: Dono browsers mein same code daalein (e.g., 123456)</small></p>
-            </div>
-            
-            <button class="btn" id="generateCodeBtn">
-                <i class="fas fa-bolt"></i> Generate Random Code
-            </button>
-            
-            <div class="share-section" id="shareSection">
-                <div class="code-display">
-                    <p><strong>Share this code with receiver:</strong></p>
-                    <div class="code" id="shareCode">000000</div>
-                    <p>Code expires in <span id="countdown">10:00</span></p>
-                </div>
-            </div>
-            
-            <div class="file-info" id="fileInfo">
-                <h3>File Information</h3>
-                <p><strong>Name:</strong> <span id="fileName">example.pdf</span></p>
-                <p><strong>Size:</strong> <span id="fileSize">0 MB</span></p>
-                <p><strong>Type:</strong> <span id="fileType">PDF Document</span></p>
-                <p><strong>Active Code:</strong> <span id="activeCode">None</span></p>
+            <!-- Sender Section -->
+            <div class="sender-section">
+                <h2 class="section-title"><i class="fas fa-upload"></i> Send File</h2>
                 
-                <div class="progress-bar">
-                    <div class="progress" id="uploadProgress"></div>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Click to select a file</h3>
+                    <p>or drag and drop it here</p>
+                    <input type="file" class="file-input" id="fileInput">
                 </div>
-                <p id="uploadStatus">Ready to share</p>
-            </div>
 
-            <div class="instructions">
-                <h3><i class="fas fa-info-circle"></i> 100% Working Steps</h3>
-                <ol>
-                    <li><strong>BROWSER 1 (Sender):</strong> File upload karo → "Set Code" click karo (e.g., 123456)</li>
-                    <li><strong>BROWSER 2 (Receiver):</strong> Same code daalo (123456) → "Set Code" click karo</li>
-                    <li><strong>BROWSER 2:</strong> "Connect & Download" click karo</li>
-                    <li><strong>RESULT:</strong> ✅ File download ho jayega!</li>
-                </ol>
-                <p style="margin-top: 15px; color: #4a00e0; font-weight: bold;">
-                    <i class="fas fa-lightbulb"></i> Tip: Dono browsers mein SAME CODE use karein
-                </p>
+                <div class="manual-section">
+                    <h3><i class="fas fa-key"></i> Step 1: Set Share Code</h3>
+                    <div class="manual-input">
+                        <input type="text" id="manualCodeInput" maxlength="6" placeholder="123456" value="123456">
+                        <button class="manual-btn" id="setCodeBtn">
+                            <i class="fas fa-check"></i> Set Code
+                        </button>
+                    </div>
+                </div>
+                
+                <button class="btn" id="generateFileCodeBtn">
+                    <i class="fas fa-bolt"></i> Step 2: Generate File Code
+                </button>
+                
+                <div class="share-section" id="shareSection">
+                    <h3><i class="fas fa-share-alt"></i> Share This Code</h3>
+                    <div class="code-display">
+                        <div class="code" id="fileDataCode">Waiting for file code...</div>
+                    </div>
+                    <div class="data-section" id="dataSection">
+                        <h4>File Data Code:</h4>
+                        <div class="data-text" id="fileDataText"></div>
+                        <p><small>Copy this entire code and share it</small></p>
+                    </div>
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <h3>File Information</h3>
+                    <p><strong>Name:</strong> <span id="fileName">example.pdf</span></p>
+                    <p><strong>Size:</strong> <span id="fileSize">0 MB</span></p>
+                    <p><strong>Type:</strong> <span id="fileType">PDF Document</span></p>
+                    <p><strong>Status:</strong> <span id="fileStatus">Ready</span></p>
+                </div>
             </div>
 
             <!-- Receiver Section -->
@@ -324,122 +333,91 @@
                 <h2 class="section-title"><i class="fas fa-download"></i> Receive File</h2>
                 
                 <div class="manual-section">
-                    <h3><i class="fas fa-key"></i> Enter Code to Download</h3>
+                    <h3><i class="fas fa-key"></i> Step 1: Enter Share Code</h3>
                     <div class="manual-input">
-                        <input type="text" id="receiverCodeInput" maxlength="6" placeholder="123456">
-                        <button class="btn btn-secondary" id="downloadBtn">
-                            <i class="fas fa-download"></i> Connect & Download
+                        <input type="text" id="receiverCodeInput" maxlength="6" placeholder="123456" value="123456">
+                        <button class="manual-btn" id="setReceiverCodeBtn">
+                            <i class="fas fa-check"></i> Set Code
                         </button>
                     </div>
                 </div>
+
+                <div class="manual-section">
+                    <h3><i class="fas fa-code"></i> Step 2: Paste File Data Code</h3>
+                    <textarea 
+                        id="fileDataInput" 
+                        placeholder="Paste the file data code here..." 
+                        rows="4"
+                        style="width: 100%; padding: 15px; border: 2px solid #8e2de2; border-radius: 10px; font-family: monospace; resize: vertical;"
+                    ></textarea>
+                </div>
+                
+                <button class="btn btn-secondary" id="downloadBtn">
+                    <i class="fas fa-download"></i> Step 3: Download File
+                </button>
                 
                 <div class="status" id="connectionStatus"></div>
                 
                 <div class="file-info" id="receiverFileInfo" style="display: none;">
-                    <h3>Downloading File</h3>
+                    <h3>File Ready to Download</h3>
                     <p><strong>Name:</strong> <span id="receiverFileName">example.pdf</span></p>
                     <p><strong>Size:</strong> <span id="receiverFileSize">0 MB</span></p>
-                    <p><strong>Sender:</strong> <span id="senderInfo">Unknown</span></p>
-                    
-                    <div class="progress-bar">
-                        <div class="progress" id="downloadProgress"></div>
-                    </div>
-                    <p id="downloadStatus">Connecting...</p>
+                    <p><strong>Type:</strong> <span id="receiverFileType">PDF Document</span></p>
+                    <p><strong>Status:</strong> <span id="receiverFileStatus">Ready</span></p>
                 </div>
+            </div>
+
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> How It Works - 100% Guaranteed</h3>
+                <ol>
+                    <li><strong>SENDER:</strong> File upload karo → "Set Code" (123456) → "Generate File Code"</li>
+                    <li><strong>SENDER:</strong> File data code copy karo (long code)</li>
+                    <li><strong>RECEIVER:</strong> Same share code daalo (123456) → File data code paste karo</li>
+                    <li><strong>RECEIVER:</strong> "Download File" click karo → ✅ File download ho jayega!</li>
+                </ol>
+                <p style="margin-top: 15px; color: #4a00e0; font-weight: bold;">
+                    <i class="fas fa-lightbulb"></i> File data code copy-paste karna hoga - yehi actual file data hai!
+                </p>
             </div>
         </div>
         
         <footer>
-            <p>QuickShare PRO &copy; 2023 | 100% Browser-Based Solution</p>
+            <p>QuickShare DIRECT &copy; 2023 | No Server Required - Pure Browser Solution</p>
         </footer>
     </div>
 
     <script>
-        // Global storage using localStorage with manual sync
-        const STORAGE_KEY = 'quickshare_files';
-        
-        // File data storage
-        let fileStorage = {
-            files: {},
-            lastUpdated: Date.now()
-        };
-
-        // Load storage
-        function loadStorage() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    return JSON.parse(stored);
-                }
-            } catch (e) {
-                console.log('Storage load failed');
-            }
-            return { files: {}, lastUpdated: Date.now() };
-        }
-
-        // Save storage
-        function saveStorage() {
-            try {
-                fileStorage.lastUpdated = Date.now();
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(fileStorage));
-            } catch (e) {
-                console.log('Storage save failed');
-            }
-        }
-
-        // Sync storage (polling method)
-        function startStorageSync() {
-            setInterval(() => {
-                try {
-                    const currentStorage = localStorage.getItem(STORAGE_KEY);
-                    if (currentStorage) {
-                        const parsed = JSON.parse(currentStorage);
-                        if (parsed.lastUpdated > fileStorage.lastUpdated) {
-                            fileStorage = parsed;
-                            console.log('Storage synced:', fileStorage);
-                        }
-                    }
-                } catch (e) {
-                    // Ignore errors
-                }
-            }, 1000);
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize storage
-            fileStorage = loadStorage();
-            startStorageSync();
-
             // DOM Elements
             const fileInput = document.getElementById('fileInput');
             const uploadArea = document.getElementById('uploadArea');
-            const generateCodeBtn = document.getElementById('generateCodeBtn');
+            const manualCodeInput = document.getElementById('manualCodeInput');
+            const setCodeBtn = document.getElementById('setCodeBtn');
+            const generateFileCodeBtn = document.getElementById('generateFileCodeBtn');
             const shareSection = document.getElementById('shareSection');
-            const shareCode = document.getElementById('shareCode');
+            const fileDataCode = document.getElementById('fileDataCode');
+            const dataSection = document.getElementById('dataSection');
+            const fileDataText = document.getElementById('fileDataText');
             const fileInfo = document.getElementById('fileInfo');
             const fileName = document.getElementById('fileName');
             const fileSize = document.getElementById('fileSize');
             const fileType = document.getElementById('fileType');
-            const activeCode = document.getElementById('activeCode');
-            const uploadProgress = document.getElementById('uploadProgress');
-            const uploadStatus = document.getElementById('uploadStatus');
-            const countdown = document.getElementById('countdown');
+            const fileStatus = document.getElementById('fileStatus');
             
-            const manualCodeInput = document.getElementById('manualCodeInput');
-            const setCodeBtn = document.getElementById('setCodeBtn');
             const receiverCodeInput = document.getElementById('receiverCodeInput');
+            const setReceiverCodeBtn = document.getElementById('setReceiverCodeBtn');
+            const fileDataInput = document.getElementById('fileDataInput');
             const downloadBtn = document.getElementById('downloadBtn');
             const connectionStatus = document.getElementById('connectionStatus');
             const receiverFileInfo = document.getElementById('receiverFileInfo');
             const receiverFileName = document.getElementById('receiverFileName');
             const receiverFileSize = document.getElementById('receiverFileSize');
-            const senderInfo = document.getElementById('senderInfo');
-            const downloadProgress = document.getElementById('downloadProgress');
-            const downloadStatus = document.getElementById('downloadStatus');
+            const receiverFileType = document.getElementById('receiverFileType');
+            const receiverFileStatus = document.getElementById('receiverFileStatus');
 
             let selectedFile = null;
             let currentShareCode = null;
-            let countdownInterval;
+            let fileDataURL = null;
 
             // Event Listeners
             uploadArea.addEventListener('click', () => fileInput.click());
@@ -464,15 +442,15 @@
                 }
             });
             
-            generateCodeBtn.addEventListener('click', generateRandomCode);
-            setCodeBtn.addEventListener('click', setManualCode);
+            setCodeBtn.addEventListener('click', setShareCode);
+            generateFileCodeBtn.addEventListener('click', generateFileCode);
+            setReceiverCodeBtn.addEventListener('click', setReceiverCode);
             downloadBtn.addEventListener('click', downloadFile);
 
             function handleFileSelect(file) {
                 selectedFile = file;
                 updateFileInfo();
-                uploadStatus.textContent = 'File selected. Set code to share.';
-                uploadProgress.style.width = '0%';
+                fileStatus.textContent = 'File selected. Set share code.';
             }
 
             function updateFileInfo() {
@@ -480,22 +458,13 @@
                 fileSize.textContent = formatFileSize(selectedFile.size);
                 fileType.textContent = getFileType(selectedFile.type);
                 fileInfo.style.display = 'block';
-                
-                if (currentShareCode) {
-                    activeCode.textContent = currentShareCode;
-                    activeCode.style.color = '#4a00e0';
-                    activeCode.style.fontWeight = 'bold';
-                } else {
-                    activeCode.textContent = 'Not set';
-                    activeCode.style.color = '#666';
-                }
             }
 
-            function setManualCode() {
+            function setShareCode() {
                 const code = manualCodeInput.value.trim();
                 
                 if (code.length !== 6) {
-                    alert('Please enter a 6-digit code!');
+                    alert('Please enter a 6-digit share code!');
                     return;
                 }
 
@@ -505,115 +474,118 @@
                 }
 
                 currentShareCode = code;
-                
-                // Convert file to Base64 for storage
+                fileStatus.textContent = `Share code set: ${code}. Now generate file code.`;
+                alert(`Share code ${code} set successfully! Now click "Generate File Code".`);
+            }
+
+            function generateFileCode() {
+                if (!currentShareCode) {
+                    alert('Please set a share code first!');
+                    return;
+                }
+
+                if (!selectedFile) {
+                    alert('Please select a file first!');
+                    return;
+                }
+
+                fileStatus.textContent = 'Converting file to code...';
+
+                // Convert file to Base64 data URL
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    fileDataURL = e.target.result;
+                    
+                    // Create file data object
                     const fileData = {
-                        fileName: selectedFile.name,
-                        fileSize: selectedFile.size,
-                        fileType: selectedFile.type,
-                        fileData: e.target.result,
+                        name: selectedFile.name,
+                        type: selectedFile.type,
+                        size: selectedFile.size,
+                        data: fileDataURL,
+                        shareCode: currentShareCode,
                         timestamp: Date.now()
                     };
+
+                    // Convert to JSON string and compress slightly
+                    const fileDataString = JSON.stringify(fileData);
                     
-                    // Save to storage
-                    fileStorage.files[currentShareCode] = fileData;
-                    saveStorage();
+                    // Display the file data code
+                    fileDataCode.textContent = `Code for ${currentShareCode}`;
+                    fileDataText.textContent = fileDataString;
                     
-                    // Update UI
-                    shareCode.textContent = currentShareCode;
                     shareSection.style.display = 'block';
-                    updateFileInfo();
+                    dataSection.style.display = 'block';
+                    fileStatus.textContent = 'File code generated! Copy and share the code below.';
                     
-                    // Start countdown
-                    startCountdown();
+                    // Auto-select the text for easy copying
+                    setTimeout(() => {
+                        fileDataText.select();
+                    }, 100);
                     
-                    uploadStatus.textContent = `Code ${currentShareCode} set! File is now shareable.`;
-                    alert(`SUCCESS! Code ${currentShareCode} activated.\n\nAb receiver side pe bhi yehi code use karo.`);
+                    alert(`FILE CODE GENERATED!\n\nCopy the code from the "File Data Code" section and share it with the receiver.\n\nShare Code: ${currentShareCode}`);
                 };
                 reader.readAsDataURL(selectedFile);
             }
 
-            function generateRandomCode() {
-                const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
-                manualCodeInput.value = randomCode;
-                alert(`Generated code: ${randomCode}\n\nAb "Set Code" button click karo to activate.`);
-            }
-
-            function startCountdown() {
-                let timeLeft = 600;
-                updateCountdown(timeLeft);
-                
-                clearInterval(countdownInterval);
-                countdownInterval = setInterval(() => {
-                    timeLeft--;
-                    updateCountdown(timeLeft);
-                    
-                    if (timeLeft <= 0) {
-                        clearInterval(countdownInterval);
-                        shareSection.style.display = 'none';
-                        if (currentShareCode) {
-                            delete fileStorage.files[currentShareCode];
-                            saveStorage();
-                        }
-                        alert('Share code has expired. Please set a new code.');
-                    }
-                }, 1000);
-            }
-
-            function updateCountdown(seconds) {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                countdown.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-            }
-
-            function downloadFile() {
+            function setReceiverCode() {
                 const code = receiverCodeInput.value.trim();
                 
                 if (code.length !== 6) {
-                    showStatus('Please enter a 6-digit code.', 'error');
+                    alert('Please enter a 6-digit share code!');
                     return;
                 }
 
-                // Check if file exists in storage
-                const fileData = fileStorage.files[code];
+                showStatus(`Share code set: ${code}. Now paste file data code.`, 'success');
+            }
+
+            function downloadFile() {
+                const shareCode = receiverCodeInput.value.trim();
+                const fileDataString = fileDataInput.value.trim();
                 
-                if (!fileData) {
-                    showStatus('File not found. Please check the code or ask sender to share file.', 'error');
+                if (!shareCode) {
+                    showStatus('Please set a share code first.', 'error');
                     return;
                 }
 
-                // Show file info
-                receiverFileName.textContent = fileData.fileName;
-                receiverFileSize.textContent = formatFileSize(fileData.fileSize);
-                senderInfo.textContent = 'User-' + Math.floor(Math.random() * 1000);
-                
-                receiverFileInfo.style.display = 'block';
-                downloadStatus.textContent = 'Downloading...';
-                showStatus('Connected successfully! Downloading file...', 'success');
+                if (!fileDataString) {
+                    showStatus('Please paste the file data code.', 'error');
+                    return;
+                }
 
-                // Simulate download progress
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += Math.random() * 15;
-                    if (progress >= 100) {
-                        progress = 100;
-                        clearInterval(progressInterval);
-                        downloadStatus.textContent = 'Download complete!';
-                        
-                        // Create actual download
-                        const a = document.createElement('a');
-                        a.href = fileData.fileData;
-                        a.download = fileData.fileName;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        
-                        showStatus('File downloaded successfully!', 'success');
+                try {
+                    // Parse the file data
+                    const fileData = JSON.parse(fileDataString);
+                    
+                    // Verify share code
+                    if (fileData.shareCode !== shareCode) {
+                        showStatus('Share code does not match file data.', 'error');
+                        return;
                     }
-                    downloadProgress.style.width = progress + '%';
-                }, 200);
+
+                    // Show file info
+                    receiverFileName.textContent = fileData.name;
+                    receiverFileSize.textContent = formatFileSize(fileData.size);
+                    receiverFileType.textContent = getFileType(fileData.type);
+                    receiverFileStatus.textContent = 'Ready to download';
+                    
+                    receiverFileInfo.style.display = 'block';
+                    showStatus('File verified! Downloading...', 'success');
+
+                    // Create download
+                    const a = document.createElement('a');
+                    a.href = fileData.data;
+                    a.download = fileData.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    receiverFileStatus.textContent = 'Download completed!';
+                    showStatus('File downloaded successfully!', 'success');
+                    
+                } catch (error) {
+                    console.error('Error parsing file data:', error);
+                    showStatus('Invalid file data code. Please check and try again.', 'error');
+                }
             }
 
             function showStatus(message, type) {
@@ -646,10 +618,10 @@
                 return typeMap[mimeType] || mimeType || 'Unknown File Type';
             }
 
-            // Auto-set demo file
+            // Demo instructions
             setTimeout(() => {
                 if (!selectedFile) {
-                    uploadStatus.textContent = 'Select a file or use demo file below';
+                    fileStatus.textContent = 'Select a file to begin sharing';
                 }
             }, 1000);
         });
