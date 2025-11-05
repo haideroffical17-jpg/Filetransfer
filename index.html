@@ -264,6 +264,27 @@
                 letter-spacing: 8px;
             }
         }
+
+        .debug-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .debug-toggle {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -306,6 +327,14 @@
                         <div class="progress" id="uploadProgress"></div>
                     </div>
                     <p id="uploadStatus">Ready to send</p>
+                </div>
+
+                <button class="debug-toggle" id="debugToggle">Show Debug Info</button>
+                <div class="debug-info" id="debugInfo">
+                    <h4>Debug Information</h4>
+                    <p><strong>Generated Code:</strong> <span id="debugCode">None</span></p>
+                    <p><strong>Entered Code:</strong> <span id="debugEnteredCode">None</span></p>
+                    <p><strong>Match Status:</strong> <span id="debugMatchStatus">Not checked</span></p>
                 </div>
             </div>
             
@@ -383,6 +412,13 @@
             const downloadProgress = document.getElementById('downloadProgress');
             const downloadStatus = document.getElementById('downloadStatus');
             const downloadBtn = document.getElementById('downloadBtn');
+
+            // Debug elements
+            const debugToggle = document.getElementById('debugToggle');
+            const debugInfo = document.getElementById('debugInfo');
+            const debugCode = document.getElementById('debugCode');
+            const debugEnteredCode = document.getElementById('debugEnteredCode');
+            const debugMatchStatus = document.getElementById('debugMatchStatus');
             
             // Variables
             let selectedFile = null;
@@ -415,6 +451,7 @@
             generateCodeBtn.addEventListener('click', generateShareCode);
             connectBtn.addEventListener('click', connectToSender);
             downloadBtn.addEventListener('click', downloadFile);
+            debugToggle.addEventListener('click', toggleDebugInfo);
             
             // Functions
             function handleFileSelect(file) {
@@ -441,6 +478,9 @@
                 shareCodeValue = Math.floor(100000 + Math.random() * 900000).toString();
                 shareCode.textContent = shareCodeValue;
                 codeDisplay.style.display = 'block';
+                
+                // Update debug info
+                debugCode.textContent = shareCodeValue;
                 
                 // Start countdown timer (10 minutes)
                 let timeLeft = 600; // 10 minutes in seconds
@@ -470,21 +510,39 @@
             function connectToSender() {
                 const enteredCode = codeInput.value.trim();
                 
+                // Update debug info
+                debugEnteredCode.textContent = enteredCode;
+                
                 if (enteredCode.length !== 6) {
                     showStatus('Please enter a valid 6-digit code.', 'error');
+                    debugMatchStatus.textContent = 'Invalid length';
+                    debugMatchStatus.style.color = '#e74c3c';
                     return;
                 }
                 
-                // In a real app, this would connect to a server to validate the code
-                // For this demo, we'll simulate the connection process
+                // IMPROVED CODE VALIDATION
+                console.log("Generated Code:", shareCodeValue);
+                console.log("Entered Code:", enteredCode);
+                console.log("Match:", shareCodeValue === enteredCode);
                 
-                // Improved code validation
+                if (shareCodeValue === '' || shareCodeValue === '000000') {
+                    showStatus('No active share code found. Ask the sender to generate a new code.', 'error');
+                    debugMatchStatus.textContent = 'No active code';
+                    debugMatchStatus.style.color = '#e74c3c';
+                    return;
+                }
+                
                 if (enteredCode !== shareCodeValue) {
                     showStatus('Invalid code. Please check and try again.', 'error');
+                    debugMatchStatus.textContent = 'No match';
+                    debugMatchStatus.style.color = '#e74c3c';
                     return;
                 }
                 
+                // Code is valid
                 showStatus('Connected successfully! Receiving file information...', 'success');
+                debugMatchStatus.textContent = 'Match successful';
+                debugMatchStatus.style.color = '#11998e';
                 
                 // Simulate file transfer
                 setTimeout(() => {
@@ -530,6 +588,16 @@
                 connectionStatus.className = 'status';
                 connectionStatus.classList.add(`status-${type}`);
                 connectionStatus.style.display = 'block';
+            }
+            
+            function toggleDebugInfo() {
+                if (debugInfo.style.display === 'none' || debugInfo.style.display === '') {
+                    debugInfo.style.display = 'block';
+                    debugToggle.textContent = 'Hide Debug Info';
+                } else {
+                    debugInfo.style.display = 'none';
+                    debugToggle.textContent = 'Show Debug Info';
+                }
             }
             
             function formatFileSize(bytes) {
