@@ -60,6 +60,9 @@
             margin-bottom: 20px;
             max-height: 150px;
             overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 10px;
         }
         .file-list div {
             padding: 8px 0;
@@ -74,19 +77,25 @@
         .file-name {
             font-weight: bold;
             color: #555;
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .file-size {
             color: #888;
             font-size: 0.9em;
+            margin-left: 10px;
         }
         .progress-bar-container {
             width: 100%;
             background-color: #e0e0e0;
             border-radius: 5px;
             margin-top: 10px;
+            height: 10px; /* Fixed height */
         }
         .progress-bar {
-            height: 10px;
+            height: 100%;
             background-color: #28a745;
             width: 0%;
             border-radius: 5px;
@@ -102,6 +111,8 @@
             font-size: 1em;
             margin-top: 10px;
             transition: background-color 0.3s ease;
+            text-decoration: none; /* For download link */
+            display: inline-block;
         }
         .button:hover {
             background-color: #0056b3;
@@ -112,6 +123,8 @@
             color: #28a745;
             margin: 20px 0;
             letter-spacing: 3px;
+            user-select: all; /* Allows easy selection */
+            cursor: pointer;
         }
         .input-group {
             margin-top: 20px;
@@ -137,6 +150,17 @@
             color: #dc3545;
             margin-top: 10px;
         }
+        .download-link {
+            display: block;
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .download-link:hover {
+            color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -156,7 +180,7 @@
                 <div id="uploadProgressBar" class="progress-bar"></div>
             </div>
             <button id="generateCodeBtn" class="button" disabled>Generate Share Code</button>
-            <div id="shareCodeDisplay" class="code-display"></div>
+            <div id="shareCodeDisplay" class="code-display" title="Click to copy code"></div>
             <p class="status-message" id="senderStatus">Waiting for files...</p>
         </div>
 
@@ -168,10 +192,11 @@
             </div>
             <p class="status-message" id="receiverStatus">Enter code to connect...</p>
             <p class="error-message" id="receiverError"></p>
-            <button id="downloadBtn" class="button" style="display: none;">Download File</button>
             <div id="downloadProgressContainer" class="progress-bar-container" style="display: none;">
                 <div id="downloadProgressBar" class="progress-bar"></div>
             </div>
+            <a id="downloadLink" class="button" style="display: none;" download="transferred_files.zip">Download All Files</a>
+            <p class="status-message" id="downloadCompleteMessage" style="display: none; color: #28a745; font-weight: bold;">Download Complete!</p>
         </div>
     </div>
 
@@ -188,11 +213,13 @@
         const connectBtn = document.getElementById('connectBtn');
         const receiverStatus = document.getElementById('receiverStatus');
         const receiverError = document.getElementById('receiverError');
-        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadLink = document.getElementById('downloadLink');
         const downloadProgressContainer = document.getElementById('downloadProgressContainer');
         const downloadProgressBar = document.getElementById('downloadProgressBar');
+        const downloadCompleteMessage = document.getElementById('downloadCompleteMessage');
 
         let uploadedFiles = []; // To store file objects
+        let currentShareCode = ''; // Store the generated code
 
         // --- Sender Side Logic ---
 
@@ -250,7 +277,6 @@
                 fileEntry.innerHTML = `<span class="file-name">${file.name}</span><span class="file-size">(${fileSize} MB)</span>`;
                 fileList.appendChild(fileEntry);
             }
-            // For a real app, you'd start uploading here and update progress
             simulateUploadProgress();
         }
 
@@ -261,20 +287,29 @@
                 uploadProgressBar.style.width = `${progress}%`;
                 if (progress >= 100) {
                     clearInterval(interval);
-                    senderStatus.textContent = "Files ready for sharing.";
+                    senderStatus.textContent = "Files ready for sharing. Generate code.";
                 }
-            }, 200);
+            }, 100);
         }
 
         generateCodeBtn.addEventListener('click', () => {
             if (uploadedFiles.length > 0) {
-                const code = generateSixDigitCode();
-                shareCodeDisplay.textContent = code;
-                senderStatus.textContent = `Share this code: ${code}`;
+                currentShareCode = generateSixDigitCode();
+                shareCodeDisplay.textContent = currentShareCode;
+                senderStatus.textContent = `Share this code: ${currentShareCode}`;
                 // In a real app, send this code and file metadata to your backend
-                // Backend would associate the code with the files.
             } else {
                 alert("Please upload files first.");
+            }
+        });
+
+        shareCodeDisplay.addEventListener('click', () => {
+            if (currentShareCode) {
+                navigator.clipboard.writeText(currentShareCode).then(() => {
+                    alert('Code copied to clipboard!');
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
             }
         });
 
@@ -292,6 +327,9 @@
         connectBtn.addEventListener('click', () => {
             const enteredCode = receiverCodeInput.value.toUpperCase().trim();
             receiverError.textContent = ''; // Clear previous errors
+            downloadLink.style.display = 'none'; // Hide download link
+            downloadProgressContainer.style.display = 'none'; // Hide download progress
+            downloadCompleteMessage.style.display = 'none'; // Hide complete message
 
             if (enteredCode.length !== 6) {
                 receiverError.textContent = "Please enter a valid 6-digit code.";
@@ -299,35 +337,22 @@
             }
 
             receiverStatus.textContent = `Attempting to connect with code: ${enteredCode}...`;
-            // In a real app, send this code to your backend
-            // Backend would verify the code and initiate file transfer
-            simulateConnectionAndDownload(enteredCode);
+            simulateConnectionAndDirectDownload(enteredCode);
         });
 
-        function simulateConnectionAndDownload(code) {
+        function simulateConnectionAndDirectDownload(code) {
             // Simulate a server check
             setTimeout(() => {
-                // For demonstration, let's assume 'ABCD12' is a valid code
-                if (code === shareCodeDisplay.textContent && shareCodeDisplay.textContent !== '') {
-                    receiverStatus.textContent = "Connected! Files are ready to download.";
-                    downloadBtn.style.display = 'block';
+                if (code === currentShareCode && currentShareCode !== '') {
+                    receiverStatus.textContent = "Connected! Initiating download...";
                     downloadProgressContainer.style.display = 'block';
-                    downloadProgressBar.style.width = '0%';
+                    simulateDownloadProgress(); // Direct download starts here
                 } else {
                     receiverError.textContent = "Invalid or expired code. Please try again.";
                     receiverStatus.textContent = "Enter code to connect...";
-                    downloadBtn.style.display = 'none';
-                    downloadProgressContainer.style.display = 'none';
                 }
-            }, 1500); // Simulate network delay
+            }, 1000); // Simulate network delay
         }
-
-        downloadBtn.addEventListener('click', () => {
-            receiverStatus.textContent = "Downloading...";
-            simulateDownloadProgress();
-            // In a real app, trigger actual file download here
-            // e.g., window.location.href = `/download/${receiverCodeInput.value}`;
-        });
 
         function simulateDownloadProgress() {
             let progress = 0;
@@ -336,10 +361,21 @@
                 downloadProgressBar.style.width = `${progress}%`;
                 if (progress >= 100) {
                     clearInterval(interval);
-                    receiverStatus.textContent = "Download Complete!";
-                    downloadBtn.style.display = 'none'; // Hide download button after completion
+                    receiverStatus.textContent = "Download preparation complete.";
+                    // This is where a real download link would be provided by a backend
+                    // For demo, we create a dummy link.
+                    const dummyBlob = new Blob(["This is a dummy file content for demonstration."], { type: "text/plain" });
+                    const dummyUrl = URL.createObjectURL(dummyBlob);
+                    downloadLink.href = dummyUrl;
+                    downloadLink.style.display = 'block';
+                    downloadCompleteMessage.style.display = 'block';
+                    // Optional: Automatically click the download link
+                    // downloadLink.click();
+                    // URL.revokeObjectURL(dummyUrl); // Clean up after download
+
+                    // In a real app, the backend would send actual file(s)
                 }
-            }, 200);
+            }, 150);
         }
 
     </script>
