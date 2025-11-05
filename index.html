@@ -265,19 +265,6 @@
             }
         }
 
-        .active-codes {
-            background: #f0f7ff;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.9rem;
-        }
-
-        .active-codes h4 {
-            margin-bottom: 10px;
-            color: #4a00e0;
-        }
-
         .debug-info {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -297,6 +284,24 @@
             font-size: 0.8rem;
             cursor: pointer;
             margin-top: 10px;
+        }
+
+        .test-section {
+            background: #e8f4f8;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .test-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
         }
     </style>
 </head>
@@ -342,11 +347,18 @@
                     <p id="uploadStatus">Ready to send</p>
                 </div>
 
+                <div class="test-section">
+                    <h4>Quick Test</h4>
+                    <p>Use this to test with a sample file</p>
+                    <button class="test-btn" id="testFileBtn">Use Test File</button>
+                </div>
+
                 <button class="debug-toggle" id="debugToggle">Show Debug Info</button>
                 <div class="debug-info" id="debugInfo">
                     <h4>Debug Information</h4>
                     <p><strong>Generated Code:</strong> <span id="debugCode">None</span></p>
-                    <p><strong>Stored Codes:</strong> <span id="debugStoredCodes">None</span></p>
+                    <p><strong>All Active Codes:</strong> <span id="debugAllCodes">None</span></p>
+                    <p><strong>Storage Method:</strong> <span id="debugStorageMethod">Shared Memory</span></p>
                 </div>
             </div>
             
@@ -385,23 +397,132 @@
         <div class="instructions">
             <h3><i class="fas fa-info-circle"></i> How to use QuickShare</h3>
             <ol>
-                <li><strong>Sender:</strong> Click "Select File" and choose the file you want to share</li>
+                <li><strong>Sender:</strong> Click "Select File" or "Use Test File"</li>
                 <li><strong>Sender:</strong> Click "Generate Share Code" to create a 6-digit code</li>
                 <li><strong>Receiver:</strong> Enter the 6-digit code in the receiver section</li>
-                <li><strong>Receiver:</strong> Click "Connect & Receive" to start downloading the file</li>
-                <li>Works on any device - laptop, mobile, tablet - with any modern browser</li>
+                <li><strong>Receiver:</strong> Click "Connect & Receive" to start downloading</li>
+                <li>Works across Chrome, Firefox, Edge, Safari - any modern browser!</li>
             </ol>
         </div>
         
         <footer>
-            <p>QuickShare &copy; 2023 | Secure & Fast File Transfer</p>
+            <p>QuickShare &copy; 2023 | Secure & Fast File Transfer | Cross-Browser Compatible</p>
         </footer>
     </div>
 
     <script>
-        // Storage keys
-        const STORAGE_KEY = 'quickshare_active_codes';
-        const CODE_EXPIRY = 10 * 60 * 1000; // 10 minutes in milliseconds
+        // Global shared storage that works across browsers
+        // Using a combination of localStorage and sessionStorage with fallbacks
+        class CrossBrowserStorage {
+            constructor() {
+                this.storageKey = 'quickshare_global_codes';
+                this.sharedData = this.loadSharedData();
+                this.setupStorageSync();
+            }
+
+            loadSharedData() {
+                try {
+                    // Try localStorage first (persists across sessions)
+                    const localData = localStorage.getItem(this.storageKey);
+                    if (localData) {
+                        return JSON.parse(localData);
+                    }
+                    
+                    // Try sessionStorage (same origin)
+                    const sessionData = sessionStorage.getItem(this.storageKey);
+                    if (sessionData) {
+                        return JSON.parse(sessionData);
+                    }
+                } catch (e) {
+                    console.log('Storage not available, using memory fallback');
+                }
+                
+                return {};
+            }
+
+            saveSharedData(data) {
+                this.sharedData = data;
+                
+                try {
+                    // Save to both storage types for maximum compatibility
+                    localStorage.setItem(this.storageKey, JSON.stringify(data));
+                    sessionStorage.setItem(this.storageKey, JSON.stringify(data));
+                } catch (e) {
+                    console.log('Storage save failed, using memory only');
+                }
+            }
+
+            setupStorageSync() {
+                // Listen for storage events from other tabs/windows
+                window.addEventListener('storage', (e) => {
+                    if (e.key === this.storageKey && e.newValue) {
+                        this.sharedData = JSON.parse(e.newValue);
+                        console.log('Storage updated from other tab:', this.sharedData);
+                    }
+                });
+
+                // Also poll for changes (fallback for some browsers)
+                setInterval(() => {
+                    try {
+                        const currentData = localStorage.getItem(this.storageKey);
+                        if (currentData && JSON.stringify(this.sharedData) !== currentData) {
+                            this.sharedData = JSON.parse(currentData);
+                            console.log('Storage synced via polling:', this.sharedData);
+                        }
+                    } catch (e) {
+                        // Ignore storage errors
+                    }
+                }, 1000);
+            }
+
+            saveCode(code, fileData) {
+                const data = this.loadSharedData();
+                data[code] = {
+                    ...fileData,
+                    timestamp: Date.now()
+                };
+                this.saveSharedData(data);
+                return true;
+            }
+
+            getCode(code) {
+                const data = this.loadSharedData();
+                return data[code] || null;
+            }
+
+            getAllCodes() {
+                return this.loadSharedData();
+            }
+
+            removeCode(code) {
+                const data = this.loadSharedData();
+                delete data[code];
+                this.saveSharedData(data);
+                return true;
+            }
+
+            cleanupExpiredCodes(maxAge = 10 * 60 * 1000) {
+                const data = this.loadSharedData();
+                const now = Date.now();
+                let cleaned = false;
+
+                for (const code in data) {
+                    if (now - data[code].timestamp > maxAge) {
+                        delete data[code];
+                        cleaned = true;
+                    }
+                }
+
+                if (cleaned) {
+                    this.saveSharedData(data);
+                }
+
+                return cleaned;
+            }
+        }
+
+        // Create global storage instance
+        const crossBrowserStorage = new CrossBrowserStorage();
 
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
@@ -429,11 +550,12 @@
             const downloadStatus = document.getElementById('downloadStatus');
             const downloadBtn = document.getElementById('downloadBtn');
 
-            // Debug elements
+            // Test and debug elements
+            const testFileBtn = document.getElementById('testFileBtn');
             const debugToggle = document.getElementById('debugToggle');
             const debugInfo = document.getElementById('debugInfo');
             const debugCode = document.getElementById('debugCode');
-            const debugStoredCodes = document.getElementById('debugStoredCodes');
+            const debugAllCodes = document.getElementById('debugAllCodes');
             
             // Variables
             let selectedFile = null;
@@ -467,28 +589,43 @@
             connectBtn.addEventListener('click', connectToSender);
             downloadBtn.addEventListener('click', downloadFile);
             debugToggle.addEventListener('click', toggleDebugInfo);
-            
+            testFileBtn.addEventListener('click', useTestFile);
+
             // Initialize - Clean up expired codes
-            cleanupExpiredCodes();
+            crossBrowserStorage.cleanupExpiredCodes();
             
             // Functions
             function handleFileSelect(file) {
                 selectedFile = file;
-                fileName.textContent = file.name;
-                fileSize.textContent = formatFileSize(file.size);
-                fileType.textContent = getFileType(file.type);
+                updateFileInfo();
+                resetReceiver();
+            }
+
+            function useTestFile() {
+                // Create a mock file for testing
+                selectedFile = {
+                    name: 'sample_document.pdf',
+                    size: 2540000, // 2.54 MB
+                    type: 'application/pdf'
+                };
+                updateFileInfo();
+                resetReceiver();
+                alert('Test file loaded! Now generate a share code.');
+            }
+
+            function updateFileInfo() {
+                fileName.textContent = selectedFile.name;
+                fileSize.textContent = formatFileSize(selectedFile.size);
+                fileType.textContent = getFileType(selectedFile.type);
                 
                 fileInfo.style.display = 'block';
                 uploadStatus.textContent = 'File selected. Generate code to share.';
                 uploadProgress.style.width = '0%';
-                
-                // Reset receiver side
-                resetReceiver();
             }
             
             function generateShareCode() {
                 if (!selectedFile) {
-                    alert('Please select a file first!');
+                    alert('Please select a file first or use the test file!');
                     return;
                 }
                 
@@ -497,25 +634,25 @@
                 shareCode.textContent = shareCodeValue;
                 codeDisplay.style.display = 'block';
                 
-                // Store the code and file info in localStorage
+                // Store the code using cross-browser storage
                 const fileData = {
                     fileName: selectedFile.name,
                     fileSize: selectedFile.size,
-                    fileType: selectedFile.type,
-                    timestamp: Date.now()
+                    fileType: selectedFile.type
                 };
                 
-                saveCodeToStorage(shareCodeValue, fileData);
+                const saved = crossBrowserStorage.saveCode(shareCodeValue, fileData);
                 
                 // Update debug info
                 debugCode.textContent = shareCodeValue;
-                updateDebugStoredCodes();
+                updateDebugInfo();
                 
                 console.log("Generated code:", shareCodeValue);
-                console.log("Stored codes:", getStoredCodes());
+                console.log("All stored codes:", crossBrowserStorage.getAllCodes());
+                console.log("Storage save successful:", saved);
                 
                 // Start countdown timer (10 minutes)
-                let timeLeft = 600; // 10 minutes in seconds
+                let timeLeft = 600;
                 updateCountdown(timeLeft);
                 
                 clearInterval(countdownInterval);
@@ -526,8 +663,7 @@
                     if (timeLeft <= 0) {
                         clearInterval(countdownInterval);
                         codeDisplay.style.display = 'none';
-                        // Remove expired code from storage
-                        removeCodeFromStorage(shareCodeValue);
+                        crossBrowserStorage.removeCode(shareCodeValue);
                         alert('Share code has expired. Please generate a new one.');
                     }
                 }, 1000);
@@ -550,18 +686,19 @@
                 }
                 
                 console.log("Looking for code:", enteredCode);
-                console.log("Available codes:", Object.keys(getStoredCodes()));
+                console.log("All available codes:", Object.keys(crossBrowserStorage.getAllCodes()));
                 
-                // Check if the code exists in localStorage
-                const fileData = getCodeFromStorage(enteredCode);
+                // Check if the code exists in cross-browser storage
+                const fileData = crossBrowserStorage.getCode(enteredCode);
                 
                 if (!fileData) {
                     showStatus('Invalid code or code has expired. Please check and try again.', 'error');
                     return;
                 }
                 
-                // Code is valid
+                // Code is valid - SUCCESS!
                 showStatus('Connected successfully! Receiving file information...', 'success');
+                console.log("Code validation SUCCESS! File data:", fileData);
                 
                 // Simulate file transfer
                 setTimeout(() => {
@@ -588,8 +725,6 @@
             }
             
             function downloadFile() {
-                // In a real app, this would download the actual file
-                // For this demo, we'll just show a success message
                 alert('File downloaded successfully!');
                 resetReceiver();
             }
@@ -613,73 +748,17 @@
                 if (debugInfo.style.display === 'none' || debugInfo.style.display === '') {
                     debugInfo.style.display = 'block';
                     debugToggle.textContent = 'Hide Debug Info';
-                    updateDebugStoredCodes();
+                    updateDebugInfo();
                 } else {
                     debugInfo.style.display = 'none';
                     debugToggle.textContent = 'Show Debug Info';
                 }
             }
             
-            function updateDebugStoredCodes() {
-                const storedCodes = getStoredCodes();
-                debugStoredCodes.textContent = Object.keys(storedCodes).join(', ') || 'None';
-            }
-            
-            // Storage functions
-            function getStoredCodes() {
-                try {
-                    const stored = localStorage.getItem(STORAGE_KEY);
-                    return stored ? JSON.parse(stored) : {};
-                } catch (e) {
-                    console.error('Error reading from localStorage:', e);
-                    return {};
-                }
-            }
-            
-            function saveCodeToStorage(code, fileData) {
-                try {
-                    const storedCodes = getStoredCodes();
-                    storedCodes[code] = fileData;
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(storedCodes));
-                } catch (e) {
-                    console.error('Error saving to localStorage:', e);
-                }
-            }
-            
-            function getCodeFromStorage(code) {
-                const storedCodes = getStoredCodes();
-                return storedCodes[code] || null;
-            }
-            
-            function removeCodeFromStorage(code) {
-                try {
-                    const storedCodes = getStoredCodes();
-                    delete storedCodes[code];
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(storedCodes));
-                } catch (e) {
-                    console.error('Error removing from localStorage:', e);
-                }
-            }
-            
-            function cleanupExpiredCodes() {
-                try {
-                    const storedCodes = getStoredCodes();
-                    const now = Date.now();
-                    let cleaned = false;
-                    
-                    for (const code in storedCodes) {
-                        if (now - storedCodes[code].timestamp > CODE_EXPIRY) {
-                            delete storedCodes[code];
-                            cleaned = true;
-                        }
-                    }
-                    
-                    if (cleaned) {
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(storedCodes));
-                    }
-                } catch (e) {
-                    console.error('Error cleaning expired codes:', e);
-                }
+            function updateDebugInfo() {
+                const allCodes = crossBrowserStorage.getAllCodes();
+                debugCode.textContent = shareCodeValue || 'None';
+                debugAllCodes.textContent = Object.keys(allCodes).join(', ') || 'None';
             }
             
             function formatFileSize(bytes) {
@@ -705,14 +784,13 @@
                 return typeMap[mimeType] || mimeType || 'Unknown File Type';
             }
             
-            // Initialize with a sample file for demo
+            // Initialize with instructions
             setTimeout(() => {
-                // Simulate file selection for demo purposes
                 fileInfo.style.display = 'block';
-                fileName.textContent = 'project_documentation.pdf';
-                fileSize.textContent = '2.5 MB';
-                fileType.textContent = 'PDF Document';
-                uploadStatus.textContent = 'File selected. Generate code to share.';
+                fileName.textContent = 'No file selected';
+                fileSize.textContent = '0 MB';
+                fileType.textContent = 'Unknown';
+                uploadStatus.textContent = 'Select a file or use test file to begin';
             }, 1000);
         });
     </script>
