@@ -3,381 +3,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live File Share App</title>
+    <title>QuickShare - Live File Transfer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: #f4f7f6;
-            margin: 0;
+            padding: 20px;
+            color: #333;
         }
+        
         .container {
-            display: flex;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            width: 90%;
-            max-width: 1200px;
         }
-        .panel {
+        
+        header {
+            background: linear-gradient(90deg, #4a00e0, #8e2de2);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .app-body {
+            display: flex;
+            min-height: 500px;
+        }
+        
+        .sender-section, .receiver-section {
             flex: 1;
             padding: 30px;
-            text-align: center;
             border-right: 1px solid #eee;
         }
-        .panel:last-child {
+        
+        .receiver-section {
             border-right: none;
         }
-        h2 {
-            color: #333;
+        
+        .section-title {
+            font-size: 1.5rem;
             margin-bottom: 25px;
+            color: #4a00e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .drop-area {
-            border: 2px dashed #007bff;
-            border-radius: 8px;
+        
+        .upload-area {
+            border: 3px dashed #8e2de2;
+            border-radius: 15px;
             padding: 40px 20px;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 25px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s;
         }
-        .drop-area.highlight {
-            background-color: #e6f2ff;
+        
+        .upload-area:hover {
+            background-color: #f8f5ff;
+            transform: translateY(-5px);
         }
-        .drop-area p {
-            color: #007bff;
-            margin: 0;
-            font-size: 1.1em;
+        
+        .upload-icon {
+            font-size: 50px;
+            color: #8e2de2;
+            margin-bottom: 15px;
         }
-        input[type="file"] {
+        
+        .file-input {
             display: none;
         }
-        .file-list {
-            text-align: left;
-            margin-bottom: 20px;
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            padding: 10px;
-        }
-        .file-list div {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .file-list div:last-child {
-            border-bottom: none;
-        }
-        .file-name {
-            font-weight: bold;
-            color: #555;
-            flex-grow: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .file-size {
-            color: #888;
-            font-size: 0.9em;
-            margin-left: 10px;
-        }
-        .progress-bar-container {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            margin-top: 10px;
-            height: 10px; /* Fixed height */
-        }
-        .progress-bar {
-            height: 100%;
-            background-color: #28a745;
-            width: 0%;
-            border-radius: 5px;
-            transition: width 0.3s ease;
-        }
-        .button {
-            background-color: #007bff;
+        
+        .btn {
+            background: linear-gradient(90deg, #4a00e0, #8e2de2);
             color: white;
-            padding: 12px 25px;
             border: none;
-            border-radius: 5px;
+            padding: 14px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
             cursor: pointer;
-            font-size: 1em;
-            margin-top: 10px;
-            transition: background-color 0.3s ease;
-            text-decoration: none; /* For download link */
-            display: inline-block;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .code-display {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #28a745;
-            margin: 20px 0;
-            letter-spacing: 3px;
-            user-select: all; /* Allows easy selection */
-            cursor: pointer;
-        }
-        .input-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
+            transition: all 0.3s;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 15px;
         }
-        .input-group input {
-            padding: 10px 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1.1em;
-            width: 180px;
-            margin-right: 10px;
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(142, 45, 226, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+        }
+        
+        .code-display {
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
+            margin: 25px 0;
+            display: none;
         }
-        .status-message {
-            margin-top: 20px;
-            font-size: 1.1em;
-            color: #555;
+        
+        .code {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 10px;
+            color: #4a00e0;
+            margin: 15px 0;
         }
-        .error-message {
-            color: #dc3545;
-            margin-top: 10px;
+        
+        .input-group {
+            margin-bottom: 25px;
         }
-        .download-link {
+        
+        .input-group label {
             display: block;
-            margin-top: 20px;
-            font-size: 1.1em;
-            color: #007bff;
-            text-decoration: underline;
-            cursor: pointer;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
-        .download-link:hover {
-            color: #0056b3;
+        
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 5px;
+            transition: all 0.3s;
+        }
+        
+        .code-input:focus {
+            border-color: #8e2de2;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(142, 45, 226, 0.2);
+        }
+        
+        .file-info {
+            background: #f8f5ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .file-info h3 {
+            margin-bottom: 10px;
+            color: #4a00e0;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .status-success {
+            background: #e8f7ef;
+            color: #11998e;
+            border: 1px solid #11998e;
+        }
+        
+        .status-error {
+            background: #fde8e8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .instructions {
+            background: #f0f7ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #4a00e0;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .app-body {
+                flex-direction: column;
+            }
+            
+            .sender-section, .receiver-section {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .code {
+                font-size: 2.5rem;
+                letter-spacing: 8px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="panel">
-            <h2>Send File</h2>
-            <div id="dropArea" class="drop-area">
-                <p>Drag & Drop Files Here</p>
-                <p>or</p>
-                <button class="button" onclick="document.getElementById('fileInput').click()">Browse Files</button>
-                <input type="file" id="fileInput" multiple>
+        <header>
+            <h1><i class="fas fa-paper-plane"></i> QuickShare</h1>
+            <p>Share files instantly with a 6-digit code. Works on all devices!</p>
+        </header>
+        
+        <div class="app-body">
+            <div class="sender-section">
+                <h2 class="section-title"><i class="fas fa-upload"></i> Send File</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Click to select a file</h3>
+                    <p>or drag and drop it here</p>
+                    <input type="file" class="file-input" id="fileInput">
+                </div>
+                
+                <button class="btn" id="generateCodeBtn">
+                    <i class="fas fa-bolt"></i> Generate Share Code
+                </button>
+                
+                <div class="code-display" id="codeDisplay">
+                    <p>Share this code with the receiver:</p>
+                    <div class="code" id="shareCode">000000</div>
+                    <p>Code expires in <span id="countdown">10:00</span></p>
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <h3>File Information</h3>
+                    <p><strong>Name:</strong> <span id="fileName">example.pdf</span></p>
+                    <p><strong>Size:</strong> <span id="fileSize">0 MB</span></p>
+                    <p><strong>Type:</strong> <span id="fileType">PDF Document</span></p>
+                    
+                    <div class="progress-bar">
+                        <div class="progress" id="uploadProgress"></div>
+                    </div>
+                    <p id="uploadStatus">Ready to send</p>
+                </div>
             </div>
-            <div id="fileList" class="file-list">
-                <!-- Uploaded files will be listed here -->
+            
+            <div class="receiver-section">
+                <h2 class="section-title"><i class="fas fa-download"></i> Receive File</h2>
+                
+                <div class="input-group">
+                    <label for="codeInput">Enter 6-digit code:</label>
+                    <input type="text" class="code-input" id="codeInput" maxlength="6" placeholder="123456">
+                </div>
+                
+                <button class="btn btn-secondary" id="connectBtn">
+                    <i class="fas fa-link"></i> Connect & Receive
+                </button>
+                
+                <div class="status" id="connectionStatus"></div>
+                
+                <div class="file-info" id="receiverFileInfo">
+                    <h3>Receiving File</h3>
+                    <p><strong>Name:</strong> <span id="receiverFileName">example.pdf</span></p>
+                    <p><strong>Size:</strong> <span id="receiverFileSize">0 MB</span></p>
+                    <p><strong>Sender:</strong> <span id="senderInfo">Unknown</span></p>
+                    
+                    <div class="progress-bar">
+                        <div class="progress" id="downloadProgress"></div>
+                    </div>
+                    <p id="downloadStatus">Waiting for connection...</p>
+                    
+                    <button class="btn btn-secondary" id="downloadBtn" style="display: none;">
+                        <i class="fas fa-download"></i> Download File
+                    </button>
+                </div>
             </div>
-            <div class="progress-bar-container">
-                <div id="uploadProgressBar" class="progress-bar"></div>
-            </div>
-            <button id="generateCodeBtn" class="button" disabled>Generate Share Code</button>
-            <div id="shareCodeDisplay" class="code-display" title="Click to copy code"></div>
-            <p class="status-message" id="senderStatus">Waiting for files...</p>
         </div>
-
-        <div class="panel">
-            <h2>Receive File</h2>
-            <div class="input-group">
-                <input type="text" id="receiverCodeInput" placeholder="Enter 6-digit code" maxlength="6">
-                <button id="connectBtn" class="button">Connect</button>
-            </div>
-            <p class="status-message" id="receiverStatus">Enter code to connect...</p>
-            <p class="error-message" id="receiverError"></p>
-            <div id="downloadProgressContainer" class="progress-bar-container" style="display: none;">
-                <div id="downloadProgressBar" class="progress-bar"></div>
-            </div>
-            <a id="downloadLink" class="button" style="display: none;" download="transferred_files.zip">Download All Files</a>
-            <p class="status-message" id="downloadCompleteMessage" style="display: none; color: #28a745; font-weight: bold;">Download Complete!</p>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to use QuickShare</h3>
+            <ol>
+                <li><strong>Sender:</strong> Click "Select File" and choose the file you want to share</li>
+                <li><strong>Sender:</strong> Click "Generate Share Code" to create a 6-digit code</li>
+                <li><strong>Receiver:</strong> Enter the 6-digit code in the receiver section</li>
+                <li><strong>Receiver:</strong> Click "Connect & Receive" to start downloading the file</li>
+                <li>Works on any device - laptop, mobile, tablet - with any modern browser</li>
+            </ol>
         </div>
+        
+        <footer>
+            <p>QuickShare &copy; 2023 | Secure & Fast File Transfer</p>
+        </footer>
     </div>
 
     <script>
-        const dropArea = document.getElementById('dropArea');
-        const fileInput = document.getElementById('fileInput');
-        const fileList = document.getElementById('fileList');
-        const uploadProgressBar = document.getElementById('uploadProgressBar');
-        const generateCodeBtn = document.getElementById('generateCodeBtn');
-        const shareCodeDisplay = document.getElementById('shareCodeDisplay');
-        const senderStatus = document.getElementById('senderStatus');
-
-        const receiverCodeInput = document.getElementById('receiverCodeInput');
-        const connectBtn = document.getElementById('connectBtn');
-        const receiverStatus = document.getElementById('receiverStatus');
-        const receiverError = document.getElementById('receiverError');
-        const downloadLink = document.getElementById('downloadLink');
-        const downloadProgressContainer = document.getElementById('downloadProgressContainer');
-        const downloadProgressBar = document.getElementById('downloadProgressBar');
-        const downloadCompleteMessage = document.getElementById('downloadCompleteMessage');
-
-        let uploadedFiles = []; // To store file objects
-        let currentShareCode = ''; // Store the generated code
-
-        // --- Sender Side Logic ---
-
-        // Prevent default drag behaviors
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false); // For whole document
-        });
-
-        function preventDefaults (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // Highlight drop area when item is dragged over it
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-        });
-
-        // Handle dropped files
-        dropArea.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-
-        // Handle files selected via input
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-
-        function handleFiles(files) {
-            uploadedFiles = []; // Clear previous files for this simplified example
-            fileList.innerHTML = ''; // Clear file list display
-            if (files.length === 0) {
-                generateCodeBtn.disabled = true;
-                senderStatus.textContent = "Waiting for files...";
-                return;
-            }
-
-            senderStatus.textContent = `Processing ${files.length} file(s)...`;
-            generateCodeBtn.disabled = false;
-            uploadProgressBar.style.width = '0%';
-
-            for (const file of files) {
-                uploadedFiles.push(file); // Store file object
-                const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
-                const fileEntry = document.createElement('div');
-                fileEntry.innerHTML = `<span class="file-name">${file.name}</span><span class="file-size">(${fileSize} MB)</span>`;
-                fileList.appendChild(fileEntry);
-            }
-            simulateUploadProgress();
-        }
-
-        function simulateUploadProgress() {
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                uploadProgressBar.style.width = `${progress}%`;
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    senderStatus.textContent = "Files ready for sharing. Generate code.";
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const generateCodeBtn = document.getElementById('generateCodeBtn');
+            const codeDisplay = document.getElementById('codeDisplay');
+            const shareCode = document.getElementById('shareCode');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const fileType = document.getElementById('fileType');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const countdown = document.getElementById('countdown');
+            
+            const codeInput = document.getElementById('codeInput');
+            const connectBtn = document.getElementById('connectBtn');
+            const connectionStatus = document.getElementById('connectionStatus');
+            const receiverFileInfo = document.getElementById('receiverFileInfo');
+            const receiverFileName = document.getElementById('receiverFileName');
+            const receiverFileSize = document.getElementById('receiverFileSize');
+            const senderInfo = document.getElementById('senderInfo');
+            const downloadProgress = document.getElementById('downloadProgress');
+            const downloadStatus = document.getElementById('downloadStatus');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Variables
+            let selectedFile = null;
+            let shareCodeValue = '';
+            let countdownInterval;
+            
+            // Event Listeners
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.backgroundColor = '#f0f0ff';
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.backgroundColor = '';
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.backgroundColor = '';
+                if (e.dataTransfer.files.length) {
+                    handleFileSelect(e.dataTransfer.files[0]);
                 }
-            }, 100);
-        }
-
-        generateCodeBtn.addEventListener('click', () => {
-            if (uploadedFiles.length > 0) {
-                currentShareCode = generateSixDigitCode();
-                shareCodeDisplay.textContent = currentShareCode;
-                senderStatus.textContent = `Share this code: ${currentShareCode}`;
-                // In a real app, send this code and file metadata to your backend
-            } else {
-                alert("Please upload files first.");
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+            
+            generateCodeBtn.addEventListener('click', generateShareCode);
+            connectBtn.addEventListener('click', connectToSender);
+            downloadBtn.addEventListener('click', downloadFile);
+            
+            // Functions
+            function handleFileSelect(file) {
+                selectedFile = file;
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileType.textContent = getFileType(file.type);
+                
+                fileInfo.style.display = 'block';
+                uploadStatus.textContent = 'File selected. Generate code to share.';
+                uploadProgress.style.width = '0%';
+                
+                // Reset receiver side
+                resetReceiver();
             }
-        });
-
-        shareCodeDisplay.addEventListener('click', () => {
-            if (currentShareCode) {
-                navigator.clipboard.writeText(currentShareCode).then(() => {
-                    alert('Code copied to clipboard!');
-                }).catch(err => {
-                    console.error('Could not copy text: ', err);
-                });
+            
+            function generateShareCode() {
+                if (!selectedFile) {
+                    alert('Please select a file first!');
+                    return;
+                }
+                
+                // Generate a random 6-digit code
+                shareCodeValue = Math.floor(100000 + Math.random() * 900000).toString();
+                shareCode.textContent = shareCodeValue;
+                codeDisplay.style.display = 'block';
+                
+                // Start countdown timer (10 minutes)
+                let timeLeft = 600; // 10 minutes in seconds
+                updateCountdown(timeLeft);
+                
+                clearInterval(countdownInterval);
+                countdownInterval = setInterval(() => {
+                    timeLeft--;
+                    updateCountdown(timeLeft);
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        codeDisplay.style.display = 'none';
+                        alert('Share code has expired. Please generate a new one.');
+                    }
+                }, 1000);
+                
+                uploadStatus.textContent = 'Share code generated. Waiting for receiver...';
             }
-        });
-
-        function generateSixDigitCode() {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < 6; i++) {
-                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            
+            function updateCountdown(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                countdown.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
             }
-            return result;
-        }
-
-        // --- Receiver Side Logic ---
-
-        connectBtn.addEventListener('click', () => {
-            const enteredCode = receiverCodeInput.value.toUpperCase().trim();
-            receiverError.textContent = ''; // Clear previous errors
-            downloadLink.style.display = 'none'; // Hide download link
-            downloadProgressContainer.style.display = 'none'; // Hide download progress
-            downloadCompleteMessage.style.display = 'none'; // Hide complete message
-
-            if (enteredCode.length !== 6) {
-                receiverError.textContent = "Please enter a valid 6-digit code.";
-                return;
+            
+            function connectToSender() {
+                const enteredCode = codeInput.value.trim();
+                
+                if (enteredCode.length !== 6) {
+                    showStatus('Please enter a valid 6-digit code.', 'error');
+                    return;
+                }
+                
+                // In a real app, this would connect to a server to validate the code
+                // For this demo, we'll simulate the connection process
+                
+                if (enteredCode !== shareCodeValue) {
+                    showStatus('Invalid code. Please check and try again.', 'error');
+                    return;
+                }
+                
+                showStatus('Connected successfully! Receiving file information...', 'success');
+                
+                // Simulate file transfer
+                setTimeout(() => {
+                    receiverFileName.textContent = selectedFile ? selectedFile.name : 'example.pdf';
+                    receiverFileSize.textContent = selectedFile ? formatFileSize(selectedFile.size) : '2.5 MB';
+                    senderInfo.textContent = 'User-' + Math.floor(Math.random() * 1000);
+                    
+                    receiverFileInfo.style.display = 'block';
+                    downloadStatus.textContent = 'Downloading...';
+                    
+                    // Simulate download progress
+                    let progress = 0;
+                    const progressInterval = setInterval(() => {
+                        progress += Math.random() * 10;
+                        if (progress >= 100) {
+                            progress = 100;
+                            clearInterval(progressInterval);
+                            downloadStatus.textContent = 'Download complete!';
+                            downloadBtn.style.display = 'block';
+                        }
+                        downloadProgress.style.width = progress + '%';
+                    }, 200);
+                }, 1500);
             }
-
-            receiverStatus.textContent = `Attempting to connect with code: ${enteredCode}...`;
-            simulateConnectionAndDirectDownload(enteredCode);
-        });
-
-        function simulateConnectionAndDirectDownload(code) {
-            // Simulate a server check
+            
+            function downloadFile() {
+                // In a real app, this would download the actual file
+                // For this demo, we'll just show a success message
+                alert('File downloaded successfully!');
+                resetReceiver();
+            }
+            
+            function resetReceiver() {
+                receiverFileInfo.style.display = 'none';
+                connectionStatus.style.display = 'none';
+                downloadBtn.style.display = 'none';
+                downloadProgress.style.width = '0%';
+                codeInput.value = '';
+            }
+            
+            function showStatus(message, type) {
+                connectionStatus.textContent = message;
+                connectionStatus.className = 'status';
+                connectionStatus.classList.add(`status-${type}`);
+                connectionStatus.style.display = 'block';
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            function getFileType(mimeType) {
+                const typeMap = {
+                    'application/pdf': 'PDF Document',
+                    'image/jpeg': 'JPEG Image',
+                    'image/png': 'PNG Image',
+                    'text/plain': 'Text File',
+                    'application/msword': 'Word Document',
+                    'application/vnd.ms-excel': 'Excel Spreadsheet',
+                    'application/zip': 'ZIP Archive'
+                };
+                
+                return typeMap[mimeType] || mimeType || 'Unknown File Type';
+            }
+            
+            // Initialize with a sample file for demo
             setTimeout(() => {
-                if (code === currentShareCode && currentShareCode !== '') {
-                    receiverStatus.textContent = "Connected! Initiating download...";
-                    downloadProgressContainer.style.display = 'block';
-                    simulateDownloadProgress(); // Direct download starts here
-                } else {
-                    receiverError.textContent = "Invalid or expired code. Please try again.";
-                    receiverStatus.textContent = "Enter code to connect...";
-                }
-            }, 1000); // Simulate network delay
-        }
-
-        function simulateDownloadProgress() {
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                downloadProgressBar.style.width = `${progress}%`;
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    receiverStatus.textContent = "Download preparation complete.";
-                    // This is where a real download link would be provided by a backend
-                    // For demo, we create a dummy link.
-                    const dummyBlob = new Blob(["This is a dummy file content for demonstration."], { type: "text/plain" });
-                    const dummyUrl = URL.createObjectURL(dummyBlob);
-                    downloadLink.href = dummyUrl;
-                    downloadLink.style.display = 'block';
-                    downloadCompleteMessage.style.display = 'block';
-                    // Optional: Automatically click the download link
-                    // downloadLink.click();
-                    // URL.revokeObjectURL(dummyUrl); // Clean up after download
-
-                    // In a real app, the backend would send actual file(s)
-                }
-            }, 150);
-        }
-
+                // Simulate file selection for demo purposes
+                fileInfo.style.display = 'block';
+                fileName.textContent = 'project_documentation.pdf';
+                fileSize.textContent = '2.5 MB';
+                fileType.textContent = 'PDF Document';
+                uploadStatus.textContent = 'File selected. Generate code to share.';
+            }, 1000);
+        });
     </script>
 </body>
 </html>
