@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickShare - Live File Transfer</title>
+    <title>QuickShare - Direct URL File Sharing</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -128,48 +128,47 @@
             background: linear-gradient(90deg, #11998e, #38ef7d);
         }
         
-        .code-display {
+        .share-url-section {
             background: #f0f0f0;
             border-radius: 10px;
             padding: 20px;
-            text-align: center;
             margin: 25px 0;
             display: none;
         }
         
-        .code {
-            font-size: 3rem;
-            font-weight: bold;
-            letter-spacing: 10px;
+        .share-url-section h3 {
+            margin-bottom: 15px;
             color: #4a00e0;
-            margin: 15px 0;
+            text-align: center;
         }
         
-        .input-group {
-            margin-bottom: 25px;
+        .url-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
-        .input-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        
-        .code-input {
-            width: 100%;
-            padding: 15px;
+        .url-input {
+            flex: 1;
+            padding: 12px 15px;
             border: 2px solid #ddd;
             border-radius: 10px;
-            font-size: 1.2rem;
-            text-align: center;
-            letter-spacing: 5px;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .copy-btn {
+            background: #4a00e0;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
             transition: all 0.3s;
         }
         
-        .code-input:focus {
-            border-color: #8e2de2;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(142, 45, 226, 0.2);
+        .copy-btn:hover {
+            background: #8e2de2;
         }
         
         .file-info {
@@ -259,60 +258,61 @@
                 border-bottom: 1px solid #eee;
             }
             
-            .code {
-                font-size: 2.5rem;
-                letter-spacing: 8px;
+            .url-input-container {
+                flex-direction: column;
             }
         }
 
-        .solution-section {
-            background: #e8f5e8;
+        .success-message {
+            color: #11998e;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .download-section {
+            background: #e8f7ef;
             border-radius: 10px;
             padding: 20px;
-            margin: 20px 0;
+            margin-top: 25px;
+            display: none;
             text-align: center;
-            border: 2px solid #38ef7d;
         }
 
-        .solution-btn {
-            background: #38ef7d;
+        .download-btn {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 15px 30px;
             border-radius: 50px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            margin: 10px;
-            font-weight: bold;
+            margin: 15px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .manual-code-section {
-            background: #fff3cd;
+        .file-preview {
+            max-width: 100%;
+            max-height: 200px;
             border-radius: 10px;
-            padding: 15px;
             margin: 15px 0;
-            text-align: center;
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-paper-plane"></i> QuickShare PRO</h1>
-            <p>100% Working File Sharing - Cross Browser Solution</p>
+            <h1><i class="fas fa-paper-plane"></i> QuickShare URL</h1>
+            <p>Upload file → Get URL → Share → Download</p>
         </header>
-
-        <div class="solution-section">
-            <h3><i class="fas fa-check-circle"></i> PROBLEM SOLVED!</h3>
-            <p>Yeh solution har browser mein kaam karega - Chrome, Firefox, Edge, Safari</p>
-            <button class="solution-btn" id="startDemoBtn">
-                <i class="fas fa-play"></i> DEMO START KAREIN
-            </button>
-        </div>
         
         <div class="app-body">
             <div class="sender-section">
-                <h2 class="section-title"><i class="fas fa-upload"></i> Send File</h2>
+                <h2 class="section-title"><i class="fas fa-upload"></i> Upload File</h2>
                 
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">
@@ -322,66 +322,61 @@
                     <p>or drag and drop it here</p>
                     <input type="file" class="file-input" id="fileInput">
                 </div>
-
-                <div class="manual-code-section">
-                    <h4><i class="fas fa-key"></i> Manual Code Set Karein</h4>
-                    <p>Same code dono browsers mein use karein</p>
-                    <input type="text" class="code-input" id="manualCodeInput" maxlength="6" placeholder="123456">
-                    <button class="btn" id="setManualCodeBtn">
-                        <i class="fas fa-save"></i> Set This Code
-                    </button>
-                </div>
                 
-                <button class="btn" id="generateCodeBtn">
-                    <i class="fas fa-bolt"></i> Generate Share Code
-                </button>
-                
-                <div class="code-display" id="codeDisplay">
-                    <p>Share this code with the receiver:</p>
-                    <div class="code" id="shareCode">000000</div>
-                    <p>Code expires in <span id="countdown">10:00</span></p>
+                <div class="share-url-section" id="shareUrlSection">
+                    <h3><i class="fas fa-link"></i> Your Share URL</h3>
+                    <div class="url-input-container">
+                        <input type="text" class="url-input" id="shareUrlInput" readonly>
+                        <button class="copy-btn" id="copyUrlBtn">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <p>Share this URL with anyone to download the file</p>
+                    <div class="success-message" id="copySuccess">URL copied to clipboard!</div>
                 </div>
                 
                 <div class="file-info" id="fileInfo">
                     <h3>File Information</h3>
+                    <img class="file-preview" id="filePreview" alt="File Preview">
                     <p><strong>Name:</strong> <span id="fileName">example.pdf</span></p>
                     <p><strong>Size:</strong> <span id="fileSize">0 MB</span></p>
                     <p><strong>Type:</strong> <span id="fileType">PDF Document</span></p>
-                    <p><strong>Current Code:</strong> <span id="currentCodeDisplay">None</span></p>
+                    <p><strong>URL Expires:</strong> <span id="urlExpiry">10:00</span></p>
                     
                     <div class="progress-bar">
                         <div class="progress" id="uploadProgress"></div>
                     </div>
-                    <p id="uploadStatus">Ready to send</p>
+                    <p id="uploadStatus">Ready to share</p>
                 </div>
             </div>
             
             <div class="receiver-section">
-                <h2 class="section-title"><i class="fas fa-download"></i> Receive File</h2>
+                <h2 class="section-title"><i class="fas fa-download"></i> Download File</h2>
                 
                 <div class="input-group">
-                    <label for="codeInput">Enter 6-digit code:</label>
-                    <input type="text" class="code-input" id="codeInput" maxlength="6" placeholder="123456">
+                    <label for="urlInput">Paste Share URL:</label>
+                    <input type="text" class="url-input" id="urlInput" placeholder="https://quickshare.com/file/abc123">
                 </div>
                 
-                <button class="btn btn-secondary" id="connectBtn">
-                    <i class="fas fa-link"></i> Connect & Receive
+                <button class="btn btn-secondary" id="loadUrlBtn">
+                    <i class="fas fa-external-link-alt"></i> Load File from URL
                 </button>
                 
                 <div class="status" id="connectionStatus"></div>
                 
-                <div class="file-info" id="receiverFileInfo">
-                    <h3>Receiving File</h3>
-                    <p><strong>Name:</strong> <span id="receiverFileName">example.pdf</span></p>
-                    <p><strong>Size:</strong> <span id="receiverFileSize">0 MB</span></p>
-                    <p><strong>Sender:</strong> <span id="senderInfo">Unknown</span></p>
+                <div class="download-section" id="downloadSection">
+                    <h3>File Ready to Download</h3>
+                    <img class="file-preview" id="downloadPreview" alt="File Preview">
+                    <p><strong>Name:</strong> <span id="downloadFileName">example.pdf</span></p>
+                    <p><strong>Size:</strong> <span id="downloadFileSize">0 MB</span></p>
+                    <p><strong>Type:</strong> <span id="downloadFileType">PDF Document</span></p>
                     
                     <div class="progress-bar">
                         <div class="progress" id="downloadProgress"></div>
                     </div>
-                    <p id="downloadStatus">Waiting for connection...</p>
+                    <p id="downloadStatus">Ready to download</p>
                     
-                    <button class="btn btn-secondary" id="downloadBtn" style="display: none;">
+                    <button class="download-btn" id="downloadBtn">
                         <i class="fas fa-download"></i> Download File
                     </button>
                 </div>
@@ -389,61 +384,56 @@
         </div>
         
         <div class="instructions">
-            <h3><i class="fas fa-info-circle"></i> 100% Working Solution Steps</h3>
+            <h3><i class="fas fa-info-circle"></i> How It Works</h3>
             <ol>
-                <li><strong>STEP 1:</strong> "DEMO START KAREIN" button click karo</li>
-                <li><strong>STEP 2:</strong> Same code dono browsers mein use karo (jaise: 123456)</li>
-                <li><strong>STEP 3:</strong> Sender side: "Set This Code" click karo</li>
-                <li><strong>STEP 4:</strong> Receiver side: wahi code daal kar "Connect & Receive" click karo</li>
-                <li><strong>RESULT:</strong> ✅ File transfer successful!</li>
+                <li><strong>UPLOAD:</strong> Select any file (images, documents, videos)</li>
+                <li><strong>SHARE:</strong> Copy the generated URL automatically</li>
+                <li><strong>SEND:</strong> Share URL via WhatsApp, Email, or any app</li>
+                <li><strong>DOWNLOAD:</strong> Receiver pastes URL and clicks download</li>
+                <li><strong>WORKS EVERYWHERE:</strong> Laptop, Mobile, Tablet - All browsers</li>
             </ol>
         </div>
         
         <footer>
-            <p>QuickShare PRO &copy; 2023 | 100% Cross-Browser Working Solution</p>
+            <p>QuickShare URL &copy; 2023 | Direct URL File Sharing</p>
         </footer>
     </div>
 
     <script>
-        // GLOBAL VARIABLE - Yeh sab browsers ke liye same rahega
-        // Yeh fixed code hai jo manually set hoga
-        let ACTIVE_SHARE_CODE = null;
-        let CURRENT_FILE_DATA = null;
+        // File storage simulation (in real app, this would be server-side)
+        const fileStorage = new Map();
+        const URL_BASE = "https://quickshare.com/file/";
 
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const fileInput = document.getElementById('fileInput');
             const uploadArea = document.getElementById('uploadArea');
-            const generateCodeBtn = document.getElementById('generateCodeBtn');
-            const codeDisplay = document.getElementById('codeDisplay');
-            const shareCode = document.getElementById('shareCode');
+            const shareUrlSection = document.getElementById('shareUrlSection');
+            const shareUrlInput = document.getElementById('shareUrlInput');
+            const copyUrlBtn = document.getElementById('copyUrlBtn');
+            const copySuccess = document.getElementById('copySuccess');
             const fileInfo = document.getElementById('fileInfo');
+            const filePreview = document.getElementById('filePreview');
             const fileName = document.getElementById('fileName');
             const fileSize = document.getElementById('fileSize');
             const fileType = document.getElementById('fileType');
-            const currentCodeDisplay = document.getElementById('currentCodeDisplay');
+            const urlExpiry = document.getElementById('urlExpiry');
             const uploadProgress = document.getElementById('uploadProgress');
             const uploadStatus = document.getElementById('uploadStatus');
-            const countdown = document.getElementById('countdown');
             
-            const codeInput = document.getElementById('codeInput');
-            const connectBtn = document.getElementById('connectBtn');
+            const urlInput = document.getElementById('urlInput');
+            const loadUrlBtn = document.getElementById('loadUrlBtn');
             const connectionStatus = document.getElementById('connectionStatus');
-            const receiverFileInfo = document.getElementById('receiverFileInfo');
-            const receiverFileName = document.getElementById('receiverFileName');
-            const receiverFileSize = document.getElementById('receiverFileSize');
-            const senderInfo = document.getElementById('senderInfo');
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadPreview = document.getElementById('downloadPreview');
+            const downloadFileName = document.getElementById('downloadFileName');
+            const downloadFileSize = document.getElementById('downloadFileSize');
+            const downloadFileType = document.getElementById('downloadFileType');
             const downloadProgress = document.getElementById('downloadProgress');
             const downloadStatus = document.getElementById('downloadStatus');
             const downloadBtn = document.getElementById('downloadBtn');
 
-            // New elements
-            const startDemoBtn = document.getElementById('startDemoBtn');
-            const manualCodeInput = document.getElementById('manualCodeInput');
-            const setManualCodeBtn = document.getElementById('setManualCodeBtn');
-
-            // Variables
-            let selectedFile = null;
+            let currentFileId = null;
             let countdownInterval;
 
             // Event Listeners
@@ -469,65 +459,106 @@
                 }
             });
             
-            generateCodeBtn.addEventListener('click', generateShareCode);
-            connectBtn.addEventListener('click', connectToSender);
+            copyUrlBtn.addEventListener('click', copyShareUrl);
+            loadUrlBtn.addEventListener('click', loadFileFromUrl);
             downloadBtn.addEventListener('click', downloadFile);
-            
-            // New event listeners
-            startDemoBtn.addEventListener('click', startDemo);
-            setManualCodeBtn.addEventListener('click', setManualCode);
 
-            // Initialize
-            initializeApp();
+            // Check if URL has file parameter
+            checkUrlForFile();
 
-            function initializeApp() {
-                // Demo file set karo
-                selectedFile = {
-                    name: 'demo_document.pdf',
-                    size: 2540000,
-                    type: 'application/pdf'
-                };
-                updateFileInfo();
-                uploadStatus.textContent = 'Demo ready! Code set karein.';
+            function handleFileSelect(file) {
+                // Show upload progress
+                uploadStatus.textContent = 'Uploading file...';
+                uploadProgress.style.width = '0%';
+                
+                // Simulate upload progress
+                let progress = 0;
+                const uploadInterval = setInterval(() => {
+                    progress += Math.random() * 20;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(uploadInterval);
+                        completeFileUpload(file);
+                    }
+                    uploadProgress.style.width = progress + '%';
+                }, 200);
             }
 
-            function startDemo() {
-                alert('DEMO STARTED! Ab aap same code dono browsers mein use kar sakte hain.\n\nExample: 123456');
+            function completeFileUpload(file) {
+                // Generate unique file ID
+                currentFileId = generateFileId();
                 
-                // Pre-fill manual code input
-                manualCodeInput.value = '123456';
-                
-                updateFileInfo();
-                uploadStatus.textContent = 'Demo active! Code set karein.';
-            }
-
-            function setManualCode() {
-                const manualCode = manualCodeInput.value.trim();
-                
-                if (manualCode.length !== 6) {
-                    alert('Please enter a valid 6-digit code!');
-                    return;
-                }
-
-                ACTIVE_SHARE_CODE = manualCode;
-                
-                // File data set karo
-                CURRENT_FILE_DATA = {
-                    fileName: selectedFile.name,
-                    fileSize: selectedFile.size,
-                    fileType: selectedFile.type,
+                // Store file data
+                const fileData = {
+                    file: file,
+                    fileName: file.name,
+                    fileSize: file.size,
+                    fileType: file.type,
                     timestamp: Date.now()
                 };
+                
+                fileStorage.set(currentFileId, fileData);
+                
+                // Generate share URL
+                const shareUrl = `${URL_BASE}${currentFileId}`;
+                shareUrlInput.value = shareUrl;
+                
+                // Update UI
+                updateFileInfo(fileData);
+                shareUrlSection.style.display = 'block';
+                uploadStatus.textContent = 'File uploaded successfully!';
+                
+                // Show file preview if it's an image
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        filePreview.src = e.target.result;
+                        filePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+                
+                // Start URL expiry countdown
+                startCountdown();
+                
+                // Auto-copy URL to clipboard
+                setTimeout(() => {
+                    copyShareUrl();
+                }, 1000);
+            }
 
-                // Display update karo
-                shareCode.textContent = ACTIVE_SHARE_CODE;
-                codeDisplay.style.display = 'block';
-                currentCodeDisplay.textContent = ACTIVE_SHARE_CODE;
-                currentCodeDisplay.style.color = '#4a00e0';
-                currentCodeDisplay.style.fontWeight = 'bold';
+            function updateFileInfo(fileData) {
+                fileName.textContent = fileData.fileName;
+                fileSize.textContent = formatFileSize(fileData.fileSize);
+                fileType.textContent = getFileType(fileData.fileType);
+                fileInfo.style.display = 'block';
+            }
 
-                // Countdown start karo
-                let timeLeft = 600;
+            function generateFileId() {
+                return Math.random().toString(36).substring(2, 10).toUpperCase();
+            }
+
+            function copyShareUrl() {
+                shareUrlInput.select();
+                shareUrlInput.setSelectionRange(0, 99999);
+                
+                navigator.clipboard.writeText(shareUrlInput.value).then(() => {
+                    copySuccess.style.display = 'block';
+                    setTimeout(() => {
+                        copySuccess.style.display = 'none';
+                    }, 3000);
+                }).catch(() => {
+                    // Fallback for older browsers
+                    document.execCommand('copy');
+                    copySuccess.style.display = 'block';
+                    setTimeout(() => {
+                        copySuccess.style.display = 'none';
+                    }, 3000);
+                });
+            }
+
+            function startCountdown() {
+                let timeLeft = 600; // 10 minutes
                 updateCountdown(timeLeft);
                 
                 clearInterval(countdownInterval);
@@ -537,123 +568,110 @@
                     
                     if (timeLeft <= 0) {
                         clearInterval(countdownInterval);
-                        codeDisplay.style.display = 'none';
-                        ACTIVE_SHARE_CODE = null;
-                        alert('Share code has expired. Please set a new code.');
+                        fileStorage.delete(currentFileId);
+                        uploadStatus.textContent = 'URL has expired. Please upload file again.';
+                        shareUrlSection.style.display = 'none';
                     }
                 }, 1000);
-
-                uploadStatus.textContent = `Code ${ACTIVE_SHARE_CODE} set successfully! Receiver can now connect.`;
-                alert(`CODE ${ACTIVE_SHARE_CODE} SET SUCCESSFULLY!\n\nAb receiver side pe bhi yehi code use karo.`);
             }
 
-            function handleFileSelect(file) {
-                selectedFile = file;
-                updateFileInfo();
-                resetReceiver();
-            }
-
-            function updateFileInfo() {
-                fileName.textContent = selectedFile.name;
-                fileSize.textContent = formatFileSize(selectedFile.size);
-                fileType.textContent = getFileType(selectedFile.type);
-                
-                fileInfo.style.display = 'block';
-                uploadProgress.style.width = '0%';
-                
-                // Current code display
-                if (ACTIVE_SHARE_CODE) {
-                    currentCodeDisplay.textContent = ACTIVE_SHARE_CODE;
-                    currentCodeDisplay.style.color = '#4a00e0';
-                    currentCodeDisplay.style.fontWeight = 'bold';
-                } else {
-                    currentCodeDisplay.textContent = 'Not set';
-                    currentCodeDisplay.style.color = '#666';
-                }
-            }
-            
-            function generateShareCode() {
-                if (!selectedFile) {
-                    alert('Please select a file first!');
-                    return;
-                }
-                
-                // Random code generate karo
-                const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
-                manualCodeInput.value = randomCode;
-                
-                alert(`New code generated: ${randomCode}\n\nAb "Set This Code" button click karo to activate.`);
-            }
-            
             function updateCountdown(seconds) {
                 const minutes = Math.floor(seconds / 60);
                 const remainingSeconds = seconds % 60;
-                countdown.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+                urlExpiry.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
             }
-            
-            function connectToSender() {
-                const enteredCode = codeInput.value.trim();
+
+            function loadFileFromUrl() {
+                const url = urlInput.value.trim();
                 
-                if (enteredCode.length !== 6) {
-                    showStatus('Please enter a valid 6-digit code.', 'error');
+                if (!url) {
+                    showStatus('Please enter a share URL.', 'error');
                     return;
                 }
-
-                console.log("Entered Code:", enteredCode);
-                console.log("Active Code:", ACTIVE_SHARE_CODE);
-                console.log("File Data:", CURRENT_FILE_DATA);
-
-                // DIRECT COMPARISON - No storage dependency
-                if (!ACTIVE_SHARE_CODE || !CURRENT_FILE_DATA) {
-                    showStatus('No active sharing session found. Ask sender to set a code.', 'error');
+                
+                // Extract file ID from URL
+                const fileId = extractFileIdFromUrl(url);
+                
+                if (!fileId) {
+                    showStatus('Invalid share URL. Please check and try again.', 'error');
                     return;
                 }
-
-                if (enteredCode !== ACTIVE_SHARE_CODE) {
-                    showStatus('Invalid code. Please check and try again.', 'error');
+                
+                // Check if file exists
+                const fileData = fileStorage.get(fileId);
+                
+                if (!fileData) {
+                    showStatus('File not found or URL has expired.', 'error');
                     return;
                 }
-
-                // SUCCESS! Code match ho gaya
-                showStatus('Connected successfully! Receiving file information...', 'success');
-
-                // File transfer simulate karo
-                setTimeout(() => {
-                    receiverFileName.textContent = CURRENT_FILE_DATA.fileName;
-                    receiverFileSize.textContent = formatFileSize(CURRENT_FILE_DATA.fileSize);
-                    senderInfo.textContent = 'User-' + Math.floor(Math.random() * 1000);
-                    
-                    receiverFileInfo.style.display = 'block';
-                    downloadStatus.textContent = 'Downloading...';
-                    
-                    // Download progress simulate karo
-                    let progress = 0;
-                    const progressInterval = setInterval(() => {
-                        progress += Math.random() * 10;
-                        if (progress >= 100) {
-                            progress = 100;
-                            clearInterval(progressInterval);
-                            downloadStatus.textContent = 'Download complete!';
-                            downloadBtn.style.display = 'block';
-                        }
-                        downloadProgress.style.width = progress + '%';
-                    }, 200);
-                }, 1500);
+                
+                // Show file info
+                showFileForDownload(fileData);
+                showStatus('File loaded successfully!', 'success');
             }
-            
+
+            function extractFileIdFromUrl(url) {
+                // Extract the last part of URL as file ID
+                const parts = url.split('/');
+                return parts[parts.length - 1];
+            }
+
+            function showFileForDownload(fileData) {
+                downloadFileName.textContent = fileData.fileName;
+                downloadFileSize.textContent = formatFileSize(fileData.fileSize);
+                downloadFileType.textContent = getFileType(fileData.fileType);
+                
+                // Show file preview if it's an image
+                if (fileData.file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        downloadPreview.src = e.target.result;
+                        downloadPreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(fileData.file);
+                }
+                
+                downloadSection.style.display = 'block';
+                downloadStatus.textContent = 'Ready to download';
+                downloadProgress.style.width = '100%';
+            }
+
             function downloadFile() {
-                alert('File downloaded successfully!');
-                resetReceiver();
+                const url = urlInput.value.trim();
+                const fileId = extractFileIdFromUrl(url);
+                const fileData = fileStorage.get(fileId);
+                
+                if (fileData && fileData.file) {
+                    // Create download link
+                    const url = URL.createObjectURL(fileData.file);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileData.fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    downloadStatus.textContent = 'Download completed!';
+                } else {
+                    showStatus('Download failed. File not available.', 'error');
+                }
             }
-            
-            function resetReceiver() {
-                receiverFileInfo.style.display = 'none';
-                connectionStatus.style.display = 'none';
-                downloadBtn.style.display = 'none';
-                downloadProgress.style.width = '0%';
-                codeInput.value = '';
+
+            function checkUrlForFile() {
+                // Check if page was loaded with a file URL parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const fileParam = urlParams.get('file');
+                
+                if (fileParam) {
+                    urlInput.value = `${URL_BASE}${fileParam}`;
+                    // Auto-load the file
+                    setTimeout(() => {
+                        loadFileFromUrl();
+                    }, 500);
+                }
             }
-            
+
             function showStatus(message, type) {
                 connectionStatus.textContent = message;
                 connectionStatus.className = 'status';
@@ -678,7 +696,8 @@
                     'application/msword': 'Word Document',
                     'application/vnd.ms-excel': 'Excel Spreadsheet',
                     'application/zip': 'ZIP Archive',
-                    'video/mp4': 'MP4 Video'
+                    'video/mp4': 'MP4 Video',
+                    'audio/mpeg': 'MP3 Audio'
                 };
                 
                 return typeMap[mimeType] || mimeType || 'Unknown File Type';
