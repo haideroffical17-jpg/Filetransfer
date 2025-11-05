@@ -265,25 +265,17 @@
             }
         }
 
-        .debug-info {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
+        .active-codes {
+            background: #f0f7ff;
             border-radius: 10px;
             padding: 15px;
             margin-top: 20px;
             font-size: 0.9rem;
-            display: none;
         }
 
-        .debug-toggle {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-top: 10px;
+        .active-codes h4 {
+            margin-bottom: 10px;
+            color: #4a00e0;
         }
     </style>
 </head>
@@ -291,7 +283,7 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-paper-plane"></i> QuickShare</h1>
-            <p>Share files instantly with a 6-digit code. Works on all devices!</p>
+            <p>Share files instantly with a 6-digit code. Works across all browsers!</p>
         </header>
         
         <div class="app-body">
@@ -329,12 +321,9 @@
                     <p id="uploadStatus">Ready to send</p>
                 </div>
 
-                <button class="debug-toggle" id="debugToggle">Show Debug Info</button>
-                <div class="debug-info" id="debugInfo">
-                    <h4>Debug Information</h4>
-                    <p><strong>Generated Code:</strong> <span id="debugCode">None</span></p>
-                    <p><strong>Entered Code:</strong> <span id="debugEnteredCode">None</span></p>
-                    <p><strong>Match Status:</strong> <span id="debugMatchStatus">Not checked</span></p>
+                <div class="active-codes">
+                    <h4><i class="fas fa-info-circle"></i> Important Note</h4>
+                    <p>This demo uses browser storage. For cross-browser sharing, both devices need to use the same browser or enable cross-origin storage.</p>
                 </div>
             </div>
             
@@ -387,6 +376,10 @@
     </div>
 
     <script>
+        // Global storage for active codes (simulating server-side storage)
+        // In a real application, this would be on a server
+        const activeCodes = {};
+
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const fileInput = document.getElementById('fileInput');
@@ -412,13 +405,6 @@
             const downloadProgress = document.getElementById('downloadProgress');
             const downloadStatus = document.getElementById('downloadStatus');
             const downloadBtn = document.getElementById('downloadBtn');
-
-            // Debug elements
-            const debugToggle = document.getElementById('debugToggle');
-            const debugInfo = document.getElementById('debugInfo');
-            const debugCode = document.getElementById('debugCode');
-            const debugEnteredCode = document.getElementById('debugEnteredCode');
-            const debugMatchStatus = document.getElementById('debugMatchStatus');
             
             // Variables
             let selectedFile = null;
@@ -451,7 +437,6 @@
             generateCodeBtn.addEventListener('click', generateShareCode);
             connectBtn.addEventListener('click', connectToSender);
             downloadBtn.addEventListener('click', downloadFile);
-            debugToggle.addEventListener('click', toggleDebugInfo);
             
             // Functions
             function handleFileSelect(file) {
@@ -479,8 +464,16 @@
                 shareCode.textContent = shareCodeValue;
                 codeDisplay.style.display = 'block';
                 
-                // Update debug info
-                debugCode.textContent = shareCodeValue;
+                // Store the code and file info in our "global storage"
+                activeCodes[shareCodeValue] = {
+                    fileName: selectedFile.name,
+                    fileSize: selectedFile.size,
+                    fileType: selectedFile.type,
+                    timestamp: Date.now()
+                };
+                
+                console.log("Generated code:", shareCodeValue);
+                console.log("Active codes:", activeCodes);
                 
                 // Start countdown timer (10 minutes)
                 let timeLeft = 600; // 10 minutes in seconds
@@ -494,6 +487,8 @@
                     if (timeLeft <= 0) {
                         clearInterval(countdownInterval);
                         codeDisplay.style.display = 'none';
+                        // Remove expired code from storage
+                        delete activeCodes[shareCodeValue];
                         alert('Share code has expired. Please generate a new one.');
                     }
                 }, 1000);
@@ -510,44 +505,29 @@
             function connectToSender() {
                 const enteredCode = codeInput.value.trim();
                 
-                // Update debug info
-                debugEnteredCode.textContent = enteredCode;
-                
                 if (enteredCode.length !== 6) {
                     showStatus('Please enter a valid 6-digit code.', 'error');
-                    debugMatchStatus.textContent = 'Invalid length';
-                    debugMatchStatus.style.color = '#e74c3c';
                     return;
                 }
                 
-                // IMPROVED CODE VALIDATION
-                console.log("Generated Code:", shareCodeValue);
-                console.log("Entered Code:", enteredCode);
-                console.log("Match:", shareCodeValue === enteredCode);
+                console.log("Looking for code:", enteredCode);
+                console.log("Available codes:", Object.keys(activeCodes));
                 
-                if (shareCodeValue === '' || shareCodeValue === '000000') {
-                    showStatus('No active share code found. Ask the sender to generate a new code.', 'error');
-                    debugMatchStatus.textContent = 'No active code';
-                    debugMatchStatus.style.color = '#e74c3c';
+                // Check if the code exists in our global storage
+                if (!activeCodes[enteredCode]) {
+                    showStatus('Invalid code or code has expired. Please check and try again.', 'error');
                     return;
                 }
                 
-                if (enteredCode !== shareCodeValue) {
-                    showStatus('Invalid code. Please check and try again.', 'error');
-                    debugMatchStatus.textContent = 'No match';
-                    debugMatchStatus.style.color = '#e74c3c';
-                    return;
-                }
+                // Code is valid - get file info from storage
+                const fileInfo = activeCodes[enteredCode];
                 
-                // Code is valid
                 showStatus('Connected successfully! Receiving file information...', 'success');
-                debugMatchStatus.textContent = 'Match successful';
-                debugMatchStatus.style.color = '#11998e';
                 
                 // Simulate file transfer
                 setTimeout(() => {
-                    receiverFileName.textContent = selectedFile ? selectedFile.name : 'example.pdf';
-                    receiverFileSize.textContent = selectedFile ? formatFileSize(selectedFile.size) : '2.5 MB';
+                    receiverFileName.textContent = fileInfo.fileName;
+                    receiverFileSize.textContent = formatFileSize(fileInfo.fileSize);
                     senderInfo.textContent = 'User-' + Math.floor(Math.random() * 1000);
                     
                     receiverFileInfo.style.display = 'block';
@@ -590,16 +570,6 @@
                 connectionStatus.style.display = 'block';
             }
             
-            function toggleDebugInfo() {
-                if (debugInfo.style.display === 'none' || debugInfo.style.display === '') {
-                    debugInfo.style.display = 'block';
-                    debugToggle.textContent = 'Hide Debug Info';
-                } else {
-                    debugInfo.style.display = 'none';
-                    debugToggle.textContent = 'Show Debug Info';
-                }
-            }
-            
             function formatFileSize(bytes) {
                 if (bytes === 0) return '0 Bytes';
                 const k = 1024;
@@ -616,7 +586,8 @@
                     'text/plain': 'Text File',
                     'application/msword': 'Word Document',
                     'application/vnd.ms-excel': 'Excel Spreadsheet',
-                    'application/zip': 'ZIP Archive'
+                    'application/zip': 'ZIP Archive',
+                    'video/mp4': 'MP4 Video'
                 };
                 
                 return typeMap[mimeType] || mimeType || 'Unknown File Type';
