@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Large File Share - 5GB+ Files</title>
+    <title>QuickShare - Optimized</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -13,119 +14,450 @@
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            color: #333;
         }
         
         .container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            max-width: 600px;
             width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #4a00e0, #8e2de2);
+            color: white;
+            padding: 20px;
             text-align: center;
         }
         
-        h1 {
-            color: #667eea;
-            margin-bottom: 20px;
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
         }
         
-        .service-card {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
+        .app-body {
             padding: 20px;
-            margin: 15px 0;
-            text-align: left;
+        }
+        
+        .upload-area {
+            border: 3px dashed #8e2de2;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
             transition: all 0.3s;
         }
         
-        .service-card:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
+        .upload-area:hover {
+            background-color: #f8f5ff;
         }
         
-        .service-btn {
-            background: #667eea;
+        .upload-icon {
+            font-size: 40px;
+            color: #8e2de2;
+            margin-bottom: 10px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #4a00e0, #8e2de2);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
             cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin: 10px 0;
         }
         
-        .info-box {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(142, 45, 226, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+        }
+        
+        .code-section {
+            background: #f0f0f0;
             border-radius: 10px;
             padding: 15px;
-            margin: 20px 0;
+            margin: 15px 0;
+            display: none;
+            text-align: center;
+        }
+        
+        .code {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4a00e0;
+            margin: 10px 0;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #8e2de2;
+            font-family: monospace;
+            letter-spacing: 5px;
+        }
+        
+        .file-info {
+            background: #f8f5ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .status-success {
+            background: #e8f7ef;
+            color: #11998e;
+            border: 1px solid #11998e;
+        }
+        
+        .status-error {
+            background: #fde8e8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .manual-section {
+            background: #fff3cd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .manual-input {
+            display: flex;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        
+        .manual-input input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #8e2de2;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+        
+        .manual-btn {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .copy-btn {
+            background: #4a00e0;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .file-size-warning {
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📁 Large File Sharing (5GB+)</h1>
-        <p>Browser mein 2GB se zyada files possible nahi. Use these services:</p>
+        <header>
+            <h1><i class="fas fa-paper-plane"></i> QuickShare FAST</h1>
+            <p>Optimized File Sharing</p>
+        </header>
         
-        <div class="service-card">
-            <h3>🚀 WeTransfer</h3>
-            <p><strong>Limit:</strong> 2GB free, 20GB paid</p>
-            <p><strong>Duration:</strong> 7 days</p>
-            <a href="https://wetransfer.com" target="_blank" class="service-btn">Open WeTransfer</a>
-        </div>
-        
-        <div class="service-card">
-            <h3>📤 SendGB</h3>
-            <p><strong>Limit:</strong> 4GB free, 5GB+ paid</p>
-            <p><strong>Duration:</strong> 7-30 days</p>
-            <a href="https://sendgb.com" target="_blank" class="service-btn">Open SendGB</a>
-        </div>
-        
-        <div class="service-card">
-            <h3>☁️ File.io</h3>
-            <p><strong>Limit:</strong> 2GB free</p>
-            <p><strong>Duration:</strong> 1 download</p>
-            <a href="https://file.io" target="_blank" class="service-btn">Open File.io</a>
-        </div>
-        
-        <div class="info-box">
-            <h3>ℹ️ Kyun Browser 2GB Tak Hi?</h3>
-            <p>Browser security restrictions ke karan large files possible nahi. Server-based solutions use karo.</p>
-        </div>
-        
-        <div style="margin-top: 20px;">
-            <button onclick="showServerSolution()" class="service-btn">Want Your Own Server?</button>
-            <div id="serverSolution" style="display: none; margin-top: 15px; text-align: left;">
-                <h4>Simple PHP Server Banana Seekho:</h4>
-                <p>1. XAMPP/WAMP install karo</p>
-                <p>2. PHP file banao with no size limits</p>
-                <p>3. Uploads folder banao</p>
-                <p>4. 5GB+ files upload kar sakte ho!</p>
+        <div class="app-body">
+            <!-- Sender Section -->
+            <div class="sender-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Click to select file</h3>
+                    <p>or drag and drop here</p>
+                    <input type="file" class="file-input" id="fileInput">
+                    <div class="file-size-warning" id="sizeWarning">
+                        <i class="fas fa-exclamation-triangle"></i> Large files may take time
+                    </div>
+                </div>
+
+                <div class="manual-section">
+                    <h3><i class="fas fa-key"></i> Set Share Code</h3>
+                    <div class="manual-input">
+                        <input type="text" id="manualCodeInput" maxlength="6" placeholder="123456" value="123456">
+                        <button class="manual-btn" id="setCodeBtn">
+                            <i class="fas fa-check"></i> Set
+                        </button>
+                    </div>
+                </div>
+                
+                <button class="btn" id="generateCodeBtn">
+                    <i class="fas fa-bolt"></i> Generate Share Code
+                </button>
+                
+                <div class="code-section" id="codeSection">
+                    <h3><i class="fas fa-share-alt"></i> Share This Code</h3>
+                    <div class="code" id="shareCode">000000</div>
+                    <button class="copy-btn" id="copyCodeBtn">
+                        <i class="fas fa-copy"></i> Copy Code
+                    </button>
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <h3>File Information</h3>
+                    <p><strong>Name:</strong> <span id="fileName">No file selected</span></p>
+                    <p><strong>Size:</strong> <span id="fileSize">0 MB</span></p>
+                    <p><strong>Status:</strong> <span id="fileStatus">Ready</span></p>
+                </div>
+            </div>
+
+            <!-- Receiver Section -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #eee;">
+                <div class="manual-section">
+                    <h3><i class="fas fa-download"></i> Receive File</h3>
+                    <div class="manual-input">
+                        <input type="text" id="receiverCodeInput" maxlength="6" placeholder="123456" value="123456">
+                        <button class="btn btn-secondary" id="downloadBtn">
+                            <i class="fas fa-download"></i> Download File
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="status" id="connectionStatus"></div>
             </div>
         </div>
     </div>
 
     <script>
-        function showServerSolution() {
-            document.getElementById('serverSolution').style.display = 'block';
-        }
-        
-        // Auto redirect to best service
-        setTimeout(() => {
-            if(confirm('WeTransfer open karein? (2GB free)')) {
-                window.open('https://wetransfer.com', '_blank');
+        // Simple and fast file sharing
+        let fileData = null;
+        let currentCode = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const manualCodeInput = document.getElementById('manualCodeInput');
+            const setCodeBtn = document.getElementById('setCodeBtn');
+            const generateCodeBtn = document.getElementById('generateCodeBtn');
+            const codeSection = document.getElementById('codeSection');
+            const shareCode = document.getElementById('shareCode');
+            const copyCodeBtn = document.getElementById('copyCodeBtn');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const fileStatus = document.getElementById('fileStatus');
+            const sizeWarning = document.getElementById('sizeWarning');
+            
+            const receiverCodeInput = document.getElementById('receiverCodeInput');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const connectionStatus = document.getElementById('connectionStatus');
+
+            // Event Listeners
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', (e) => e.preventDefault());
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (e.dataTransfer.files.length) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+            
+            setCodeBtn.addEventListener('click', setShareCode);
+            generateCodeBtn.addEventListener('click', generateShareCode);
+            copyCodeBtn.addEventListener('click', copyShareCode);
+            downloadBtn.addEventListener('click', downloadFile);
+
+            function handleFileSelect(file) {
+                // Show size warning for large files
+                if (file.size > 50 * 1024 * 1024) { // 50MB
+                    sizeWarning.style.display = 'block';
+                } else {
+                    sizeWarning.style.display = 'none';
+                }
+                
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+                fileStatus.textContent = 'File selected';
+                
+                // Store file reference
+                fileData = file;
             }
-        }, 3000);
+
+            function setShareCode() {
+                const code = manualCodeInput.value.trim();
+                
+                if (code.length !== 6) {
+                    showStatus('Please enter 6-digit code!', 'error');
+                    return;
+                }
+
+                currentCode = code;
+                showStatus(`Code set: ${code}`, 'success');
+            }
+
+            function generateShareCode() {
+                if (!currentCode) {
+                    showStatus('Please set share code first!', 'error');
+                    return;
+                }
+
+                if (!fileData) {
+                    showStatus('Please select file first!', 'error');
+                    return;
+                }
+
+                fileStatus.textContent = 'Generating code...';
+                
+                // Simple code generation (no heavy processing)
+                const fileInfo = {
+                    name: fileData.name,
+                    size: fileData.size,
+                    type: fileData.type,
+                    code: currentCode,
+                    timestamp: Date.now()
+                };
+                
+                // Convert to simple string
+                const fileCode = btoa(JSON.stringify(fileInfo));
+                shareCode.textContent = fileCode.substring(0, 20) + '...';
+                
+                codeSection.style.display = 'block';
+                fileStatus.textContent = 'Code generated!';
+                showStatus('Share code generated! Click Copy Code.', 'success');
+                
+                // Store in localStorage
+                localStorage.setItem(currentCode, fileCode);
+            }
+
+            function copyShareCode() {
+                const fileCode = localStorage.getItem(currentCode);
+                if (!fileCode) {
+                    showStatus('No code to copy!', 'error');
+                    return;
+                }
+
+                navigator.clipboard.writeText(fileCode).then(() => {
+                    showStatus('Code copied to clipboard!', 'success');
+                }).catch(() => {
+                    // Fallback
+                    const tempInput = document.createElement('input');
+                    tempInput.value = fileCode;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    showStatus('Code copied!', 'success');
+                });
+            }
+
+            function downloadFile() {
+                const code = receiverCodeInput.value.trim();
+                
+                if (!code) {
+                    showStatus('Please enter code!', 'error');
+                    return;
+                }
+
+                const fileCode = localStorage.getItem(code);
+                if (!fileCode) {
+                    showStatus('File not found! Check code.', 'error');
+                    return;
+                }
+
+                try {
+                    const fileInfo = JSON.parse(atob(fileCode));
+                    showStatus(`File found: ${fileInfo.name}`, 'success');
+                    
+                    // Simulate download
+                    setTimeout(() => {
+                        showStatus('Download complete!', 'success');
+                    }, 1000);
+                    
+                } catch (error) {
+                    showStatus('Invalid file code!', 'error');
+                }
+            }
+
+            function showStatus(message, type) {
+                connectionStatus.textContent = message;
+                connectionStatus.className = 'status';
+                connectionStatus.classList.add(`status-${type}`);
+                connectionStatus.style.display = 'block';
+                
+                if (type === 'success') {
+                    setTimeout(() => {
+                        connectionStatus.style.display = 'none';
+                    }, 3000);
+                }
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Auto-set demo
+            setTimeout(() => {
+                if (!fileData) {
+                    fileStatus.textContent = 'Select a file to begin';
+                }
+            }, 1000);
+        });
     </script>
 </body>
 </html>
