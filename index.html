@@ -3,414 +3,805 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickShare - Cross Browser</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>AI Creator Studio - Live Admin</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- FIREBASE SDKs (Compat Version for Easy Setup) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        /* Slider Styling */
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #10b981; cursor: pointer; margin-top: -6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px;
         }
         
-        body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #333;
-        }
+        /* Audio Player Customization */
+        audio { filter: invert(1) hue-rotate(180deg); opacity: 0.9; border-radius: 0.5rem; }
         
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
+        /* Admin Badge Animation */
+        @keyframes pulse-emerald {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
         }
-        
-        header {
-            background: linear-gradient(90deg, #4a00e0, #8e2de2);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-        
-        .app-body {
-            padding: 20px;
-        }
-        
-        .upload-area {
-            border: 3px dashed #8e2de2;
-            border-radius: 10px;
-            padding: 30px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .upload-area:hover {
-            background-color: #f8f5ff;
-        }
-        
-        .upload-icon {
-            font-size: 40px;
-            color: #8e2de2;
-            margin-bottom: 10px;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .btn {
-            background: linear-gradient(90deg, #4a00e0, #8e2de2);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            margin: 10px 0;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(142, 45, 226, 0.3);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(90deg, #11998e, #38ef7d);
-        }
-        
-        .code-section {
-            background: #f0f0f0;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            display: none;
-            text-align: center;
-        }
-        
-        .file-info {
-            background: #f8f5ff;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            display: none;
-        }
-        
-        .status {
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            display: none;
-        }
-        
-        .status-success {
-            background: #e8f7ef;
-            color: #11998e;
-            border: 1px solid #11998e;
-        }
-        
-        .status-error {
-            background: #fde8e8;
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-        }
-        
-        .manual-section {
-            background: #fff3cd;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-        }
-        
-        .data-section {
-            background: #e8f5e8;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            display: none;
-        }
-        
-        .data-text {
-            font-family: monospace;
-            font-size: 0.8rem;
-            word-break: break-all;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #38ef7d;
-            max-height: 100px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-        
-        .copy-btn {
-            background: #4a00e0;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
+        .admin-pulse { animation: pulse-emerald 2s infinite; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-paper-plane"></i> QuickShare CROSS</h1>
-            <p>Chrome ↔ Firefox File Sharing</p>
-        </header>
-        
-        <div class="app-body">
-            <!-- Sender Section -->
-            <div class="sender-section">
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
+<body class="bg-[#0B1120] text-white font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- ================= VIEWS CONTAINER ================= -->
+    <div id="app-container" class="w-full h-full relative">
+
+        <!-- 1. LANDING PAGE VIEW -->
+        <div id="landing-view" class="absolute inset-0 flex flex-col items-center justify-center p-6 z-10 transition-opacity duration-500">
+            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-900/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-900/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="bg-[#1E293B] border border-slate-700/50 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest text-indigo-300 uppercase mb-6 shadow-lg">
+                Powered by Grow with Haider
+            </div>
+
+            <div class="text-center mb-16 space-y-2">
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">AI Creator Studio</h1>
+                <p class="text-slate-400 text-lg font-medium">Professional Tools Suite</p>
+            </div>
+
+            <div class="w-full max-w-md relative">
+                <div id="open-tool-btn" class="group relative bg-[#162032] border border-slate-800 rounded-3xl p-10 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-900/20 cursor-pointer transform hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl"></div>
+                    <div class="flex flex-col items-center text-center space-y-8 relative z-10">
+                        <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform duration-300">
+                            <i data-lucide="mic" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <div class="space-y-3">
+                            <h3 class="text-2xl font-bold text-white">Text to Speech Pro</h3>
+                            <p class="text-slate-400 text-base leading-relaxed">30+ Premium Voices. Unlimited Text. <br/>Instant WAV Download.</p>
+                        </div>
+                        <button class="flex items-center gap-2 px-6 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-sm font-bold group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                            Open Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
                     </div>
-                    <h3>Click to select file</h3>
-                    <p>or drag and drop here</p>
-                    <input type="file" class="file-input" id="fileInput">
                 </div>
-
-                <button class="btn" id="generateCodeBtn">
-                    <i class="fas fa-bolt"></i> Generate File Data Code
+                
+                <!-- Admin Login Shortcut -->
+                <button onclick="switchView('admin-login')" class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-slate-600 hover:text-emerald-500 text-xs uppercase tracking-widest transition-colors flex items-center gap-1">
+                    <i data-lucide="shield" class="w-3 h-3"></i> Admin Access
                 </button>
-                
-                <div class="data-section" id="dataSection">
-                    <h3><i class="fas fa-share-alt"></i> File Data Code</h3>
-                    <div class="data-text" id="fileDataText"></div>
-                    <button class="copy-btn" id="copyCodeBtn">
-                        <i class="fas fa-copy"></i> Copy This Code
+            </div>
+        </div>
+
+        <!-- 2. TOOL VIEW -->
+        <div id="tool-view" class="absolute inset-0 flex flex-col bg-[#0B1120] hidden opacity-0 transition-opacity duration-500">
+            <div class="border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-md sticky top-0 z-20">
+                <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+                    <button id="back-btn" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i> Back
                     </button>
-                    <p><small>Send this code to receiver</small></p>
-                </div>
-                
-                <div class="file-info" id="fileInfo">
-                    <h3>File Information</h3>
-                    <p><strong>Name:</strong> <span id="fileName">No file selected</span></p>
-                    <p><strong>Size:</strong> <span id="fileSize">0 MB</span></p>
-                    <p><strong>Status:</strong> <span id="fileStatus">Ready</span></p>
+                    <h1 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="bg-emerald-500/10 text-emerald-400 p-1.5 rounded-lg"><i data-lucide="mic" class="w-4 h-4"></i></span>
+                        Text to Speech Pro
+                    </h1>
+                    <button id="settings-btn" class="p-2 rounded-full hover:bg-slate-800 text-slate-400 transition-colors relative">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                        <span id="key-indicator" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Receiver Section -->
-            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #eee;">
-                <div class="manual-section">
-                    <h3><i class="fas fa-download"></i> Receive File</h3>
-                    <p><strong>Paste File Data Code:</strong></p>
-                    <textarea 
-                        id="fileDataInput" 
-                        placeholder="Paste the file data code here..." 
-                        rows="4"
-                        style="width: 100%; padding: 12px; border: 2px solid #8e2de2; border-radius: 8px; font-family: monospace; resize: vertical; margin: 10px 0;"
-                    ></textarea>
-                    <button class="btn btn-secondary" id="downloadBtn">
-                        <i class="fas fa-download"></i> Download File
-                    </button>
+            <div class="flex-1 p-4 md:p-8 max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-6 overflow-y-auto">
+                <!-- Left: Input -->
+                <div class="flex flex-col gap-4 h-full">
+                    <div class="bg-[#1E293B] border border-slate-700 rounded-3xl p-1 flex-1 flex flex-col shadow-xl min-h-[300px]">
+                        <textarea id="text-input" class="flex-1 w-full bg-transparent text-lg p-6 resize-none outline-none text-slate-200 placeholder:text-slate-600" placeholder="Paste your script here (Unlimited)..."></textarea>
+                        <div class="px-6 py-3 border-t border-slate-700/50 flex justify-between items-center text-xs text-slate-500 font-mono">
+                            <span id="system-key-badge" class="hidden text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">⚡ System Key Active</span>
+                            <span><span id="char-count">0</span> characters</span>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="status" id="connectionStatus"></div>
-                
-                <div class="file-info" id="receiverFileInfo" style="display: none;">
-                    <h3>File Ready</h3>
-                    <p><strong>Name:</strong> <span id="receiverFileName">example.pdf</span></p>
-                    <p><strong>Size:</strong> <span id="receiverFileSize">0 MB</span></p>
-                    <p><strong>Status:</strong> <span id="receiverFileStatus">Ready</span></p>
+
+                <!-- Right: Controls -->
+                <div class="flex flex-col gap-4">
+                    <div class="bg-[#1E293B] border border-slate-700 rounded-3xl overflow-hidden flex flex-col h-[450px] shadow-xl">
+                        <div class="px-6 py-4 border-b border-slate-700 bg-[#1E293B] sticky top-0 z-10 flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Controls</span>
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-slate-500"></i>
+                        </div>
+                        <div class="p-6 space-y-6 bg-[#162032] border-b border-slate-700">
+                            <div>
+                                <div class="flex justify-between mb-2 text-xs font-medium">
+                                    <span class="text-slate-400 uppercase">Speed</span>
+                                    <span id="speed-val" class="text-emerald-400">1.0x</span>
+                                </div>
+                                <input type="range" id="speed-range" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full">
+                            </div>
+                        </div>
+                        <div class="px-6 py-2 bg-[#1E293B] text-xs font-bold text-slate-400 uppercase tracking-wider">Voices</div>
+                        <div id="voice-list" class="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar"></div>
+                    </div>
+
+                    <div class="bg-[#1E293B] border border-slate-700 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>
+                        <div class="relative z-10 space-y-4">
+                            <div id="progress-container" class="hidden space-y-2">
+                                <div class="flex justify-between text-xs font-bold text-emerald-400">
+                                    <span id="progress-text">Initializing...</span>
+                                    <span id="progress-pct">0%</span>
+                                </div>
+                                <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                    <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-300 w-0"></div>
+                                </div>
+                            </div>
+                            <button id="generate-btn" class="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-[#0B1120] font-bold rounded-xl shadow-lg shadow-emerald-900/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                <i data-lucide="wand-2" class="w-5 h-5"></i> Generate Audio
+                            </button>
+                            <div id="result-container" class="hidden animate-in fade-in slide-in-from-bottom-2 space-y-3 pt-2">
+                                <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                                    <audio id="audio-player" controls class="w-full h-8"></audio>
+                                </div>
+                                <a id="download-link" href="#" download class="flex items-center justify-center gap-2 w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors">
+                                    <i data-lucide="download" class="w-4 h-4"></i> Download File
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="manual-section">
-                <h3><i class="fas fa-info-circle"></i> How to Use</h3>
-                <p><strong>Chrome (Sender):</strong></p>
-                <p>1. Upload file → Generate Code → Copy Code</p>
+        <!-- 3. ADMIN LOGIN VIEW -->
+        <div id="admin-login-view" class="absolute inset-0 bg-[#0B1120] flex items-center justify-center hidden opacity-0 transition-opacity z-50">
+            <div class="w-full max-w-md p-8 bg-[#1E293B] border border-slate-700 rounded-3xl shadow-2xl relative">
+                <button onclick="switchView('landing')" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+                        <i data-lucide="shield-alert" class="w-8 h-8 text-red-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Admin Access</h2>
+                    <p class="text-slate-400 text-sm">Restricted Area. Authorized Personnel Only.</p>
+                </div>
+                <div class="space-y-4">
+                    <input type="email" id="admin-email" placeholder="Admin Email" class="w-full bg-[#0B1120] border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-red-500">
+                    <input type="password" id="admin-pass" placeholder="Password" class="w-full bg-[#0B1120] border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-red-500">
+                    <button onclick="handleAdminLogin()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-900/20 transition-all">Login to Console</button>
+                </div>
+                <p id="admin-login-msg" class="text-center text-red-400 text-xs mt-4 h-4"></p>
+            </div>
+        </div>
+
+        <!-- 4. ADMIN DASHBOARD VIEW -->
+        <div id="admin-dashboard-view" class="absolute inset-0 bg-[#0B1120] flex flex-col hidden opacity-0 transition-opacity z-50">
+            <!-- Admin Nav -->
+            <div class="border-b border-red-900/30 bg-[#1E293B] px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="bg-red-500/10 text-red-500 p-2 rounded-lg"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></span>
+                    <div>
+                        <h1 class="font-bold text-white">Admin Console</h1>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-wider">System Management</p>
+                    </div>
+                </div>
+                <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold flex items-center gap-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                </button>
+            </div>
+
+            <!-- Admin Content -->
+            <div class="flex-1 p-6 md:p-10 max-w-5xl mx-auto w-full overflow-y-auto">
                 
-                <p><strong>Firefox (Receiver):</strong></p>
-                <p>2. Paste Code → Download File</p>
-                
-                <p style="color: #4a00e0; font-weight: bold; margin-top: 10px;">
-                    ✅ Code manually copy-paste karna hoga!
-                </p>
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <!-- Stats Card 1 -->
+                    <div class="bg-[#162032] border border-slate-700 p-6 rounded-2xl relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">Total System Keys</p>
+                            <h3 id="stat-keys-count" class="text-3xl font-bold text-white">0</h3>
+                        </div>
+                        <i data-lucide="key" class="absolute right-4 bottom-4 w-12 h-12 text-slate-700/50 group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <!-- Stats Card 2 -->
+                    <div class="bg-[#162032] border border-slate-700 p-6 rounded-2xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <p class="text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">System Status</p>
+                            <h3 class="text-xl font-bold text-emerald-400 flex items-center gap-2"><div class="w-2 h-2 bg-emerald-500 rounded-full admin-pulse"></div> Online</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Management -->
+                <div class="bg-[#1E293B] border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="p-6 border-b border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Global API Keys</h2>
+                            <p class="text-sm text-slate-400">Keys added here are used by all users if they don't provide one.</p>
+                        </div>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <input id="new-sys-key" type="text" placeholder="Paste Gemini API Key" class="flex-1 md:w-64 bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+                            <button onclick="addSystemKey()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-0">
+                        <table class="w-full text-left text-sm text-slate-400">
+                            <thead class="bg-[#0B1120] text-xs uppercase font-bold text-slate-500 border-b border-slate-700">
+                                <tr>
+                                    <th class="px-6 py-4">Key Preview</th>
+                                    <th class="px-6 py-4">Date Added</th>
+                                    <th class="px-6 py-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="system-keys-list" class="divide-y divide-slate-700/50">
+                                <!-- JS Populates this -->
+                                <tr>
+                                    <td colspan="3" class="px-6 py-8 text-center italic text-slate-600">Loading keys from Firestore...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SETTINGS MODAL (Modified for User) -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center pt-20 hidden">
+        <div class="bg-[#1E293B] border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="key" class="w-4 h-4 text-indigo-400"></i> Personal API Key</h3>
+            <div class="space-y-3">
+                <input id="api-key-input" type="password" placeholder="Paste Your Gemini API Key..." class="w-full bg-[#0B1120] border border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-500 text-white">
+                <div class="flex gap-2">
+                    <button id="save-key-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-sm font-bold">Save Local Key</button>
+                    <button id="close-settings-btn" class="px-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm">Close</button>
+                </div>
+                <div class="text-xs text-slate-500 pt-2 flex justify-between items-center">
+                    <span id="active-keys-count">Local Keys: 0</span>
+                    <button id="clear-keys-btn" class="text-red-400 hover:underline">Clear Local</button>
+                </div>
+                <div class="mt-4 p-3 bg-emerald-900/20 border border-emerald-500/20 rounded-lg text-center">
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase">System Status</p>
+                    <p id="system-key-status" class="text-xs text-slate-300">Checking for System Keys...</p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- ERROR TOAST -->
+    <div id="error-toast" class="fixed bottom-6 right-6 max-w-sm bg-[#1E293B] border-l-4 border-red-500 shadow-2xl rounded-lg p-4 hidden z-50">
+        <div class="flex items-start gap-3">
+            <i data-lucide="alert-circle" class="w-5 h-5 text-red-500 mt-0.5"></i>
+            <div>
+                <h3 class="font-bold text-red-400 text-sm">Error</h3>
+                <p id="error-msg" class="text-xs text-slate-300 mt-1">Something went wrong.</p>
+            </div>
+            <button id="close-toast" class="ml-auto text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('fileInput');
-            const uploadArea = document.getElementById('uploadArea');
-            const generateCodeBtn = document.getElementById('generateCodeBtn');
-            const dataSection = document.getElementById('dataSection');
-            const fileDataText = document.getElementById('fileDataText');
-            const copyCodeBtn = document.getElementById('copyCodeBtn');
-            const fileInfo = document.getElementById('fileInfo');
-            const fileName = document.getElementById('fileName');
-            const fileSize = document.getElementById('fileSize');
-            const fileStatus = document.getElementById('fileStatus');
+        // ==========================================
+        //  USER CONFIG (AUTO-FILLED)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBAbtakEQ9vl9Khz91D8HD8uDeQR8nUHa4",
+            authDomain: "creator-studio-new.firebaseapp.com",
+            projectId: "creator-studio-new",
+            storageBucket: "creator-studio-new.firebasestorage.app",
+            messagingSenderId: "512739989726",
+            appId: "1:512739989726:web:84b798168ca876ff628a4f",
+            measurementId: "G-T81R12D3KY"
+        };
+        // ==========================================
+
+        let app, auth, db;
+        let isFirebaseActive = false;
+        let systemKeys = []; 
+
+        // Initialize Firebase
+        try {
+            // Check if firebase is loaded from CDN
+            if (typeof firebase !== 'undefined') {
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                isFirebaseActive = true;
+                console.log("Firebase Connected Successfully");
+            } else {
+                console.error("Firebase SDK not loaded");
+                showError("Internet connection required for Admin features");
+            }
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+        }
+
+        // --- CONSTANTS ---
+        const TTS_MODEL = "gemini-2.5-flash-preview-tts";
+        const CHUNK_SIZE = 4500;
+        const VOICES = [
+            { id: "Fenrir", gender: "Male", desc: "Deep & Calm" },
+            { id: "Kore", gender: "Female", desc: "Soothing & Clear" },
+            { id: "Puck", gender: "Male", desc: "Energetic" },
+            { id: "Aoede", gender: "Female", desc: "Warm & Friendly" },
+            { id: "Charon", gender: "Male", desc: "Deep & Authoritative" },
+            { id: "Zephyr", gender: "Male", desc: "Smooth & Balanced" }
+        ];
+
+        // --- STATE ---
+        let state = {
+            text: "",
+            selectedVoiceId: "Fenrir",
+            localKeys: [],
+            currentKeyIndex: 0,
+            isGenerating: false,
+            previewAudio: null,
+            speed: 1.0
+        };
+
+        // --- ELEMENTS ---
+        const els = {
+            landingView: document.getElementById('landing-view'),
+            toolView: document.getElementById('tool-view'),
+            adminLoginView: document.getElementById('admin-login-view'),
+            adminDashboardView: document.getElementById('admin-dashboard-view'),
+        };
+
+        function getEl(id) { return document.getElementById(id); }
+
+        // --- INIT ---
+        function init() {
+            lucide.createIcons();
+            renderVoices();
             
-            const fileDataInput = document.getElementById('fileDataInput');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const connectionStatus = document.getElementById('connectionStatus');
-            const receiverFileInfo = document.getElementById('receiverFileInfo');
-            const receiverFileName = document.getElementById('receiverFileName');
-            const receiverFileSize = document.getElementById('receiverFileSize');
-            const receiverFileStatus = document.getElementById('receiverFileStatus');
+            // Load Local Storage Keys
+            const storedKeys = localStorage.getItem("local_api_keys");
+            if (storedKeys) state.localKeys = JSON.parse(storedKeys);
+            updateKeysUI();
 
-            let selectedFile = null;
+            // Load System Keys if Firebase is ready
+            if(isFirebaseActive) fetchSystemKeysForUser();
 
-            // Event Listeners
-            uploadArea.addEventListener('click', () => fileInput.click());
-            uploadArea.addEventListener('dragover', (e) => e.preventDefault());
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                if (e.dataTransfer.files.length) {
-                    handleFileSelect(e.dataTransfer.files[0]);
-                }
+            // Navigation
+            getEl('open-tool-btn').onclick = () => switchView('tool');
+            getEl('back-btn').onclick = () => switchView('landing');
+            getEl('settings-btn').onclick = () => toggleSettings(true);
+            getEl('close-settings-btn').onclick = () => toggleSettings(false);
+            
+            // Settings
+            getEl('save-key-btn').onclick = saveLocalKey;
+            getEl('clear-keys-btn').onclick = clearLocalKeys;
+            
+            // Tool
+            getEl('text-input').oninput = (e) => {
+                state.text = e.target.value;
+                getEl('char-count').innerText = state.text.length;
+            };
+            getEl('speed-range').oninput = (e) => {
+                state.speed = parseFloat(e.target.value);
+                getEl('speed-val').innerText = state.speed + 'x';
+            };
+            getEl('generate-btn').onclick = generateAudio;
+            getEl('close-toast').onclick = () => getEl('error-toast').classList.add('hidden');
+        }
+
+        // --- VIEW MANAGER ---
+        function switchView(viewName) {
+            // Hide all
+            [els.landingView, els.toolView, els.adminLoginView, els.adminDashboardView].forEach(el => {
+                el.classList.add('hidden', 'opacity-0');
+                el.classList.remove('z-50'); // Reset z-index
             });
-            
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length) {
-                    handleFileSelect(e.target.files[0]);
-                }
-            });
-            
-            generateCodeBtn.addEventListener('click', generateFileCode);
-            copyCodeBtn.addEventListener('click', copyFileCode);
-            downloadBtn.addEventListener('click', downloadFile);
 
-            function handleFileSelect(file) {
-                selectedFile = file;
-                fileName.textContent = file.name;
-                fileSize.textContent = formatFileSize(file.size);
-                fileInfo.style.display = 'block';
-                fileStatus.textContent = 'File selected';
+            if(viewName === 'landing') {
+                showEl(els.landingView);
+            } else if (viewName === 'tool') {
+                showEl(els.toolView);
+            } else if (viewName === 'admin-login') {
+                showEl(els.adminLoginView);
+                els.adminLoginView.classList.add('z-50');
+            } else if (viewName === 'admin-dashboard') {
+                showEl(els.adminDashboardView);
+                els.adminDashboardView.classList.add('z-50');
+                if(isFirebaseActive) loadAdminDashboardData();
+            }
+        }
+
+        function showEl(el) {
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.remove('opacity-0'), 50);
+        }
+
+        function toggleSettings(show) {
+            const modal = getEl('settings-modal');
+            if(show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        // --- ADMIN / FIREBASE LOGIC ---
+
+        // 1. Fetch keys for regular users
+        async function fetchSystemKeysForUser() {
+            if(!isFirebaseActive) return;
+            try {
+                const snap = await db.collection('system_keys').orderBy('addedAt', 'desc').get();
+                systemKeys = snap.docs.map(doc => doc.data().key);
+                updateKeysUI();
+            } catch (e) {
+                console.log("Could not fetch system keys (might be restricted to admin only, or network issue).");
+            }
+        }
+
+        // 2. Login
+        async function handleAdminLogin() {
+            const email = getEl('admin-email').value;
+            const pass = getEl('admin-pass').value;
+            const msg = getEl('admin-login-msg');
+            
+            if(!isFirebaseActive) {
+                msg.innerText = "Error: Firebase not connected!";
+                return;
             }
 
-            function generateFileCode() {
-                if (!selectedFile) {
-                    showStatus('Please select file first!', 'error');
+            msg.innerText = "Authenticating...";
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+                switchView('admin-dashboard');
+                msg.innerText = "";
+                getEl('admin-email').value = "";
+                getEl('admin-pass').value = "";
+            } catch (error) {
+                msg.innerText = "Login Failed: " + error.code;
+            }
+        }
+
+        // 3. Logout
+        function handleAdminLogout() {
+            if(isFirebaseActive) auth.signOut();
+            switchView('landing');
+        }
+
+        // 4. Admin Dashboard Logic
+        function loadAdminDashboardData() {
+            if(!auth.currentUser) return;
+            
+            db.collection('system_keys').orderBy('addedAt', 'desc').onSnapshot(snap => {
+                const list = getEl('system-keys-list');
+                list.innerHTML = "";
+                getEl('stat-keys-count').innerText = snap.size;
+
+                if(snap.empty) {
+                    list.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-slate-600">No keys in database.</td></tr>`;
                     return;
                 }
 
-                fileStatus.textContent = 'Converting file to code...';
-
-                // Convert file to Base64
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const fileData = {
-                        name: selectedFile.name,
-                        type: selectedFile.type,
-                        size: selectedFile.size,
-                        data: e.target.result,
-                        timestamp: Date.now()
-                    };
-
-                    // Convert to JSON string
-                    const fileDataString = JSON.stringify(fileData);
-                    fileDataText.textContent = fileDataString;
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.addedAt ? new Date(data.addedAt.seconds * 1000).toLocaleDateString() : 'N/A';
+                    const keyMasked = data.key.substring(0, 8) + "..." + data.key.substring(data.key.length - 4);
                     
-                    dataSection.style.display = 'block';
-                    fileStatus.textContent = 'Code generated! Copy and share.';
-                    
-                    showStatus('File code generated! Copy the code above.', 'success');
-                };
-                reader.readAsDataURL(selectedFile);
-            }
-
-            function copyFileCode() {
-                if (!fileDataText.textContent) {
-                    showStatus('No code to copy!', 'error');
-                    return;
-                }
-
-                navigator.clipboard.writeText(fileDataText.textContent).then(() => {
-                    showStatus('Code copied! Send to receiver.', 'success');
-                }).catch(() => {
-                    // Fallback
-                    fileDataText.select();
-                    document.execCommand('copy');
-                    showStatus('Code copied! Send to receiver.', 'success');
+                    const row = `
+                        <tr class="hover:bg-slate-800/50 transition-colors group">
+                            <td class="px-6 py-4 font-mono text-emerald-400">${keyMasked}</td>
+                            <td class="px-6 py-4">${date}</td>
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="deleteSystemKey('${doc.id}')" class="text-slate-500 hover:text-red-400 transition-colors">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    list.innerHTML += row;
                 });
+                lucide.createIcons();
+            });
+        }
+
+        async function addSystemKey() {
+            const input = getEl('new-sys-key');
+            const key = input.value.trim();
+            if(!key) return;
+
+            try {
+                await db.collection('system_keys').add({
+                    key: key,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                input.value = "";
+                showError("Key added to database!"); // Using error toast for success for simplicity
+                getEl('error-msg').classList.replace('text-slate-300', 'text-emerald-300'); 
+            } catch (e) {
+                showError("Error adding key: " + e.message);
+            }
+        }
+
+        async function deleteSystemKey(id) {
+            if(confirm("Delete this API key from database?")) {
+                await db.collection('system_keys').doc(id).delete();
+            }
+        }
+
+
+        // --- CORE UI LOGIC ---
+
+        function renderVoices() {
+            const list = getEl('voice-list');
+            list.innerHTML = '';
+            VOICES.forEach(voice => {
+                const isActive = state.selectedVoiceId === voice.id;
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl cursor-pointer transition-all flex items-center justify-between group ${isActive ? 'bg-emerald-600/20 border border-emerald-500/50' : 'hover:bg-slate-800 border border-transparent'}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'}">${voice.id[0]}</div>
+                        <div>
+                            <h4 class="text-sm font-bold ${isActive ? 'text-emerald-400' : 'text-slate-300'}">${voice.id}</h4>
+                            <p class="text-[10px] text-slate-500">${voice.gender} • ${voice.desc}</p>
+                        </div>
+                    </div>
+                    <button class="preview-btn p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-emerald-400 transition-colors"><i data-lucide="play" class="w-3 h-3 fill-current"></i></button>
+                `;
+                div.onclick = () => { state.selectedVoiceId = voice.id; renderVoices(); };
+                div.querySelector('.preview-btn').onclick = (e) => { e.stopPropagation(); playPreview(voice.id); };
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function saveLocalKey() {
+            const key = getEl('api-key-input').value.trim();
+            if(key) {
+                state.localKeys.push(key);
+                localStorage.setItem("local_api_keys", JSON.stringify(state.localKeys));
+                getEl('api-key-input').value = "";
+                updateKeysUI();
+            }
+        }
+
+        function clearLocalKeys() {
+            if(confirm("Clear local keys?")) {
+                state.localKeys = [];
+                localStorage.removeItem("local_api_keys");
+                updateKeysUI();
+            }
+        }
+
+        function updateKeysUI() {
+            getEl('active-keys-count').innerText = `Local Keys: ${state.localKeys.length}`;
+            const indicator = getEl('key-indicator');
+            const statusText = getEl('system-key-status');
+            const badge = getEl('system-key-badge');
+            
+            const hasLocal = state.localKeys.length > 0;
+            const hasSystem = systemKeys.length > 0;
+
+            if(hasLocal) {
+                indicator.className = "absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full";
+                statusText.innerText = "Using Local Keys";
+                badge.classList.add('hidden');
+            } else if (hasSystem) {
+                indicator.className = "absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse";
+                statusText.innerText = "System Keys Active (Managed by Admin)";
+                statusText.classList.add('text-emerald-400');
+                badge.classList.remove('hidden');
+            } else {
+                indicator.className = "absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full";
+                statusText.innerText = "No Keys Available";
+                badge.classList.add('hidden');
+            }
+        }
+
+        // --- AUDIO GENERATION LOGIC ---
+
+        async function generateAudio() {
+            const hasLocal = state.localKeys.length > 0;
+            const hasSystem = systemKeys.length > 0;
+
+            if (!state.text.trim()) return showError("Please enter some text.");
+            
+            // Key Priority: Local -> System -> Error
+            let activeKeyPool = hasLocal ? state.localKeys : (hasSystem ? systemKeys : []);
+            
+            if (activeKeyPool.length === 0) {
+                toggleSettings(true);
+                return showError("No API Keys found. Please add one or contact Admin.");
             }
 
-            function downloadFile() {
-                const fileDataString = fileDataInput.value.trim();
+            setIsGenerating(true);
+            try {
+                const chunks = chunkText(state.text);
+                let completed = 0;
                 
-                if (!fileDataString) {
-                    showStatus('Please paste file data code!', 'error');
-                    return;
-                }
+                const promises = chunks.map(async (chunk, index) => {
+                    // Pass the determined pool to the fetcher
+                    const buffer = await fetchWithRotation(chunk, state.selectedVoiceId, activeKeyPool);
+                    completed++;
+                    requestAnimationFrame(() => {
+                        const pct = Math.round((completed / chunks.length) * 100);
+                        getEl('progress-bar').style.width = `${pct}%`;
+                        getEl('progress-pct').innerText = `${pct}%`;
+                    });
+                    return { index, buffer };
+                });
+
+                const results = await Promise.all(promises);
+                results.sort((a, b) => a.index - b.index);
+                const finalBlob = mergeBuffers(results.map(r => r.buffer));
+                const url = URL.createObjectURL(finalBlob);
+                
+                getEl('audio-player').src = url;
+                getEl('download-link').href = url;
+                getEl('download-link').download = `tts-${Date.now()}.wav`;
+                getEl('result-container').classList.remove('hidden');
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                setIsGenerating(false);
+            }
+        }
+
+        async function playPreview(voiceId) {
+            // Determine pool again for preview
+            let activeKeyPool = state.localKeys.length > 0 ? state.localKeys : systemKeys;
+            
+            if (activeKeyPool.length === 0) {
+                toggleSettings(true);
+                return showError("No API Keys available for preview.");
+            }
+
+            if (state.previewAudio) state.previewAudio.pause();
+
+            try {
+                const buffer = await fetchWithRotation("Hello.", voiceId, activeKeyPool);
+                const blob = createWavFromBuffer(buffer);
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.playbackRate = state.speed;
+                audio.play();
+                state.previewAudio = audio;
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        // --- API & WAV UTILS ---
+        
+        async function fetchWithRotation(text, voiceId, keyPool) {
+            let attempts = 0;
+            // Use a local index tracker for the rotation within this specific call context if needed, 
+            // but simple rotation over the pool length is fine.
+            let tempIndex = 0; 
+
+            while (attempts < keyPool.length) {
+                const key = keyPool[tempIndex % keyPool.length];
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent?key=${key}`;
 
                 try {
-                    const fileData = JSON.parse(fileDataString);
-                    
-                    // Show file info
-                    receiverFileName.textContent = fileData.name;
-                    receiverFileSize.textContent = formatFileSize(fileData.size);
-                    receiverFileStatus.textContent = 'Ready to download';
-                    
-                    receiverFileInfo.style.display = 'block';
-                    showStatus('File verified! Downloading...', 'success');
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text }] }],
+                            generationConfig: {
+                                responseModalities: ["AUDIO"],
+                                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceId } } }
+                            }
+                        })
+                    });
 
-                    // Create download
-                    const a = document.createElement('a');
-                    a.href = fileData.data;
-                    a.download = fileData.name;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
+                    if (!response.ok) {
+                        if (response.status === 429 || response.status === 403) {
+                            tempIndex++;
+                            attempts++;
+                            continue;
+                        }
+                        throw new Error(await response.text());
+                    }
+
+                    const data = await response.json();
+                    const b64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+                    if (!b64) throw new Error("No audio data.");
                     
-                    receiverFileStatus.textContent = 'Download completed!';
-                    showStatus('File downloaded successfully!', 'success');
-                    
-                } catch (error) {
-                    console.error('Error:', error);
-                    showStatus('Invalid file data code!', 'error');
+                    const bin = atob(b64);
+                    const bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                    return bytes.buffer;
+
+                } catch (e) {
+                    tempIndex++;
+                    attempts++;
+                    if(attempts >= keyPool.length) throw e;
                 }
             }
+            throw new Error("All API Keys exhausted.");
+        }
 
-            function showStatus(message, type) {
-                connectionStatus.textContent = message;
-                connectionStatus.className = 'status';
-                connectionStatus.classList.add(`status-${type}`);
-                connectionStatus.style.display = 'block';
-                
-                if (type === 'success') {
-                    setTimeout(() => {
-                        connectionStatus.style.display = 'none';
-                    }, 5000);
-                }
+        // Helper: Chunking
+        function chunkText(str) {
+            const chunks = [];
+            let current = "";
+            const sentences = str.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [str];
+            sentences.forEach(s => {
+                if(current.length + s.length < CHUNK_SIZE) current += s;
+                else { if(current) chunks.push(current); current = s; }
+            });
+            if(current) chunks.push(current);
+            return chunks;
+        }
+
+        // Helper: WAV Headers
+        function mergeBuffers(buffers) {
+            if (buffers.length === 0) return new Blob([]);
+            let totalLen = 0;
+            const parts = [];
+            buffers.forEach(b => {
+                const view = new DataView(b);
+                const offset = (view.getUint32(0, false) === 0x52494646) ? 44 : 0; // Simple check
+                const part = b.slice(offset);
+                parts.push(part);
+                totalLen += part.byteLength;
+            });
+            const header = createWavHeader(totalLen);
+            return new Blob([header, ...parts], { type: 'audio/wav' });
+        }
+
+        function createWavFromBuffer(buffer) {
+            if (buffer.byteLength > 44 && new DataView(buffer).getUint32(0,false) === 0x52494646) 
+                return new Blob([buffer], { type: 'audio/wav' });
+            return new Blob([createWavHeader(buffer.byteLength), buffer], { type: 'audio/wav' });
+        }
+
+        function createWavHeader(len) {
+            const buffer = new ArrayBuffer(44);
+            const view = new DataView(buffer);
+            const writeString = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+            writeString(0, 'RIFF'); view.setUint32(4, 36 + len, true); writeString(8, 'WAVE'); writeString(12, 'fmt ');
+            view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+            view.setUint32(24, 24000, true); view.setUint32(28, 48000, true); view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true); writeString(36, 'data'); view.setUint32(40, len, true);
+            return buffer;
+        }
+
+        function setIsGenerating(val) {
+            state.isGenerating = val;
+            const btn = getEl('generate-btn');
+            if (val) {
+                btn.disabled = true;
+                btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generating...`;
+                btn.classList.add('opacity-70');
+                getEl('progress-container').classList.remove('hidden');
+                getEl('result-container').classList.add('hidden');
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="wand-2" class="w-5 h-5"></i> Generate Audio`;
+                btn.classList.remove('opacity-70');
             }
-            
-            function formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
-        });
+            lucide.createIcons();
+        }
+
+        function showError(msg) {
+            getEl('error-msg').innerText = msg;
+            getEl('error-toast').classList.remove('hidden');
+            setTimeout(() => getEl('error-toast').classList.add('hidden'), 8000);
+        }
+
+        init();
     </script>
 </body>
 </html>
