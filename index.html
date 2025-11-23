@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Creator Studio - Secure Unified Login</title>
+    <title>AI Creator Studio - Final Pro</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -86,7 +86,7 @@
                         Text to Speech Pro
                     </h1>
                     <div class="flex items-center gap-3">
-                        <!-- Admin Shortcut (Only visible if Admin) -->
+                        <!-- Admin Shortcut -->
                         <button id="admin-shortcut-btn" class="hidden px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold hover:bg-red-500/20 flex items-center gap-2">
                             <i data-lucide="shield" class="w-3 h-3"></i> Admin
                         </button>
@@ -230,7 +230,6 @@
                         <h3 id="stat-total-users" class="text-3xl font-bold text-white">0</h3>
                         <p class="text-[10px] text-slate-500 mt-1">Total Accounts</p>
                     </div>
-                    <!-- ... Other stats same as before ... -->
                     <div class="bg-[#162032] border border-slate-700 p-5 rounded-2xl">
                         <div class="flex justify-between items-start mb-2">
                             <p class="text-slate-400 text-[10px] uppercase tracking-wider font-bold">Total Voices</p>
@@ -296,12 +295,19 @@
 
     </div>
 
-    <!-- SETTINGS & ERROR MODALS SAME AS BEFORE -->
+    <!-- SETTINGS & ERROR MODALS -->
     <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center pt-20 hidden">
         <div class="bg-[#1E293B] border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <h3 class="text-white font-bold mb-4 flex items-center gap-2"><i data-lucide="key" class="w-4 h-4 text-indigo-400"></i> Personal API Key</h3>
-            <div class="space-y-3">
-                <input id="api-key-input" type="password" placeholder="Paste Your Gemini API Key..." class="w-full bg-[#0B1120] border border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-500 text-white">
+            <div class="space-y-4">
+                <!-- NEW: Get Key Link -->
+                <div class="flex justify-between items-center mb-1">
+                    <label class="text-xs text-slate-400">Paste Your Gemini API Key</label>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 hover:underline">
+                        Get Key <i data-lucide="external-link" class="w-3 h-3"></i>
+                    </a>
+                </div>
+                <input id="api-key-input" type="password" placeholder="Paste Key Here..." class="w-full bg-[#0B1120] border border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-500 text-white">
                 <div class="flex gap-2">
                     <button id="save-key-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-sm font-bold">Save Local Key</button>
                     <button id="close-settings-btn" class="px-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm">Close</button>
@@ -343,7 +349,7 @@
         // ==========================================
         //  ADMIN CONFIG
         // ==========================================
-        const ADMIN_EMAIL = "haideroffical16@gmail.com"; // CHANGE THIS TO YOUR ADMIN EMAIL
+        const ADMIN_EMAIL = "haideroffical16@gmail.com"; 
 
         let app, auth, db;
         let isFirebaseActive = false;
@@ -382,8 +388,9 @@
             isGenerating: false,
             speed: 1.0,
             currentUser: null,
-            authMode: 'login', // 'login' or 'signup'
-            isAdmin: false
+            authMode: 'login', 
+            isAdmin: false,
+            previewAudio: null
         };
 
         const els = {
@@ -407,18 +414,12 @@
 
             if(isFirebaseActive) {
                 fetchSystemKeysForUser();
-                // Check Auth State
                 auth.onAuthStateChanged((user) => {
                     state.currentUser = user;
                     if (user) {
                         state.isAdmin = (user.email === ADMIN_EMAIL);
-                        console.log("User Logged In:", user.email, "Is Admin:", state.isAdmin);
-                        
-                        if (state.isAdmin) {
-                            els.adminShortcutBtn.classList.remove('hidden');
-                        } else {
-                            els.adminShortcutBtn.classList.add('hidden');
-                        }
+                        if (state.isAdmin) els.adminShortcutBtn.classList.remove('hidden');
+                        else els.adminShortcutBtn.classList.add('hidden');
                     }
                 });
             }
@@ -444,7 +445,7 @@
             getEl('close-toast').onclick = () => getEl('error-toast').classList.add('hidden');
         }
 
-        // --- USER AUTH LOGIC (UNIFIED) ---
+        // --- USER AUTH LOGIC ---
         
         function checkAuthAndStart() {
             if (state.currentUser) {
@@ -494,7 +495,6 @@
                 let userCredential;
                 if(state.authMode === 'signup') {
                     userCredential = await auth.createUserWithEmailAndPassword(email, pass);
-                    // Record New User in DB
                     db.collection('stats').doc('global').update({
                         total_users: firebase.firestore.FieldValue.increment(1)
                     }).catch(() => {
@@ -504,15 +504,10 @@
                     userCredential = await auth.signInWithEmailAndPassword(email, pass);
                 }
                 
-                // CHECK IF ADMIN
                 const user = userCredential.user;
-                if (user.email === ADMIN_EMAIL) {
-                    switchView('admin-dashboard');
-                } else {
-                    switchView('tool');
-                }
+                if (user.email === ADMIN_EMAIL) switchView('admin-dashboard');
+                else switchView('tool');
                 
-                // Success Cleanup
                 msg.innerText = "";
                 getEl('user-email').value = "";
                 getEl('user-pass').value = "";
@@ -555,126 +550,63 @@
             else modal.classList.add('hidden');
         }
 
-        // --- LIVE ANALYTICS LOGIC ---
-        function loadAdminDashboardData() {
-            const statsRef = db.collection('stats').doc('global');
-            
-            statsRef.onSnapshot(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    getEl('stat-total-users').innerText = data.total_users || 0;
-                    getEl('stat-total-gens').innerText = data.total_generations || 0;
-                    getEl('stat-pending').innerText = data.pending_generations || 0;
-                }
+        // --- CORE LOGIC ---
+        
+        function renderVoices() {
+            const list = getEl('voice-list'); list.innerHTML = '';
+            VOICES.forEach(voice => {
+                const isActive = state.selectedVoiceId === voice.id;
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl cursor-pointer transition-all flex items-center justify-between group ${isActive ? 'bg-emerald-600/20 border border-emerald-500/50' : 'hover:bg-slate-800 border border-transparent'}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'}">${voice.id[0]}</div>
+                        <div>
+                            <h4 class="text-sm font-bold ${isActive ? 'text-emerald-400' : 'text-slate-300'}">${voice.id}</h4>
+                            <p class="text-[10px] text-slate-500">${voice.gender} • ${voice.desc}</p>
+                        </div>
+                    </div>
+                    <button class="preview-btn p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-emerald-400 transition-colors" title="Play Preview">
+                        <i data-lucide="play" class="w-3 h-3 fill-current"></i>
+                    </button>
+                `;
+                div.onclick = () => { state.selectedVoiceId = voice.id; renderVoices(); };
+                
+                // NEW: PREVIEW CLICK HANDLER
+                const btn = div.querySelector('.preview-btn');
+                btn.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    playPreview(voice.id); 
+                };
+                
+                list.appendChild(div);
             });
-
-            db.collection('system_keys').orderBy('addedAt', 'desc').onSnapshot(snap => {
-                getEl('stat-keys-count').innerText = snap.size;
-                const miniList = getEl('system-keys-mini-list');
-                miniList.innerHTML = "";
-                snap.forEach(doc => {
-                    const k = doc.data().key;
-                    const mask = k.substr(0,4) + "..." + k.substr(-4);
-                    miniList.innerHTML += `
-                        <li class="flex justify-between items-center bg-slate-800 p-2 rounded border border-slate-700">
-                            <span>${mask}</span>
-                            <button onclick="deleteSystemKey('${doc.id}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash" class="w-3 h-3"></i></button>
-                        </li>`;
-                });
-                lucide.createIcons();
-            });
-
-            db.collection('activity_logs').orderBy('timestamp', 'desc').limit(20).onSnapshot(snap => {
-                const list = getEl('activity-log-list');
-                list.innerHTML = "";
-                if(snap.empty) {
-                    list.innerHTML = `<tr><td class="px-6 py-8 text-center italic text-slate-600">No recent activity.</td></tr>`;
-                    return;
-                }
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    const time = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleTimeString() : 'Just now';
-                    const row = `
-                        <tr class="border-b border-slate-700/50 animate-fade-up">
-                            <td class="px-6 py-3">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-emerald-400 font-mono">${time}</span>
-                                    <span class="text-sm text-white font-bold">${data.voice}</span>
-                                </div>
-                                <div class="text-[10px] text-slate-500 truncate max-w-[200px]">${data.preview}</div>
-                            </td>
-                            <td class="px-6 py-3 text-right">
-                                <span class="text-xs text-indigo-300 block mb-1">${data.userEmail ? data.userEmail.split('@')[0] : 'User'}</span>
-                                <span class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded text-slate-400">${data.charCount} chars</span>
-                            </td>
-                        </tr>
-                    `;
-                    list.innerHTML += row;
-                });
-            });
+            lucide.createIcons();
         }
 
-        // --- FIREBASE WRITES ---
-        function incrementPending() {
-            if(!isFirebaseActive) return;
-            const statsRef = db.collection('stats').doc('global');
-            statsRef.update({ pending_generations: firebase.firestore.FieldValue.increment(1) }).catch(e => {
-                statsRef.set({ total_users: 0, total_generations: 0, pending_generations: 1 }, { merge: true });
-            });
-        }
+        // NEW: PLAY PREVIEW FUNCTION
+        async function playPreview(voiceId) {
+            let activeKeyPool = state.localKeys.length > 0 ? state.localKeys : systemKeys;
+            if (activeKeyPool.length === 0) {
+                toggleSettings(true);
+                return showError("Please add an API Key to preview voices.");
+            }
 
-        function logGenerationSuccess(voiceId, text) {
-            if(!isFirebaseActive) return;
-            const batch = db.batch();
-            const statsRef = db.collection('stats').doc('global');
-            const logRef = db.collection('activity_logs').doc();
+            if (state.previewAudio) state.previewAudio.pause();
 
-            batch.update(statsRef, {
-                pending_generations: firebase.firestore.FieldValue.increment(-1),
-                total_generations: firebase.firestore.FieldValue.increment(1)
-            });
-
-            batch.set(logRef, {
-                voice: voiceId,
-                charCount: text.length,
-                preview: text.substring(0, 50) + (text.length > 50 ? "..." : ""),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                userEmail: state.currentUser ? state.currentUser.email : 'Anonymous',
-                userId: state.currentUser ? state.currentUser.uid : 'anon'
-            });
-
-            batch.commit().catch(console.error);
-        }
-
-        function logGenerationFail() {
-            if(!isFirebaseActive) return;
-            db.collection('stats').doc('global').update({
-                pending_generations: firebase.firestore.FieldValue.increment(-1)
-            }).catch(console.error);
-        }
-
-        // --- HELPERS & API ---
-        async function fetchSystemKeysForUser() {
-            if(!isFirebaseActive) return;
             try {
-                const snap = await db.collection('system_keys').orderBy('addedAt', 'desc').get();
-                systemKeys = snap.docs.map(doc => doc.data().key);
-                updateKeysUI();
-            } catch (e) { console.log("Error fetching keys"); }
-        }
-
-        async function addSystemKey() {
-            const input = getEl('new-sys-key');
-            const key = input.value.trim();
-            if(!key) return;
-            try {
-                await db.collection('system_keys').add({ key: key, addedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                input.value = "";
-            } catch (e) { showError(e.message); }
-        }
-
-        async function deleteSystemKey(id) {
-            if(confirm("Delete Key?")) await db.collection('system_keys').doc(id).delete();
+                showError("Loading preview...");
+                const text = "Hello! This is a preview.";
+                const buffer = await fetchWithRotation(text, voiceId, activeKeyPool);
+                const blob = createWavFromBuffer(buffer);
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.playbackRate = state.speed;
+                audio.play();
+                state.previewAudio = audio;
+            } catch (err) {
+                showError("Preview Error: " + err.message);
+            }
         }
 
         async function generateAudio() {
@@ -684,7 +616,6 @@
                 toggleUserAuth(true);
                 return;
             }
-
             const hasLocal = state.localKeys.length > 0;
             const hasSystem = systemKeys.length > 0;
             if (!state.text.trim()) return showError("Please enter some text.");
@@ -732,6 +663,7 @@
             }
         }
 
+        // --- API & UTILS ---
         async function fetchWithRotation(text, voiceId, keyPool) {
             let attempts = 0; let tempIndex = 0;
             while (attempts < keyPool.length) {
@@ -753,35 +685,61 @@
             }
             throw new Error("Keys exhausted.");
         }
+
         function chunkText(s) { const c=[]; let cur=""; (s.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[s]).forEach(x=>{if(cur.length+x.length<CHUNK_SIZE)cur+=x;else{if(cur)c.push(cur);cur=x;}});if(cur)c.push(cur);return c;}
         function mergeBuffers(b){if(b.length===0)return new Blob([]);let l=0,p=[];b.forEach(v=>{const d=new DataView(v),o=d.getUint32(0)===0x52494646?44:0;const s=v.slice(o);p.push(s);l+=s.byteLength;});const h=createWavHeader(l);return new Blob([h,...p],{type:'audio/wav'});}
         function createWavHeader(l){const b=new ArrayBuffer(44),v=new DataView(b),w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};w(0,'RIFF');v.setUint32(4,36+l,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,24000,true);v.setUint32(28,48000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,l,true);return b;}
 
-        function renderVoices() {
-            const list = getEl('voice-list'); list.innerHTML = '';
-            VOICES.forEach(voice => {
-                const isActive = state.selectedVoiceId === voice.id;
-                const div = document.createElement('div');
-                div.className = `p-3 rounded-xl cursor-pointer transition-all flex items-center justify-between group ${isActive ? 'bg-emerald-600/20 border border-emerald-500/50' : 'hover:bg-slate-800 border border-transparent'}`;
-                div.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'}">${voice.id[0]}</div><div><h4 class="text-sm font-bold ${isActive ? 'text-emerald-400' : 'text-slate-300'}">${voice.id}</h4><p class="text-[10px] text-slate-500">${voice.gender} • ${voice.desc}</p></div></div>`;
-                div.onclick = () => { state.selectedVoiceId = voice.id; renderVoices(); };
-                list.appendChild(div);
+        // --- ADMIN & FIREBASE ---
+        function loadAdminDashboardData() {
+            const statsRef = db.collection('stats').doc('global');
+            statsRef.onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    getEl('stat-total-users').innerText = data.total_users || 0;
+                    getEl('stat-total-gens').innerText = data.total_generations || 0;
+                    getEl('stat-pending').innerText = data.pending_generations || 0;
+                }
+            });
+            db.collection('system_keys').orderBy('addedAt', 'desc').onSnapshot(snap => {
+                getEl('stat-keys-count').innerText = snap.size;
+                const miniList = getEl('system-keys-mini-list');
+                miniList.innerHTML = "";
+                snap.forEach(doc => {
+                    const k = doc.data().key;
+                    const mask = k.substr(0,4) + "..." + k.substr(-4);
+                    miniList.innerHTML += `<li class="flex justify-between items-center bg-slate-800 p-2 rounded border border-slate-700"><span>${mask}</span><button onclick="deleteSystemKey('${doc.id}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash" class="w-3 h-3"></i></button></li>`;
+                });
+                lucide.createIcons();
+            });
+            db.collection('activity_logs').orderBy('timestamp', 'desc').limit(20).onSnapshot(snap => {
+                const list = getEl('activity-log-list');
+                list.innerHTML = "";
+                if(snap.empty) { list.innerHTML = `<tr><td class="px-6 py-8 text-center italic text-slate-600">No recent activity.</td></tr>`; return; }
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const time = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleTimeString() : 'Just now';
+                    list.innerHTML += `<tr class="border-b border-slate-700/50 animate-fade-up"><td class="px-6 py-3"><div class="flex items-center gap-2"><span class="text-xs text-emerald-400 font-mono">${time}</span><span class="text-sm text-white font-bold">${data.voice}</span></div><div class="text-[10px] text-slate-500 truncate max-w-[200px]">${data.preview}</div></td><td class="px-6 py-3 text-right"><span class="text-xs text-indigo-300 block mb-1">${data.userEmail ? data.userEmail.split('@')[0] : 'User'}</span><span class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded text-slate-400">${data.charCount} chars</span></td></tr>`;
+                });
             });
         }
+
+        function incrementPending() { if(!isFirebaseActive) return; const ref = db.collection('stats').doc('global'); ref.update({ pending_generations: firebase.firestore.FieldValue.increment(1) }).catch(e => { ref.set({ total_users: 0, total_generations: 0, pending_generations: 1 }, { merge: true }); }); }
+        function logGenerationSuccess(voiceId, text) {
+            if(!isFirebaseActive) return;
+            const batch = db.batch();
+            batch.update(db.collection('stats').doc('global'), { pending_generations: firebase.firestore.FieldValue.increment(-1), total_generations: firebase.firestore.FieldValue.increment(1) });
+            batch.set(db.collection('activity_logs').doc(), { voice: voiceId, charCount: text.length, preview: text.substring(0, 50) + (text.length > 50 ? "..." : ""), timestamp: firebase.firestore.FieldValue.serverTimestamp(), userEmail: state.currentUser ? state.currentUser.email : 'Anonymous', userId: state.currentUser ? state.currentUser.uid : 'anon' });
+            batch.commit().catch(console.error);
+        }
+        function logGenerationFail() { if(!isFirebaseActive) return; db.collection('stats').doc('global').update({ pending_generations: firebase.firestore.FieldValue.increment(-1) }).catch(console.error); }
+        async function fetchSystemKeysForUser() { if(!isFirebaseActive) return; try { const snap = await db.collection('system_keys').orderBy('addedAt', 'desc').get(); systemKeys = snap.docs.map(doc => doc.data().key); updateKeysUI(); } catch (e) { console.log("Error fetching keys"); } }
+        async function addSystemKey() { const k = getEl('new-sys-key').value.trim(); if(!k) return; try { await db.collection('system_keys').add({ key: k, addedAt: firebase.firestore.FieldValue.serverTimestamp() }); getEl('new-sys-key').value = ""; } catch (e) { showError(e.message); } }
+        async function deleteSystemKey(id) { if(confirm("Delete Key?")) await db.collection('system_keys').doc(id).delete(); }
         function saveLocalKey() { const k=getEl('api-key-input').value.trim(); if(k){state.localKeys.push(k);localStorage.setItem("local_api_keys",JSON.stringify(state.localKeys));getEl('api-key-input').value="";updateKeysUI();} }
         function clearLocalKeys() { if(confirm("Clear?")){state.localKeys=[];localStorage.removeItem("local_api_keys");updateKeysUI();} }
-        function updateKeysUI() {
-            getEl('active-keys-count').innerText = `Local Keys: ${state.localKeys.length}`;
-            const hasLocal = state.localKeys.length > 0, hasSystem = systemKeys.length > 0;
-            getEl('key-indicator').className = hasLocal ? "absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full" : (hasSystem ? "absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse" : "absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full");
-            getEl('system-key-badge').classList.toggle('hidden', hasLocal || !hasSystem);
-        }
-        function setIsGenerating(val) {
-            state.isGenerating = val; getEl('generate-btn').disabled = val;
-            getEl('generate-btn').innerHTML = val ? `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generating...` : `<i data-lucide="wand-2" class="w-5 h-5"></i> Generate Audio`;
-            if(val){ getEl('progress-container').classList.remove('hidden'); getEl('result-container').classList.add('hidden'); }
-            lucide.createIcons();
-        }
+        function updateKeysUI() { getEl('active-keys-count').innerText = `Local Keys: ${state.localKeys.length}`; const hasLocal = state.localKeys.length > 0, hasSystem = systemKeys.length > 0; getEl('key-indicator').className = hasLocal ? "absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full" : (hasSystem ? "absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse" : "absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"); getEl('system-key-badge').classList.toggle('hidden', hasLocal || !hasSystem); }
+        function setIsGenerating(val) { state.isGenerating = val; getEl('generate-btn').disabled = val; getEl('generate-btn').innerHTML = val ? `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generating...` : `<i data-lucide="wand-2" class="w-5 h-5"></i> Generate Audio`; if(val){ getEl('progress-container').classList.remove('hidden'); getEl('result-container').classList.add('hidden'); } lucide.createIcons(); }
         function showError(msg) { getEl('error-msg').innerText = msg; getEl('error-toast').classList.remove('hidden'); setTimeout(() => getEl('error-toast').classList.add('hidden'), 8000); }
 
         init();
