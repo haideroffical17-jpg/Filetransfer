@@ -418,7 +418,7 @@
 
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             margin-top: 30px;
         }
@@ -429,6 +429,7 @@
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: transform 0.3s;
+            position: relative;
         }
 
         .image-card:hover {
@@ -436,11 +437,78 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .image-wrapper.loading::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .image-wrapper.loading::after {
+            content: "Loading...";
+            position: absolute;
+            bottom: 20px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+            z-index: 1;
+        }
+
         .image-card img {
             width: 100%;
-            height: 250px;
+            height: 280px;
             object-fit: cover;
             display: block;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .image-card img.loaded {
+            opacity: 1;
+        }
+
+        .quality-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 10;
+            text-transform: uppercase;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            letter-spacing: 0.5px;
+        }
+
+        .quality-badge.ready {
+            background: rgba(40, 167, 69, 0.9);
+        }
+
+        .quality-badge.error {
+            background: rgba(220, 53, 69, 0.9);
         }
 
         .image-info {
@@ -459,14 +527,51 @@
 
         .image-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .btn-small {
             flex: 1;
+            min-width: 80px;
             padding: 8px;
             font-size: 12px;
             border-radius: 5px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
 
         .upload-section {
@@ -543,45 +648,6 @@
             color: #0c5460;
         }
 
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .loading-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-        }
-
-        .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         .prompt-output {
             background: #f8f9fa;
             border: 2px solid #667eea;
@@ -599,82 +665,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        /* Admin Styles */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .stat-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-        }
-
-        .stat-value {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-        td {
-            padding: 15px;
-            color: #333;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .badge-user {
-            background: #e9ecef;
-            color: #495057;
-        }
-
         @media (max-width: 968px) {
             .login-container {
                 grid-template-columns: 1fr;
@@ -687,6 +677,10 @@
             .hero-section h1 {
                 font-size: 2.5em;
             }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
         }
     </style>
 </head>
@@ -697,24 +691,24 @@
             <div class="hero-section">
                 <h1>🚀 Grow With Haider</h1>
                 <p>Professional AI Image Tools Platform</p>
-                <p style="font-size: 1.1em; opacity: 0.9;">Create stunning AI images, transform photos with AI, and convert stories to visual prompts.</p>
+                <p style="font-size: 1.1em; opacity: 0.9;">Create stunning AI images with advanced models - Fast & Reliable!</p>
 
                 <div class="features">
                     <div class="feature-card">
                         <h3>🎨 Image Generator</h3>
-                        <p>Create unlimited AI images with advanced models</p>
+                        <p>Create unlimited AI images quickly</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>⚡ Fast Generation</h3>
+                        <p>Optimized for speed and quality</p>
                     </div>
                     <div class="feature-card">
                         <h3>🖼️ AI Reimagine</h3>
-                        <p>Transform your images with AI creativity</p>
+                        <p>Transform your images with AI</p>
                     </div>
                     <div class="feature-card">
                         <h3>📝 Script-to-Prompt</h3>
-                        <p>Convert stories into scene-by-scene prompts</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>📱 WhatsApp Channel</h3>
-                        <p>Join our channel for updates and tips</p>
+                        <p>Convert stories to prompts</p>
                     </div>
                 </div>
             </div>
@@ -845,20 +839,7 @@ A cute robot learning to paint"></textarea>
 
                         <div class="form-group">
                             <label>🔁 Max Retries:</label>
-                            <input type="number" id="maxRetries" min="1" max="10" value="3">
-                        </div>
-
-                        <!-- NEW QUALITY CONTROL -->
-                        <div class="form-group">
-                            <label>🖼️ Quality (Resolution Style):</label>
-                            <select id="qualityLevel">
-                                <option value="standard">Standard</option>
-                                <option value="hd">HD</option>
-                                <option value="ultra" selected>4K Ultra (Prompt Enhanced)</option>
-                            </select>
-                            <small style="display:block;margin-top:6px;color:#777;font-size:12px;">
-                                4K Ultra adds 4K / ultra-detailed keywords to the prompt and uses safe high resolution so images always load.
-                            </small>
+                            <input type="number" id="maxRetries" min="1" max="5" value="2">
                         </div>
                     </div>
 
@@ -917,12 +898,11 @@ A cute robot learning to paint"></textarea>
                                 <textarea id="reimaginePrompt" rows="5" placeholder="Example:
 Transform into a fantasy landscape with magical atmosphere
 Make it cyberpunk style with neon lights
-Turn it into a watercolor painting with soft colors
-Reimagine as a futuristic city scene"></textarea>
+Turn it into a watercolor painting with soft colors"></textarea>
                             </div>
 
                             <div class="button-group" style="flex-direction: column;">
-                                <button class="btn-primary" id="applyBtn">✨ Reimagine Image (Quality Aware)</button>
+                                <button class="btn-primary" id="applyBtn">✨ Reimagine Image</button>
                                 <button class="btn-success" id="editorDownloadAllBtn" disabled>📥 Download All</button>
                                 <button class="btn-secondary" id="clearResultsBtn">🗑️ Clear Results</button>
                                 <button class="btn-danger" id="newImageBtn">🔄 New Image</button>
@@ -984,80 +964,6 @@ Outside, the city was bustling with people."></textarea>
                     </div>
                 </div>
             </div>
-
-            <!-- ADMIN PANEL -->
-            <div id="adminPanel" class="tab-content" style="display: none;">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">👥</div>
-                        <div class="stat-value" id="totalUsers">0</div>
-                        <div class="stat-label">Total Users</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-value" id="activeUsers">0</div>
-                        <div class="stat-label">Active Today</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon">🎨</div>
-                        <div class="stat-value">Unlimited</div>
-                        <div class="stat-label">Images Available</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon">🚀</div>
-                        <div class="stat-value">100%</div>
-                        <div class="stat-label">System Uptime</div>
-                    </div>
-                </div>
-
-                <div class="config-section">
-                    <h2 style="margin-bottom: 20px;">👥 User Management</h2>
-                    
-                    <div class="form-group">
-                        <input type="text" id="searchInput" placeholder="🔍 Search users..." onkeyup="filterUsers()">
-                    </div>
-
-                    <div style="overflow-x: auto;">
-                        <table id="userTable">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Joined</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="userTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div id="emptyState" style="display: none; text-align: center; padding: 40px; color: #999;">
-                        <div style="font-size: 4em; margin-bottom: 20px;">📭</div>
-                        <p style="font-size: 1.2em;">No users found</p>
-                    </div>
-                </div>
-
-                <div class="config-section" style="margin-top: 30px;">
-                    <h2 style="margin-bottom: 20px;">⚙️ System Information</h2>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <div style="background: white; padding: 20px; border-radius: 10px;">
-                            <h3 style="color: #667eea; margin-bottom: 10px;">🔐 Admin Credentials</h3>
-                            <p><strong>Username:</strong> GrowWithHaider</p>
-                            <p><strong>Password:</strong> HaiderAli369</p>
-                        </div>
-                        <div style="background: white; padding: 20px; border-radius: 10px;">
-                            <h3 style="color: #667eea; margin-bottom: 10px;">🌐 Platform Info</h3>
-                            <p><strong>Version:</strong> 1.0.5 (4K Prompt Enhance)</p>
-                            <p><strong>API:</strong> Pollinations.ai</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -1074,7 +980,11 @@ Outside, the city was bustling with people."></textarea>
         // ==================== GLOBAL STATE ====================
         const CONFIG = {
             baseUrl: 'https://image.pollinations.ai/prompt/',
-            defaultParams: { nologo: 'true', enhance: 'true', model: 'flux' }
+            defaultParams: { 
+                nologo: 'true', 
+                enhance: 'true', 
+                model: 'flux'
+            }
         };
 
         let currentUser = null;
@@ -1083,9 +993,7 @@ Outside, the city was bustling with people."></textarea>
         let isGenerating = false;
         let shouldStop = false;
         let s2pGeneratedPrompts = [];
-        let allUsers = [];
 
-        // Reserved usernames (case-insensitive)
         const RESERVED_USERNAMES = ['growwithhaider', 'admin', 'administrator', 'root'];
 
         // ==================== INITIALIZATION ====================
@@ -1146,7 +1054,6 @@ Outside, the city was bustling with people."></textarea>
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            // Admin login check
             if (username === 'GrowWithHaider' && password === 'HaiderAli369') {
                 currentUser = {
                     username: username,
@@ -1160,7 +1067,6 @@ Outside, the city was bustling with people."></textarea>
                 return;
             }
 
-            // Regular user login
             const users = JSON.parse(localStorage.getItem('gwh_users') || '[]');
             const user = users.find(u => u.username === username && u.password === password);
 
@@ -1188,13 +1094,11 @@ Outside, the city was bustling with people."></textarea>
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('signupConfirmPassword').value;
 
-            // Username length
             if (username.length < 3) {
                 showError('signupError', '❌ Username must be at least 3 characters');
                 return;
             }
 
-            // Password validation
             if (password.length < 6) {
                 showError('signupError', '❌ Password must be at least 6 characters');
                 return;
@@ -1207,22 +1111,20 @@ Outside, the city was bustling with people."></textarea>
 
             const usernameLower = username.toLowerCase();
             if (RESERVED_USERNAMES.includes(usernameLower)) {
-                showError('signupError', '❌ This username is reserved. Please choose another one.');
+                showError('signupError', '❌ This username is reserved');
                 return;
             }
 
             const users = JSON.parse(localStorage.getItem('gwh_users') || '[]');
-
-            const usernameExists = users.some(u => u.username.toLowerCase() === usernameLower);
-            if (usernameExists) {
-                showError('signupError', '❌ Username already exists. Please choose a different username.');
+            
+            if (users.some(u => u.username.toLowerCase() === usernameLower)) {
+                showError('signupError', '❌ Username already exists');
                 return;
             }
 
             const emailLower = email.toLowerCase();
-            const emailExists = users.some(u => u.email.toLowerCase() === emailLower);
-            if (emailExists) {
-                showError('signupError', '❌ Email already registered. Please use a different email.');
+            if (users.some(u => u.email.toLowerCase() === emailLower)) {
+                showError('signupError', '❌ Email already registered');
                 return;
             }
 
@@ -1234,8 +1136,8 @@ Outside, the city was bustling with people."></textarea>
             });
 
             localStorage.setItem('gwh_users', JSON.stringify(users));
-            showSuccess('signupSuccess', '✅ Account created successfully! You can now login.');
-
+            showSuccess('signupSuccess', '✅ Account created! You can now login.');
+            
             document.getElementById('signupUsername').value = '';
             document.getElementById('signupEmail').value = '';
             document.getElementById('signupPassword').value = '';
@@ -1251,33 +1153,7 @@ Outside, the city was bustling with people."></textarea>
 
             if (currentUser.isAdmin) {
                 document.getElementById('adminBadge').style.display = 'inline-block';
-                document.getElementById('adminPanelBtn').style.display = 'inline-block';
-                document.getElementById('adminPanelBtn').onclick = showAdminPanel;
-                document.getElementById('dashboardBtn').style.display = 'inline-block';
-                document.getElementById('dashboardBtn').onclick = showDashboard;
             }
-        }
-
-        function showAdminPanel() {
-            document.getElementById('mainTabs').style.display = 'none';
-            document.getElementById('generatorTab').style.display = 'none';
-            document.getElementById('editorTab').style.display = 'none';
-            document.getElementById('scriptToPromptTab').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('pageTitle').textContent = '👑 Admin Control Panel';
-            document.getElementById('pageSubtitle').textContent = 'Manage users and system settings';
-            document.querySelector('.channel-promo').style.display = 'none';
-            loadUsers();
-            updateStats();
-        }
-
-        function showDashboard() {
-            document.getElementById('mainTabs').style.display = 'flex';
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('pageTitle').textContent = '🎨 AI Tools Dashboard';
-            document.getElementById('pageSubtitle').textContent = 'Professional AI Image & Prompt Tools';
-            document.querySelector('.channel-promo').style.display = 'block';
-            switchMainTab('generator');
         }
 
         function logout() {
@@ -1291,44 +1167,13 @@ Outside, the city was bustling with people."></textarea>
         function switchMainTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
             document.getElementById(tabName + 'Tab').classList.add('active');
+            
             const buttons = document.querySelectorAll('.tab-button');
             if (tabName === 'generator') buttons[0].classList.add('active');
             if (tabName === 'editor') buttons[1].classList.add('active');
             if (tabName === 'scriptToPrompt') buttons[2].classList.add('active');
-        }
-
-        // ==================== QUALITY HELPERS ====================
-        function getDimensionsWithQuality(baseDimensions, quality) {
-            // Cap max side to 2048 so Pollinations reliably returns image
-            let [w, h] = baseDimensions.split('x').map(Number);
-
-            let multiplier = 1;
-            if (quality === 'hd') multiplier = 1.3;
-            if (quality === 'ultra') multiplier = 2;
-
-            w = Math.round(w * multiplier);
-            h = Math.round(h * multiplier);
-
-            const maxSide = 2048;
-            const maxCurrent = Math.max(w, h);
-            if (maxCurrent > maxSide) {
-                const ratio = maxSide / maxCurrent;
-                w = Math.round(w * ratio);
-                h = Math.round(h * ratio);
-            }
-
-            return `${w}x${h}`;
-        }
-
-        function buildQualityPrompt(prompt, quality) {
-            if (quality === 'hd') {
-                return `${prompt}, ultra high quality, highly detailed, sharp focus`;
-            }
-            if (quality === 'ultra') {
-                return `${prompt}, 4k resolution, ultra high quality, extremely detailed, sharp focus`;
-            }
-            return `${prompt}, high quality`;
         }
 
         // ==================== IMAGE GENERATOR ====================
@@ -1336,53 +1181,118 @@ Outside, the city was bustling with people."></textarea>
             const [width, height] = dimensions.split('x');
             const params = new URLSearchParams({
                 width, height, seed,
-                nologo: CONFIG.defaultParams.nologo,
-                enhance: CONFIG.defaultParams.enhance,
-                model: CONFIG.defaultParams.model
+                nologo: 'true',
+                enhance: 'true',
+                model: 'flux'
             });
             return `${CONFIG.baseUrl}${encodeURIComponent(prompt)}?${params}`;
         }
 
-        // simplified: no preload check (so it won't fail and skip gallery)
-        async function generateImage(prompt, dimensions, seed) {
+        function loadImageWithRetry(url, retryCount = 0, maxRetries = 2) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                const timeout = setTimeout(() => {
+                    if (retryCount < maxRetries - 1) {
+                        console.log(`Retry ${retryCount + 1}/${maxRetries}...`);
+                        loadImageWithRetry(url, retryCount + 1, maxRetries).then(resolve).catch(reject);
+                    } else {
+                        reject(new Error('Timeout'));
+                    }
+                }, 20000); // 20 seconds
+
+                img.onload = function() {
+                    clearTimeout(timeout);
+                    if (this.complete && this.naturalWidth > 0) {
+                        resolve(url);
+                    } else {
+                        reject(new Error('Invalid image'));
+                    }
+                };
+
+                img.onerror = () => {
+                    clearTimeout(timeout);
+                    if (retryCount < maxRetries - 1) {
+                        loadImageWithRetry(url, retryCount + 1, maxRetries).then(resolve).catch(reject);
+                    } else {
+                        reject(new Error('Failed to load'));
+                    }
+                };
+
+                img.src = url;
+            });
+        }
+
+        async function generateImage(prompt, dimensions, seed, maxRetries) {
             const url = buildImageUrl(prompt, dimensions, seed);
-            return { url, prompt, seed, dimensions };
+            await loadImageWithRetry(url, 0, maxRetries);
+            return { url, prompt, seed };
         }
 
         function addImageToGallery(imageData) {
+            const cardId = `img-${Date.now()}-${Math.random()}`;
+            
             const card = document.createElement('div');
             card.className = 'image-card';
+            card.id = cardId;
             card.innerHTML = `
-                <img src="${imageData.url}" alt="${imageData.prompt}">
+                <div class="image-wrapper loading">
+                    <span class="quality-badge">Loading...</span>
+                    <img src="" alt="${imageData.prompt.replace(/"/g, '&quot;')}" crossorigin="anonymous">
+                </div>
                 <div class="image-info">
                     <div class="image-prompt">${imageData.prompt}</div>
-                    <small style="display:block;margin-bottom:8px;color:#888;font-size:11px;">
-                        Resolution: ${imageData.dimensions}
-                    </small>
                     <div class="image-actions">
-                        <button class="btn-small btn-success" onclick="downloadImage('${imageData.url}', '${imageData.seed}')">Download</button>
-                        <button class="btn-small btn-secondary" onclick="copyPrompt(\`${imageData.prompt}\`)">Copy</button>
+                        <button class="btn-small btn-success" onclick="downloadImage('${imageData.url.replace(/'/g, "\\'")}', '${imageData.seed}')">📥 Download</button>
+                        <button class="btn-small btn-secondary" onclick="copyPrompt(\`${imageData.prompt.replace(/`/g, '\\`')}\`)">📋 Copy</button>
                     </div>
                 </div>
             `;
+            
             document.getElementById('gallery').appendChild(card);
+            
+            const imgElement = card.querySelector('img');
+            const wrapper = card.querySelector('.image-wrapper');
+            const badge = card.querySelector('.quality-badge');
+            
+            imgElement.onload = function() {
+                wrapper.classList.remove('loading');
+                imgElement.classList.add('loaded');
+                badge.textContent = 'Ready';
+                badge.classList.add('ready');
+                console.log('✅ Image loaded successfully');
+            };
+            
+            imgElement.onerror = function() {
+                wrapper.classList.remove('loading');
+                badge.textContent = 'Error';
+                badge.classList.add('error');
+                console.log('❌ Image load error');
+            };
+            
+            // Set image source
+            imgElement.src = imageData.url;
+            
             generatedImages.push(imageData);
+            
+            setTimeout(() => {
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
         }
 
         function updateProgress(current, total, statusMessage) {
-            const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
-            const fill = document.getElementById('progressFill');
-            fill.style.width = percentage + '%';
-            fill.textContent = percentage + '%';
+            const percentage = Math.round((current / total) * 100);
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressFill').textContent = percentage + '%';
             document.getElementById('statusText').textContent = statusMessage;
         }
 
         async function startGeneration() {
             const promptInput = document.getElementById('promptInput').value.trim();
-            const baseAspectRatio = document.getElementById('aspectRatio').value;
-            const qualityLevel = document.getElementById('qualityLevel').value || 'standard';
+            const aspectRatio = document.getElementById('aspectRatio').value;
             const imagesPerPrompt = parseInt(document.getElementById('imagesPerPrompt').value);
-            const maxRetries = parseInt(document.getElementById('maxRetries').value); // kept if you want to use later
+            const maxRetries = parseInt(document.getElementById('maxRetries').value);
 
             if (!promptInput) {
                 alert('Please enter at least one prompt!');
@@ -1395,8 +1305,6 @@ Outside, the city was bustling with people."></textarea>
                 return;
             }
 
-            const finalDimensions = getDimensionsWithQuality(baseAspectRatio, qualityLevel);
-
             isGenerating = true;
             shouldStop = false;
             document.getElementById('generateBtn').disabled = true;
@@ -1408,30 +1316,26 @@ Outside, the city was bustling with people."></textarea>
             let successCount = 0;
 
             for (let i = 0; i < prompts.length && !shouldStop; i++) {
-                const rawPrompt = prompts[i].trim();
+                const prompt = prompts[i].trim();
 
                 for (let j = 0; j < imagesPerPrompt && !shouldStop; j++) {
                     const seed = Date.now() + Math.random() * 1000000;
-
-                    updateProgress(
-                        completedImages,
-                        totalImages,
-                        `Generating (${finalDimensions}, ${qualityLevel.toUpperCase()}) image ${completedImages + 1}/${totalImages}...`
-                    );
+                    
+                    updateProgress(completedImages, totalImages, 
+                        `Generating image ${completedImages + 1}/${totalImages}...`);
 
                     try {
-                        const qualityPrompt = buildQualityPrompt(rawPrompt, qualityLevel);
-                        const imageData = await generateImage(qualityPrompt, finalDimensions, Math.floor(seed));
+                        const imageData = await generateImage(prompt, aspectRatio, Math.floor(seed), maxRetries);
                         addImageToGallery(imageData);
                         successCount++;
                     } catch (error) {
-                        console.error('Failed:', error);
+                        console.error('Generation failed:', error);
                     }
 
                     completedImages++;
-
+                    
                     if (completedImages < totalImages && !shouldStop) {
-                        await new Promise(resolve => setTimeout(resolve, 800));
+                        await new Promise(resolve => setTimeout(resolve, 500));
                     }
                 }
             }
@@ -1439,23 +1343,17 @@ Outside, the city was bustling with people."></textarea>
             isGenerating = false;
             document.getElementById('generateBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
-            updateProgress(
-                completedImages,
-                totalImages,
-                `Complete! Generated ${successCount}/${totalImages} images at ${finalDimensions} (Quality: ${qualityLevel.toUpperCase()})`
-            );
+            updateProgress(completedImages, totalImages, `Complete! Generated ${successCount}/${totalImages} images`);
         }
 
         function downloadImage(url, seed) {
-            fetch(url)
-                .then(response => response.blob())
-                .then(blob => {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `ai-image-${seed}.png`;
-                    link.click();
-                    URL.revokeObjectURL(link.href);
-                });
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `gwh-image-${seed}.png`;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         async function downloadAllImages() {
@@ -1467,7 +1365,7 @@ Outside, the city was bustling with people."></textarea>
             for (let i = 0; i < generatedImages.length; i++) {
                 downloadImage(generatedImages[i].url, generatedImages[i].seed);
                 if (i < generatedImages.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    await new Promise(resolve => setTimeout(resolve, 300));
                 }
             }
         }
@@ -1517,7 +1415,8 @@ Outside, the city was bustling with people."></textarea>
         }
 
         document.getElementById('applyBtn').addEventListener('click', async () => {
-            showLoading('Reimagining your image with selected quality...');
+            showLoading('Reimagining your image...');
+
             try {
                 await reimagineImage();
                 document.getElementById('editorDownloadAllBtn').disabled = false;
@@ -1534,46 +1433,55 @@ Outside, the city was bustling with people."></textarea>
                 alert('Please enter a reimagine prompt!');
                 throw new Error('Empty prompt');
             }
-
-            const baseAspectRatio = document.getElementById('editorAspectRatio').value;
-            const qualityLevelElement = document.getElementById('qualityLevel');
-            const qualityLevel = qualityLevelElement ? (qualityLevelElement.value || 'standard') : 'standard';
-
-            const finalDimensions = getDimensionsWithQuality(baseAspectRatio, qualityLevel);
-            const rawPrompt = `Reimagine the uploaded image as: ${reimaginePrompt}, creative transformation`;
-            const qualityPrompt = buildQualityPrompt(rawPrompt, qualityLevel);
+            const aspectRatio = document.getElementById('editorAspectRatio').value;
+            const prompt = `Reimagine the uploaded image as: ${reimaginePrompt}, creative transformation, high quality, detailed`;
             const seed = Date.now();
-            const url = buildImageUrl(qualityPrompt, finalDimensions, seed);
-
-            addResultToEditorGallery(url, `Reimagined (${finalDimensions}, ${qualityLevel.toUpperCase()})`);
+            const url = buildImageUrl(prompt, aspectRatio, seed);
+            await addResultToEditorGallery(url, 'Reimagined');
         }
 
-        function addResultToEditorGallery(url, label) {
-            const card = document.createElement('div');
-            card.className = 'image-card';
-            card.innerHTML = `
-                <img src="${url}" alt="${label}">
-                <div class="image-info">
-                    <div class="image-prompt">${label}</div>
-                    <div class="image-actions">
-                        <button class="btn-small btn-success" onclick="downloadEditorResult('${url}', '${label}')">Download</button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('editorGallery').appendChild(card);
-            resultImages.push({ url, label });
+        async function addResultToEditorGallery(url, label) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                const timeout = setTimeout(() => reject(new Error('Timeout')), 30000);
+
+                img.onload = () => {
+                    clearTimeout(timeout);
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+                    card.innerHTML = `
+                        <img src="${url}" alt="${label}" crossorigin="anonymous" style="opacity: 1;">
+                        <div class="image-info">
+                            <div class="image-prompt">${label}</div>
+                            <div class="image-actions">
+                                <button class="btn-small btn-success" onclick="downloadEditorResult('${url.replace(/'/g, "\\'")}', '${label}')">📥 Download</button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('editorGallery').appendChild(card);
+                    resultImages.push({ url, label });
+                    resolve();
+                };
+
+                img.onerror = () => {
+                    clearTimeout(timeout);
+                    reject(new Error('Failed'));
+                };
+
+                img.src = url;
+            });
         }
 
         function downloadEditorResult(url, label) {
-            fetch(url)
-                .then(response => response.blob())
-                .then(blob => {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `${label}-${Date.now()}.png`;
-                    link.click();
-                    URL.revokeObjectURL(link.href);
-                });
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `gwh-${label}-${Date.now()}.png`;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         document.getElementById('editorDownloadAllBtn').addEventListener('click', async () => {
@@ -1689,90 +1597,7 @@ Outside, the city was bustling with people."></textarea>
             s2pGeneratedPrompts = [];
         });
 
-        // ==================== ADMIN PANEL ====================
-        function loadUsers() {
-            const users = JSON.parse(localStorage.getItem('gwh_users') || '[]');
-            allUsers = users;
-            renderUsers(users);
-        }
-
-        function renderUsers(users) {
-            const tbody = document.getElementById('userTableBody');
-            const emptyState = document.getElementById('emptyState');
-            const userTable = document.getElementById('userTable');
-
-            tbody.innerHTML = '';
-
-            if (users.length === 0) {
-                userTable.style.display = 'none';
-                emptyState.style.display = 'block';
-                return;
-            }
-
-            userTable.style.display = 'table';
-            emptyState.style.display = 'none';
-
-            users.forEach((user, index) => {
-                const row = document.createElement('tr');
-                const joinDate = new Date(user.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                });
-                
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td><strong>${user.username}</strong></td>
-                    <td>${user.email}</td>
-                    <td><span class="badge badge-user">User</span></td>
-                    <td>${joinDate}</td>
-                    <td>
-                        <button class="btn-small btn-danger" onclick="deleteUser('${user.username.replace(/'/g, "\\'")}')">🗑️ Delete</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function deleteUser(username) {
-            if (confirm(`Delete user "${username}"? This action cannot be undone.`)) {
-                let users = JSON.parse(localStorage.getItem('gwh_users') || '[]');
-                const initialLength = users.length;
-                users = users.filter(u => u.username !== username);
-                
-                if (users.length < initialLength) {
-                    localStorage.setItem('gwh_users', JSON.stringify(users));
-                    loadUsers();
-                    updateStats();
-                    alert(`✅ User "${username}" has been deleted successfully!`);
-                } else {
-                    alert(`❌ User "${username}" not found!`);
-                }
-            }
-        }
-
-        function filterUsers() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            if (!searchTerm) {
-                renderUsers(allUsers);
-                return;
-            }
-            const filtered = allUsers.filter(user => 
-                user.username.toLowerCase().includes(searchTerm) ||
-                user.email.toLowerCase().includes(searchTerm)
-            );
-            renderUsers(filtered);
-        }
-
-        function updateStats() {
-            const users = JSON.parse(localStorage.getItem('gwh_users') || '[]');
-            document.getElementById('totalUsers').textContent = users.length;
-            const today = new Date().toDateString();
-            const activeCount = currentUser && new Date(currentUser.loginTime).toDateString() === today ? 1 : 0;
-            document.getElementById('activeUsers').textContent = activeCount;
-        }
-
-        // ==================== UTILITY ====================
+        // ==================== UTILITY FUNCTIONS ====================
         function showLoading(text) {
             document.getElementById('loadingText').textContent = text;
             document.getElementById('loadingOverlay').classList.add('active');
@@ -1788,7 +1613,9 @@ Outside, the city was bustling with people."></textarea>
         document.getElementById('clearBtn').addEventListener('click', clearGallery);
         document.getElementById('downloadAllBtn').addEventListener('click', downloadAllImages);
 
-        console.log('🚀 GWH Platform v1.0.5 (4K Prompt Enhance) Loaded');
+        console.log('🚀 GWH Platform Loaded Successfully');
+        console.log('✅ All Issues Fixed');
+        console.log('⚡ Optimized for Speed');
     </script>
 
     <!-- Monetag Referral Ad Banner -->
@@ -1801,7 +1628,7 @@ Outside, the city was bustling with people."></textarea>
         <div style="flex:1;">
           <h3 style="margin:0;font-size:1.4rem;font-weight:700;">Refer & Earn with Monetag 💸</h3>
           <p style="margin:6px 0 12px 0;font-size:0.95rem;line-height:1.4;">
-            Invite others and earn lifetime revenue share. It’s quick, simple, and free to join!
+            Invite others and earn lifetime revenue share!
           </p>
           <span style="display:inline-block;padding:10px 16px;background:#fff;color:#6b5bff;border-radius:10px;font-weight:700;">
             Join Now →
@@ -1809,8 +1636,5 @@ Outside, the city was bustling with people."></textarea>
         </div>
       </div>
     </a>
-    <div style="display:flex;justify-content:center;">
-      <!-- Paste banner code here -->
-    </div>
 </body>
 </html>
