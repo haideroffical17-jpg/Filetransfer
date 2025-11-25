@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -448,13 +448,17 @@
             overflow: hidden;
         }
 
+        .image-wrapper.loading {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
         .image-wrapper.loading::before {
             content: '';
             position: absolute;
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             z-index: 1;
@@ -466,13 +470,14 @@
         }
 
         .image-wrapper.loading::after {
-            content: "Loading...";
+            content: "Generating...";
             position: absolute;
-            bottom: 20px;
-            font-size: 14px;
-            color: #666;
-            font-weight: 600;
+            bottom: 30px;
+            font-size: 16px;
+            color: white;
+            font-weight: 700;
             z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .image-card img {
@@ -492,23 +497,24 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            padding: 5px 12px;
+            padding: 8px 14px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
             z-index: 10;
             text-transform: uppercase;
-            background: rgba(102, 126, 234, 0.9);
+            background: rgba(102, 126, 234, 0.95);
             color: white;
             letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .quality-badge.ready {
-            background: rgba(40, 167, 69, 0.9);
+            background: rgba(40, 167, 69, 0.95);
         }
 
         .quality-badge.error {
-            background: rgba(220, 53, 69, 0.9);
+            background: rgba(220, 53, 69, 0.95);
         }
 
         .image-info {
@@ -839,7 +845,7 @@ A cute robot learning to paint"></textarea>
 
                         <div class="form-group">
                             <label>🔁 Max Retries:</label>
-                            <input type="number" id="maxRetries" min="1" max="5" value="2">
+                            <input type="number" id="maxRetries" min="1" max="5" value="3">
                         </div>
                     </div>
 
@@ -1176,75 +1182,127 @@ Outside, the city was bustling with people."></textarea>
             if (tabName === 'scriptToPrompt') buttons[2].classList.add('active');
         }
 
-        // ==================== IMAGE GENERATOR ====================
+        // ==================== IMPROVED IMAGE GENERATOR ====================
         function buildImageUrl(prompt, dimensions, seed) {
             const [width, height] = dimensions.split('x');
             const params = new URLSearchParams({
-                width, height, seed,
+                width: width,
+                height: height,
+                seed: seed.toString(),
                 nologo: 'true',
                 enhance: 'true',
                 model: 'flux'
             });
-            return `${CONFIG.baseUrl}${encodeURIComponent(prompt)}?${params}`;
+            
+            // Better URL encoding for complex prompts
+            const encodedPrompt = encodeURIComponent(prompt).replace(/%20/g, '+');
+            return `${CONFIG.baseUrl}${encodedPrompt}?${params.toString()}`;
         }
 
-        function loadImageWithRetry(url, retryCount = 0, maxRetries = 2) {
+        // NEW: Improved image loading with better error handling
+        function loadImageWithRetry(url, retryCount = 0, maxRetries = 3) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
-                img.crossOrigin = 'anonymous';
                 
-                const timeout = setTimeout(() => {
-                    if (retryCount < maxRetries - 1) {
-                        console.log(`Retry ${retryCount + 1}/${maxRetries}...`);
-                        loadImageWithRetry(url, retryCount + 1, maxRetries).then(resolve).catch(reject);
-                    } else {
-                        reject(new Error('Timeout'));
-                    }
-                }, 20000); // 20 seconds
-
-                img.onload = function() {
-                    clearTimeout(timeout);
-                    if (this.complete && this.naturalWidth > 0) {
+                // CRITICAL FIX: Remove crossOrigin to avoid CORS issues
+                // img.crossOrigin = 'anonymous'; // REMOVED
+                
+                let timeoutId;
+                let resolved = false;
+                
+                const cleanup = () => {
+                    if (timeoutId) clearTimeout(timeoutId);
+                    img.onload = null;
+                    img.onerror = null;
+                };
+                
+                const handleSuccess = () => {
+                    if (resolved) return;
+                    resolved = true;
+                    cleanup();
+                    
+                    // Verify image is actually loaded
+                    if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
+                        console.log('✅ Image loaded successfully:', url.substring(0, 80));
                         resolve(url);
                     } else {
-                        reject(new Error('Invalid image'));
+                        console.log('⚠️ Image incomplete, retrying...');
+                        retry();
                     }
                 };
-
-                img.onerror = () => {
-                    clearTimeout(timeout);
+                
+                const handleError = (error) => {
+                    if (resolved) return;
+                    resolved = true;
+                    cleanup();
+                    
+                    console.log(`❌ Image load failed (attempt ${retryCount + 1}/${maxRetries}):`, error);
+                    retry();
+                };
+                
+                const retry = () => {
                     if (retryCount < maxRetries - 1) {
-                        loadImageWithRetry(url, retryCount + 1, maxRetries).then(resolve).catch(reject);
+                        console.log(`🔄 Retrying image load (${retryCount + 2}/${maxRetries})...`);
+                        // Add cache-busting parameter
+                        const cacheBustUrl = url + `&retry=${retryCount + 1}&t=${Date.now()}`;
+                        setTimeout(() => {
+                            loadImageWithRetry(cacheBustUrl, retryCount + 1, maxRetries)
+                                .then(resolve)
+                                .catch(reject);
+                        }, 1000 * (retryCount + 1)); // Exponential backoff
                     } else {
-                        reject(new Error('Failed to load'));
+                        reject(new Error('Max retries reached'));
                     }
                 };
-
+                
+                // Set timeout (30 seconds per attempt)
+                timeoutId = setTimeout(() => {
+                    console.log('⏱️ Image load timeout');
+                    handleError(new Error('Timeout'));
+                }, 30000);
+                
+                // Set handlers
+                img.onload = handleSuccess;
+                img.onerror = (e) => handleError(e);
+                
+                // Start loading
+                console.log(`📥 Loading image (attempt ${retryCount + 1}/${maxRetries})...`);
                 img.src = url;
             });
         }
 
         async function generateImage(prompt, dimensions, seed, maxRetries) {
             const url = buildImageUrl(prompt, dimensions, seed);
-            await loadImageWithRetry(url, 0, maxRetries);
-            return { url, prompt, seed };
+            console.log('🎨 Generating:', prompt.substring(0, 50) + '...');
+            
+            try {
+                await loadImageWithRetry(url, 0, maxRetries);
+                return { url, prompt, seed, status: 'success' };
+            } catch (error) {
+                console.error('❌ Generation failed:', error);
+                return { url, prompt, seed, status: 'error', error: error.message };
+            }
         }
 
         function addImageToGallery(imageData) {
-            const cardId = `img-${Date.now()}-${Math.random()}`;
+            const cardId = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             
             const card = document.createElement('div');
             card.className = 'image-card';
             card.id = cardId;
+            
+            const safePrompt = imageData.prompt.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            const safeUrl = imageData.url.replace(/'/g, "\\'");
+            
             card.innerHTML = `
                 <div class="image-wrapper loading">
-                    <span class="quality-badge">Loading...</span>
-                    <img src="" alt="${imageData.prompt.replace(/"/g, '&quot;')}" crossorigin="anonymous">
+                    <span class="quality-badge">Generating...</span>
+                    <img src="" alt="${safePrompt}" data-src="${imageData.url}">
                 </div>
                 <div class="image-info">
-                    <div class="image-prompt">${imageData.prompt}</div>
+                    <div class="image-prompt" title="${safePrompt}">${imageData.prompt}</div>
                     <div class="image-actions">
-                        <button class="btn-small btn-success" onclick="downloadImage('${imageData.url.replace(/'/g, "\\'")}', '${imageData.seed}')">📥 Download</button>
+                        <button class="btn-small btn-success" onclick="downloadImage('${safeUrl}', '${imageData.seed}')">📥 Download</button>
                         <button class="btn-small btn-secondary" onclick="copyPrompt(\`${imageData.prompt.replace(/`/g, '\\`')}\`)">📋 Copy</button>
                     </div>
                 </div>
@@ -1256,36 +1314,52 @@ Outside, the city was bustling with people."></textarea>
             const wrapper = card.querySelector('.image-wrapper');
             const badge = card.querySelector('.quality-badge');
             
-            imgElement.onload = function() {
-                wrapper.classList.remove('loading');
-                imgElement.classList.add('loaded');
-                badge.textContent = 'Ready';
-                badge.classList.add('ready');
-                console.log('✅ Image loaded successfully');
+            // NEW: Better image loading handler
+            const loadHandler = () => {
+                if (imgElement.complete && imgElement.naturalWidth > 0) {
+                    wrapper.classList.remove('loading');
+                    imgElement.classList.add('loaded');
+                    badge.textContent = '✓ Ready';
+                    badge.classList.add('ready');
+                    console.log('✅ Image displayed successfully in gallery');
+                }
             };
             
-            imgElement.onerror = function() {
+            const errorHandler = () => {
                 wrapper.classList.remove('loading');
-                badge.textContent = 'Error';
+                badge.textContent = '✗ Failed';
                 badge.classList.add('error');
-                console.log('❌ Image load error');
+                console.log('❌ Image display error in gallery');
             };
             
-            // Set image source
-            imgElement.src = imageData.url;
+            imgElement.addEventListener('load', loadHandler);
+            imgElement.addEventListener('error', errorHandler);
+            
+            // Start loading - IMPORTANT: Set src to trigger load
+            setTimeout(() => {
+                imgElement.src = imageData.url;
+            }, 100);
             
             generatedImages.push(imageData);
             
+            // Smooth scroll to new image
             setTimeout(() => {
                 card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 100);
+            }, 200);
+            
+            return card;
         }
 
         function updateProgress(current, total, statusMessage) {
             const percentage = Math.round((current / total) * 100);
-            document.getElementById('progressFill').style.width = percentage + '%';
-            document.getElementById('progressFill').textContent = percentage + '%';
-            document.getElementById('statusText').textContent = statusMessage;
+            const progressFill = document.getElementById('progressFill');
+            const statusText = document.getElementById('statusText');
+            
+            if (progressFill && statusText) {
+                progressFill.style.width = percentage + '%';
+                progressFill.textContent = percentage + '%';
+                statusText.textContent = statusMessage;
+            }
         }
 
         async function startGeneration() {
@@ -1295,18 +1369,19 @@ Outside, the city was bustling with people."></textarea>
             const maxRetries = parseInt(document.getElementById('maxRetries').value);
 
             if (!promptInput) {
-                alert('Please enter at least one prompt!');
+                alert('⚠️ Please enter at least one prompt!');
                 return;
             }
 
             const prompts = promptInput.split('\n').filter(p => p.trim());
             if (prompts.length === 0) {
-                alert('Please enter valid prompts!');
+                alert('⚠️ Please enter valid prompts!');
                 return;
             }
 
             isGenerating = true;
             shouldStop = false;
+            
             document.getElementById('generateBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
             document.getElementById('progressContainer').style.display = 'block';
@@ -1314,28 +1389,42 @@ Outside, the city was bustling with people."></textarea>
             const totalImages = prompts.length * imagesPerPrompt;
             let completedImages = 0;
             let successCount = 0;
+            let failedCount = 0;
+
+            console.log(`🚀 Starting generation: ${totalImages} images`);
 
             for (let i = 0; i < prompts.length && !shouldStop; i++) {
                 const prompt = prompts[i].trim();
 
                 for (let j = 0; j < imagesPerPrompt && !shouldStop; j++) {
-                    const seed = Date.now() + Math.random() * 1000000;
+                    const seed = Math.floor(Date.now() + Math.random() * 1000000);
                     
-                    updateProgress(completedImages, totalImages, 
-                        `Generating image ${completedImages + 1}/${totalImages}...`);
+                    updateProgress(
+                        completedImages, 
+                        totalImages, 
+                        `🎨 Generating image ${completedImages + 1}/${totalImages}... (${successCount} success, ${failedCount} failed)`
+                    );
 
                     try {
-                        const imageData = await generateImage(prompt, aspectRatio, Math.floor(seed), maxRetries);
-                        addImageToGallery(imageData);
-                        successCount++;
+                        const imageData = await generateImage(prompt, aspectRatio, seed, maxRetries);
+                        
+                        if (imageData.status === 'success') {
+                            addImageToGallery(imageData);
+                            successCount++;
+                        } else {
+                            failedCount++;
+                            console.error('Generation failed for:', prompt);
+                        }
                     } catch (error) {
-                        console.error('Generation failed:', error);
+                        failedCount++;
+                        console.error('Critical error:', error);
                     }
 
                     completedImages++;
                     
+                    // Small delay between generations
                     if (completedImages < totalImages && !shouldStop) {
-                        await new Promise(resolve => setTimeout(resolve, 500));
+                        await new Promise(resolve => setTimeout(resolve, 800));
                     }
                 }
             }
@@ -1343,46 +1432,77 @@ Outside, the city was bustling with people."></textarea>
             isGenerating = false;
             document.getElementById('generateBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
-            updateProgress(completedImages, totalImages, `Complete! Generated ${successCount}/${totalImages} images`);
+            
+            const finalMessage = shouldStop 
+                ? `⏹️ Stopped! Generated ${successCount}/${completedImages} images (${failedCount} failed)`
+                : `✅ Complete! Successfully generated ${successCount}/${totalImages} images (${failedCount} failed)`;
+            
+            updateProgress(completedImages, totalImages, finalMessage);
+            console.log('🏁 Generation complete:', finalMessage);
         }
 
         function downloadImage(url, seed) {
+            console.log('📥 Downloading image...');
+            
+            // Create a temporary link
             const link = document.createElement('a');
             link.href = url;
             link.download = `gwh-image-${seed}.png`;
             link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            console.log('✅ Download initiated');
         }
 
         async function downloadAllImages() {
             if (generatedImages.length === 0) {
-                alert('No images to download!');
+                alert('⚠️ No images to download!');
                 return;
             }
 
+            console.log(`📥 Downloading ${generatedImages.length} images...`);
+            
             for (let i = 0; i < generatedImages.length; i++) {
-                downloadImage(generatedImages[i].url, generatedImages[i].seed);
-                if (i < generatedImages.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 300));
+                const img = generatedImages[i];
+                if (img.status === 'success') {
+                    downloadImage(img.url, img.seed);
+                    
+                    // Delay between downloads to avoid browser blocking
+                    if (i < generatedImages.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
                 }
             }
+            
+            console.log('✅ All downloads initiated');
         }
 
         function copyPrompt(prompt) {
-            navigator.clipboard.writeText(prompt).then(() => alert('Prompt copied!'));
+            navigator.clipboard.writeText(prompt)
+                .then(() => {
+                    alert('📋 Prompt copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Copy failed:', err);
+                    alert('❌ Failed to copy prompt');
+                });
         }
 
         function stopGeneration() {
             shouldStop = true;
+            console.log('⏹️ Stop requested');
         }
 
         function clearGallery() {
-            if (confirm('Clear all images?')) {
+            if (confirm('🗑️ Clear all images from gallery?')) {
                 document.getElementById('gallery').innerHTML = '';
                 generatedImages = [];
                 document.getElementById('progressContainer').style.display = 'none';
+                console.log('🗑️ Gallery cleared');
             }
         }
 
@@ -1400,7 +1520,7 @@ Outside, the city was bustling with people."></textarea>
 
         function handleImageUpload(file) {
             if (file.size > 10 * 1024 * 1024) {
-                alert('File size must be less than 10MB');
+                alert('⚠️ File size must be less than 10MB');
                 return;
             }
 
@@ -1410,18 +1530,26 @@ Outside, the city was bustling with people."></textarea>
                 document.getElementById('previewImage').src = uploadedImageData;
                 document.getElementById('uploadSection').style.display = 'none';
                 document.getElementById('editorSection').style.display = 'block';
+                console.log('✅ Image uploaded successfully');
             };
             reader.readAsDataURL(file);
         }
 
         document.getElementById('applyBtn').addEventListener('click', async () => {
-            showLoading('Reimagining your image...');
+            const reimaginePrompt = document.getElementById('reimaginePrompt').value.trim();
+            
+            if (!reimaginePrompt) {
+                alert('⚠️ Please enter a reimagine prompt!');
+                return;
+            }
+            
+            showLoading('✨ Reimagining your image...');
 
             try {
                 await reimagineImage();
                 document.getElementById('editorDownloadAllBtn').disabled = false;
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('❌ Error: ' + error.message);
             } finally {
                 hideLoading();
             }
@@ -1429,45 +1557,57 @@ Outside, the city was bustling with people."></textarea>
 
         async function reimagineImage() {
             const reimaginePrompt = document.getElementById('reimaginePrompt').value.trim();
-            if (!reimaginePrompt) {
-                alert('Please enter a reimagine prompt!');
-                throw new Error('Empty prompt');
-            }
             const aspectRatio = document.getElementById('editorAspectRatio').value;
-            const prompt = `Reimagine the uploaded image as: ${reimaginePrompt}, creative transformation, high quality, detailed`;
+            
+            const prompt = `${reimaginePrompt}, creative transformation, high quality, detailed, professional`;
             const seed = Date.now();
             const url = buildImageUrl(prompt, aspectRatio, seed);
-            await addResultToEditorGallery(url, 'Reimagined');
+            
+            await addResultToEditorGallery(url, 'Reimagined: ' + reimaginePrompt.substring(0, 40));
         }
 
         async function addResultToEditorGallery(url, label) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
-                img.crossOrigin = 'anonymous';
+                // CRITICAL FIX: Remove crossOrigin
+                // img.crossOrigin = 'anonymous'; // REMOVED
                 
-                const timeout = setTimeout(() => reject(new Error('Timeout')), 30000);
+                const timeout = setTimeout(() => {
+                    reject(new Error('Timeout after 40 seconds'));
+                }, 40000);
 
                 img.onload = () => {
                     clearTimeout(timeout);
-                    const card = document.createElement('div');
-                    card.className = 'image-card';
-                    card.innerHTML = `
-                        <img src="${url}" alt="${label}" crossorigin="anonymous" style="opacity: 1;">
-                        <div class="image-info">
-                            <div class="image-prompt">${label}</div>
-                            <div class="image-actions">
-                                <button class="btn-small btn-success" onclick="downloadEditorResult('${url.replace(/'/g, "\\'")}', '${label}')">📥 Download</button>
+                    
+                    if (img.complete && img.naturalWidth > 0) {
+                        const card = document.createElement('div');
+                        card.className = 'image-card';
+                        card.innerHTML = `
+                            <div class="image-wrapper">
+                                <img src="${url}" alt="${label}" style="opacity: 1;" class="loaded">
                             </div>
-                        </div>
-                    `;
-                    document.getElementById('editorGallery').appendChild(card);
-                    resultImages.push({ url, label });
-                    resolve();
+                            <div class="image-info">
+                                <div class="image-prompt">${label}</div>
+                                <div class="image-actions">
+                                    <button class="btn-small btn-success" onclick="downloadEditorResult('${url.replace(/'/g, "\\'")}', '${label.replace(/'/g, "\\'")}')">📥 Download</button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('editorGallery').appendChild(card);
+                        resultImages.push({ url, label });
+                        
+                        console.log('✅ Result added to editor gallery');
+                        resolve();
+                    } else {
+                        reject(new Error('Invalid image'));
+                    }
                 };
 
-                img.onerror = () => {
+                img.onerror = (e) => {
                     clearTimeout(timeout);
-                    reject(new Error('Failed'));
+                    console.error('❌ Editor image load failed:', e);
+                    reject(new Error('Failed to load reimagined image'));
                 };
 
                 img.src = url;
@@ -1475,9 +1615,10 @@ Outside, the city was bustling with people."></textarea>
         }
 
         function downloadEditorResult(url, label) {
+            const safeName = label.replace(/[^a-z0-9]/gi, '-').toLowerCase();
             const link = document.createElement('a');
             link.href = url;
-            link.download = `gwh-${label}-${Date.now()}.png`;
+            link.download = `gwh-${safeName}-${Date.now()}.png`;
             link.target = '_blank';
             document.body.appendChild(link);
             link.click();
@@ -1487,12 +1628,14 @@ Outside, the city was bustling with people."></textarea>
         document.getElementById('editorDownloadAllBtn').addEventListener('click', async () => {
             for (let i = 0; i < resultImages.length; i++) {
                 downloadEditorResult(resultImages[i].url, resultImages[i].label);
-                if (i < resultImages.length - 1) await new Promise(resolve => setTimeout(resolve, 500));
+                if (i < resultImages.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
             }
         });
 
         document.getElementById('clearResultsBtn').addEventListener('click', () => {
-            if (confirm('Clear results?')) {
+            if (confirm('🗑️ Clear all results?')) {
                 document.getElementById('editorGallery').innerHTML = '';
                 resultImages = [];
                 document.getElementById('editorDownloadAllBtn').disabled = true;
@@ -1500,13 +1643,14 @@ Outside, the city was bustling with people."></textarea>
         });
 
         document.getElementById('newImageBtn').addEventListener('click', () => {
-            if (confirm('Upload new image?')) {
+            if (confirm('🔄 Upload a new image? Current results will be cleared.')) {
                 document.getElementById('uploadSection').style.display = 'block';
                 document.getElementById('editorSection').style.display = 'none';
                 document.getElementById('editorGallery').innerHTML = '';
                 resultImages = [];
                 document.getElementById('editorFileInput').value = '';
                 document.getElementById('editorDownloadAllBtn').disabled = true;
+                document.getElementById('reimaginePrompt').value = '';
             }
         });
 
@@ -1515,11 +1659,11 @@ Outside, the city was bustling with people."></textarea>
             const scriptText = document.getElementById('scriptInput').value.trim();
             
             if (!scriptText) {
-                alert('Please enter a story or script!');
+                alert('⚠️ Please enter a story or script!');
                 return;
             }
 
-            showLoading('Converting with selected style...');
+            showLoading('🎬 Converting script to prompts...');
             
             setTimeout(() => {
                 const sentences = scriptText.split(/[.!?]+/).filter(s => s.trim().length > 0);
@@ -1556,12 +1700,12 @@ Outside, the city was bustling with people."></textarea>
                     const item = document.createElement('div');
                     item.className = 'prompt-item';
                     item.innerHTML = `
-                        <h4 style="color: #667eea; margin-bottom: 10px;">Scene ${index + 1}</h4>
+                        <h4 style="color: #667eea; margin-bottom: 10px;">🎬 Scene ${index + 1}</h4>
                         <p><strong>Original:</strong> ${sentence.trim()}</p>
                         <p><strong>Style:</strong> ${styleText}</p>
                         <p><strong>Full Prompt:</strong> ${scenePrompt}</p>
                         <div style="margin-top: 10px;">
-                            <button class="btn-small btn-success" onclick="copyScenePrompt(${index})">📋 Copy</button>
+                            <button class="btn-small btn-secondary" onclick="copyScenePrompt(${index})">📋 Copy</button>
                             <button class="btn-small btn-primary" onclick="generateScene(${index})">🎨 Generate</button>
                         </div>
                     `;
@@ -1571,30 +1715,43 @@ Outside, the city was bustling with people."></textarea>
                 document.getElementById('s2pOutput').style.display = 'block';
                 document.getElementById('generateAllScenesBtn').disabled = false;
                 hideLoading();
+                
+                console.log(`✅ Generated ${sentences.length} scene prompts`);
             }, 1500);
         });
 
         function copyScenePrompt(index) {
-            navigator.clipboard.writeText(s2pGeneratedPrompts[index]).then(() => {
-                alert(`Scene ${index + 1} prompt copied!`);
-            });
+            navigator.clipboard.writeText(s2pGeneratedPrompts[index])
+                .then(() => alert(`📋 Scene ${index + 1} prompt copied!`))
+                .catch(err => console.error('Copy failed:', err));
         }
 
         function generateScene(index) {
             switchMainTab('generator');
             document.getElementById('promptInput').value = s2pGeneratedPrompts[index];
+            
+            // Scroll to prompt input
+            setTimeout(() => {
+                document.getElementById('promptInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
         }
 
         document.getElementById('generateAllScenesBtn').addEventListener('click', () => {
             switchMainTab('generator');
             document.getElementById('promptInput').value = s2pGeneratedPrompts.join('\n');
+            
+            setTimeout(() => {
+                document.getElementById('promptInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
         });
 
         document.getElementById('s2pClearBtn').addEventListener('click', () => {
-            document.getElementById('scriptInput').value = '';
-            document.getElementById('s2pOutput').style.display = 'none';
-            document.getElementById('generateAllScenesBtn').disabled = true;
-            s2pGeneratedPrompts = [];
+            if (confirm('🗑️ Clear script and generated prompts?')) {
+                document.getElementById('scriptInput').value = '';
+                document.getElementById('s2pOutput').style.display = 'none';
+                document.getElementById('generateAllScenesBtn').disabled = true;
+                s2pGeneratedPrompts = [];
+            }
         });
 
         // ==================== UTILITY FUNCTIONS ====================
@@ -1613,9 +1770,15 @@ Outside, the city was bustling with people."></textarea>
         document.getElementById('clearBtn').addEventListener('click', clearGallery);
         document.getElementById('downloadAllBtn').addEventListener('click', downloadAllImages);
 
-        console.log('🚀 GWH Platform Loaded Successfully');
-        console.log('✅ All Issues Fixed');
-        console.log('⚡ Optimized for Speed');
+        // ==================== INITIALIZATION LOG ====================
+        console.log('🚀 GWH Platform Initialized');
+        console.log('✅ All Critical Fixes Applied:');
+        console.log('   - Removed CORS crossOrigin attributes');
+        console.log('   - Improved image loading logic');
+        console.log('   - Enhanced error handling');
+        console.log('   - Better retry mechanism');
+        console.log('   - Visual feedback improvements');
+        console.log('⚡ Platform Ready!');
     </script>
 
     <!-- Monetag Referral Ad Banner -->
