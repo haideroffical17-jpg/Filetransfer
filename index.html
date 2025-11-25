@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grow With Haider - AI Tools Platform (4K Enhanced)</title>
+    <title>Grow With Haider - AI Tools Platform</title>
     <style>
         * {
             margin: 0;
@@ -285,32 +285,6 @@
             opacity: 0.95;
         }
 
-        /* ✨ NEW: 4K Enhancement Banner */
-        .enhancement-banner {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-
-        .enhancement-banner h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-
-        .enhancement-banner p {
-            margin-bottom: 0;
-            opacity: 0.95;
-        }
-
         .nav-tabs {
             display: flex;
             gap: 15px;
@@ -363,73 +337,6 @@
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 30px;
-        }
-
-        /* ✨ NEW: Enhancement Settings */
-        .enhancement-settings {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            border: 2px solid #667eea;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .enhancement-settings h4 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-
-        .toggle-switch {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
         }
 
         .settings-row {
@@ -511,7 +418,7 @@
 
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
             margin-top: 30px;
         }
@@ -521,8 +428,6 @@
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-            position: relative;
         }
 
         .image-card:hover {
@@ -530,67 +435,11 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
-        /* ✨ NEW: Image wrapper with loading state */
-        .image-wrapper {
-            position: relative;
-            width: 100%;
-            height: 280px;
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .image-wrapper.loading::after {
-            content: "⏳ Loading...";
-            position: absolute;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .image-wrapper.enhancing::after {
-            content: "✨ Enhancing to 4K...";
-            position: absolute;
-            font-size: 14px;
-            color: #667eea;
-            font-weight: 600;
-        }
-
         .image-card img {
             width: 100%;
-            height: 280px;
+            height: 250px;
             object-fit: cover;
             display: block;
-        }
-
-        /* ✨ NEW: Quality badges */
-        .quality-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            z-index: 10;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .quality-original {
-            background: rgba(108, 117, 125, 0.9);
-            color: white;
-        }
-
-        .quality-enhanced {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            animation: glow 2s infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 10px rgba(240, 147, 251, 0.5); }
-            50% { box-shadow: 0 0 20px rgba(245, 87, 108, 0.8); }
         }
 
         .image-info {
@@ -609,21 +458,14 @@
 
         .image-actions {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .btn-small {
             flex: 1;
-            min-width: 80px;
             padding: 8px;
             font-size: 12px;
             border-radius: 5px;
-        }
-
-        /* ✨ NEW: Enhance button style */
-        .btn-enhance {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
         .upload-section {
@@ -722,7 +564,6 @@
             padding: 40px;
             border-radius: 20px;
             text-align: center;
-            max-width: 400px;
         }
 
         .spinner {
@@ -845,10 +686,6 @@
             .hero-section h1 {
                 font-size: 2.5em;
             }
-
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
         }
     </style>
 </head>
@@ -859,16 +696,12 @@
             <div class="hero-section">
                 <h1>🚀 Grow With Haider</h1>
                 <p>Professional AI Image Tools Platform</p>
-                <p style="font-size: 1.1em; opacity: 0.9;">Create stunning AI images with Auto 4K Enhancement, transform photos with AI, and convert stories to visual prompts.</p>
+                <p style="font-size: 1.1em; opacity: 0.9;">Create stunning AI images, transform photos with AI, and convert stories to visual prompts.</p>
 
                 <div class="features">
                     <div class="feature-card">
                         <h3>🎨 Image Generator</h3>
-                        <p>Create unlimited AI images with auto 4K enhancement</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>✨ Auto 4K Enhancement</h3>
-                        <p>Every image automatically enhanced to 4K quality</p>
+                        <p>Create unlimited AI images with advanced models</p>
                     </div>
                     <div class="feature-card">
                         <h3>🖼️ AI Reimagine</h3>
@@ -877,6 +710,10 @@
                     <div class="feature-card">
                         <h3>📝 Script-to-Prompt</h3>
                         <p>Convert stories into scene-by-scene prompts</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📱 WhatsApp Channel</h3>
+                        <p>Join our channel for updates and tips</p>
                     </div>
                 </div>
             </div>
@@ -967,15 +804,9 @@
                 </a>
             </div>
 
-            <!-- ✨ NEW: 4K Enhancement Banner -->
-            <div class="enhancement-banner">
-                <h3>✨ Auto 4K Enhancement Active</h3>
-                <p>All images are automatically enhanced to stunning 4K quality!</p>
-            </div>
-
             <div class="header">
                 <h1 id="pageTitle">🎨 AI Tools Dashboard</h1>
-                <p id="pageSubtitle">Professional AI Image & Prompt Tools with 4K Enhancement</p>
+                <p id="pageSubtitle">Professional AI Image & Prompt Tools</p>
             </div>
 
             <!-- Navigation Tabs -->
@@ -988,29 +819,6 @@
             <!-- TAB 1: IMAGE GENERATOR -->
             <div id="generatorTab" class="tab-content active">
                 <div class="config-section">
-                    <!-- ✨ NEW: Enhancement Settings -->
-                    <div class="enhancement-settings">
-                        <h4>✨ 4K Enhancement Settings</h4>
-                        
-                        <div class="toggle-switch">
-                            <label class="switch">
-                                <input type="checkbox" id="autoEnhanceToggle" checked>
-                                <span class="slider"></span>
-                            </label>
-                            <span style="font-weight: 600; color: #667eea;">Auto Enhance to 4K (Recommended)</span>
-                        </div>
-
-                        <div class="form-group">
-                            <label>🎯 Enhancement Quality:</label>
-                            <select id="enhanceQuality">
-                                <option value="1920x1080">HD - 1920x1080</option>
-                                <option value="2560x1440">QHD - 2560x1440</option>
-                                <option value="3840x2160" selected>4K UHD - 3840x2160 ⭐</option>
-                                <option value="7680x4320">8K UHD - 7680x4320</option>
-                            </select>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label>📝 Enter Your Prompts (One per line):</label>
                         <textarea id="promptInput" rows="8" placeholder="Example:
@@ -1021,7 +829,7 @@ A cute robot learning to paint"></textarea>
 
                     <div class="settings-row">
                         <div class="form-group">
-                            <label>📐 Initial Aspect Ratio:</label>
+                            <label>📐 Aspect Ratio:</label>
                             <select id="aspectRatio">
                                 <option value="1024x1024">Square (1:1) - 1024x1024</option>
                                 <option value="1920x1080">Landscape (16:9) - 1920x1080</option>
@@ -1038,10 +846,23 @@ A cute robot learning to paint"></textarea>
                             <label>🔁 Max Retries:</label>
                             <input type="number" id="maxRetries" min="1" max="10" value="3">
                         </div>
+
+                        <!-- NEW: QUALITY / 4K ENHANCE CONTROL -->
+                        <div class="form-group">
+                            <label>🖼️ Quality (Resolution):</label>
+                            <select id="qualityLevel">
+                                <option value="standard">Standard</option>
+                                <option value="hd">HD</option>
+                                <option value="ultra" selected>4K Ultra (Auto Enhance)</option>
+                            </select>
+                            <small style="display:block;margin-top:6px;color:#777;font-size:12px;">
+                                4K Ultra automatically requests higher resolution images based on your selected aspect ratio.
+                            </small>
+                        </div>
                     </div>
 
                     <div class="button-group">
-                        <button class="btn-primary" id="generateBtn">🚀 Generate & Enhance Images</button>
+                        <button class="btn-primary" id="generateBtn">🚀 Generate Images</button>
                         <button class="btn-secondary" id="stopBtn" disabled>⏹️ Stop</button>
                         <button class="btn-secondary" id="clearBtn">🗑️ Clear Gallery</button>
                         <button class="btn-success" id="downloadAllBtn">📥 Download All</button>
@@ -1077,8 +898,8 @@ A cute robot learning to paint"></textarea>
 
                         <div class="controls-area">
                             <div class="info-box">
-                                <h4>✨ AI Reimagine Tool (with 4K Enhancement)</h4>
-                                <p style="line-height: 1.8;">Upload your image and describe how you want AI to transform it. The AI will create a completely new version with automatic 4K enhancement!</p>
+                                <h4>✨ AI Reimagine Tool</h4>
+                                <p style="line-height: 1.8;">Upload your image and describe how you want AI to transform it. The AI will create a completely new version based on your creative vision!</p>
                             </div>
 
                             <div class="form-group">
@@ -1100,7 +921,7 @@ Reimagine as a futuristic city scene"></textarea>
                             </div>
 
                             <div class="button-group" style="flex-direction: column;">
-                                <button class="btn-primary" id="applyBtn">✨ Reimagine & Enhance Image</button>
+                                <button class="btn-primary" id="applyBtn">✨ Reimagine Image (With Quality Setting)</button>
                                 <button class="btn-success" id="editorDownloadAllBtn" disabled>📥 Download All</button>
                                 <button class="btn-secondary" id="clearResultsBtn">🗑️ Clear Results</button>
                                 <button class="btn-danger" id="newImageBtn">🔄 New Image</button>
@@ -1153,7 +974,7 @@ Outside, the city was bustling with people."></textarea>
                     <div class="button-group">
                         <button class="btn-primary" id="convertScriptBtn">🎬 Convert to Prompts</button>
                         <button class="btn-secondary" id="s2pClearBtn">🗑️ Clear</button>
-                        <button class="btn-success" id="generateAllScenesBtn" disabled>🎨 Generate All Scenes (4K)</button>
+                        <button class="btn-success" id="generateAllScenesBtn" disabled>🎨 Generate All Scenes</button>
                     </div>
 
                     <div class="prompt-output" id="s2pOutput" style="display: none;">
@@ -1179,9 +1000,9 @@ Outside, the city was bustling with people."></textarea>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon">✨</div>
-                        <div class="stat-value" id="totalEnhanced">0</div>
-                        <div class="stat-label">Images Enhanced</div>
+                        <div class="stat-icon">🎨</div>
+                        <div class="stat-value">Unlimited</div>
+                        <div class="stat-label">Images Available</div>
                     </div>
 
                     <div class="stat-card">
@@ -1230,9 +1051,8 @@ Outside, the city was bustling with people."></textarea>
                         </div>
                         <div style="background: white; padding: 20px; border-radius: 10px;">
                             <h3 style="color: #667eea; margin-bottom: 10px;">🌐 Platform Info</h3>
-                            <p><strong>Version:</strong> 2.0.0 (4K Enhanced)</p>
+                            <p><strong>Version:</strong> 1.0.4 (Fixed + 4K Quality)</p>
                             <p><strong>API:</strong> Pollinations.ai</p>
-                            <p><strong>Enhancement:</strong> Active ✨</p>
                         </div>
                     </div>
                 </div>
@@ -1245,7 +1065,7 @@ Outside, the city was bustling with people."></textarea>
         <div class="loading-content">
             <div class="spinner"></div>
             <h3 id="loadingText">Processing...</h3>
-            <p style="color: #666; margin-top: 10px;" id="loadingSubtext">Please wait</p>
+            <p style="color: #666; margin-top: 10px;">Please wait</p>
         </div>
     </div>
 
@@ -1253,11 +1073,7 @@ Outside, the city was bustling with people."></textarea>
         // ==================== GLOBAL STATE ====================
         const CONFIG = {
             baseUrl: 'https://image.pollinations.ai/prompt/',
-            defaultParams: { 
-                nologo: 'true', 
-                enhance: 'true', 
-                model: 'flux'
-            }
+            defaultParams: { nologo: 'true', enhance: 'true', model: 'flux' }
         };
 
         let currentUser = null;
@@ -1267,7 +1083,6 @@ Outside, the city was bustling with people."></textarea>
         let shouldStop = false;
         let s2pGeneratedPrompts = [];
         let allUsers = [];
-        let totalEnhancedImages = 0;
 
         // Reserved usernames (case-insensitive)
         const RESERVED_USERNAMES = ['growwithhaider', 'admin', 'administrator', 'root'];
@@ -1279,9 +1094,6 @@ Outside, the city was bustling with people."></textarea>
                 currentUser = JSON.parse(userData);
                 showMainApp();
             }
-
-            // Load enhancement count
-            totalEnhancedImages = parseInt(localStorage.getItem('gwh_total_enhanced') || '0');
 
             document.getElementById('scriptStyle').addEventListener('change', function() {
                 if (this.value === 'custom') {
@@ -1375,29 +1187,35 @@ Outside, the city was bustling with people."></textarea>
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('signupConfirmPassword').value;
 
+            // ✅ FIX 1: Username length validation
             if (username.length < 3) {
                 showError('signupError', '❌ Username must be at least 3 characters');
                 return;
             }
 
+            // ✅ FIX 2: Password validation
             if (password.length < 6) {
                 showError('signupError', '❌ Password must be at least 6 characters');
                 return;
             }
 
+            // ✅ FIX 3: Password match validation
             if (password !== confirmPassword) {
                 showError('signupError', '❌ Passwords do not match');
                 return;
             }
 
+            // ✅ FIX 4: Check if username is reserved (case-insensitive)
             const usernameLower = username.toLowerCase();
             if (RESERVED_USERNAMES.includes(usernameLower)) {
                 showError('signupError', '❌ This username is reserved. Please choose another one.');
                 return;
             }
 
+            // Get existing users
             const users = JSON.parse(localStorage.getItem('gwh_users') || '[]');
             
+            // ✅ FIX 5: Check for duplicate username (case-insensitive)
             const usernameExists = users.some(u => u.username.toLowerCase() === usernameLower);
             
             if (usernameExists) {
@@ -1405,6 +1223,7 @@ Outside, the city was bustling with people."></textarea>
                 return;
             }
 
+            // ✅ FIX 6: Check for duplicate email (case-insensitive)
             const emailLower = email.toLowerCase();
             const emailExists = users.some(u => u.email.toLowerCase() === emailLower);
             
@@ -1413,6 +1232,7 @@ Outside, the city was bustling with people."></textarea>
                 return;
             }
 
+            // Add new user
             users.push({
                 username: username,
                 email: email,
@@ -1423,6 +1243,7 @@ Outside, the city was bustling with people."></textarea>
             localStorage.setItem('gwh_users', JSON.stringify(users));
             showSuccess('signupSuccess', '✅ Account created successfully! You can now login.');
             
+            // Clear form
             document.getElementById('signupUsername').value = '';
             document.getElementById('signupEmail').value = '';
             document.getElementById('signupPassword').value = '';
@@ -1446,16 +1267,25 @@ Outside, the city was bustling with people."></textarea>
         }
 
         function showAdminPanel() {
+            // Hide main tabs
             document.getElementById('mainTabs').style.display = 'none';
+            
+            // Hide all tab contents except admin panel
             document.getElementById('generatorTab').style.display = 'none';
             document.getElementById('editorTab').style.display = 'none';
             document.getElementById('scriptToPromptTab').style.display = 'none';
+            
+            // Show admin panel
             document.getElementById('adminPanel').style.display = 'block';
+            
+            // Update header
             document.getElementById('pageTitle').textContent = '👑 Admin Control Panel';
             document.getElementById('pageSubtitle').textContent = 'Manage users and system settings';
-            document.querySelector('.channel-promo').style.display = 'none';
-            document.querySelector('.enhancement-banner').style.display = 'none';
             
+            // Hide channel promo
+            document.querySelector('.channel-promo').style.display = 'none';
+            
+            // ✅ FIX 7: Load users and update stats immediately
             loadUsers();
             updateStats();
         }
@@ -1464,9 +1294,8 @@ Outside, the city was bustling with people."></textarea>
             document.getElementById('mainTabs').style.display = 'flex';
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('pageTitle').textContent = '🎨 AI Tools Dashboard';
-            document.getElementById('pageSubtitle').textContent = 'Professional AI Image & Prompt Tools with 4K Enhancement';
+            document.getElementById('pageSubtitle').textContent = 'Professional AI Image & Prompt Tools';
             document.querySelector('.channel-promo').style.display = 'block';
-            document.querySelector('.enhancement-banner').style.display = 'block';
             switchMainTab('generator');
         }
 
@@ -1490,61 +1319,22 @@ Outside, the city was bustling with people."></textarea>
             if (tabName === 'scriptToPrompt') buttons[2].classList.add('active');
         }
 
-        // ==================== 4K ENHANCEMENT SYSTEM ====================
-        
-        /**
-         * ✨ Core Enhancement Function
-         * Yeh function har image ko automatically 4K mein enhance karta hai
-         */
-        async function enhance4K(originalUrl, prompt, dimensions) {
-            const enhanceQuality = document.getElementById('enhanceQuality').value;
-            const [width, height] = enhanceQuality.split('x');
-            
-            // Enhanced prompt with quality keywords
-            const enhancedPrompt = `${prompt}, ultra high quality, 8k uhd, sharp focus, crystal clear, photorealistic, professional photography, highly detailed`;
-            
-            const params = new URLSearchParams({
-                width: width,
-                height: height,
-                seed: Date.now(),
-                nologo: 'true',
-                enhance: 'true',
-                model: 'flux',
-                private: 'false'
-            });
-            
-            const enhancedUrl = `${CONFIG.baseUrl}${encodeURIComponent(enhancedPrompt)}?${params}`;
-            
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                
-                const timeout = setTimeout(() => {
-                    reject(new Error('Enhancement timeout'));
-                }, 45000); // 45 seconds timeout
-                
-                img.onload = function() {
-                    clearTimeout(timeout);
-                    if (this.complete && this.naturalWidth > 0) {
-                        // Update enhancement counter
-                        totalEnhancedImages++;
-                        localStorage.setItem('gwh_total_enhanced', totalEnhancedImages.toString());
-                        resolve(enhancedUrl);
-                    } else {
-                        reject(new Error('Invalid enhanced image'));
-                    }
-                };
-                
-                img.onerror = () => {
-                    clearTimeout(timeout);
-                    reject(new Error('Failed to enhance'));
-                };
-                
-                img.src = enhancedUrl;
-            });
+        // ==================== IMAGE GENERATOR ====================
+
+        // Helper: apply quality level to base dimensions (Standard / HD / 4K Ultra)
+        function getDimensionsWithQuality(dimensions, quality) {
+            const [baseWidth, baseHeight] = dimensions.split('x').map(Number);
+            let multiplier = 1;
+
+            if (quality === 'hd') multiplier = 1.5;
+            if (quality === 'ultra') multiplier = 2; // ~4K for 1920x1080 → 3840x2160
+
+            const width = Math.round(baseWidth * multiplier);
+            const height = Math.round(baseHeight * multiplier);
+
+            return `${width}x${height}`;
         }
 
-        // ==================== IMAGE GENERATOR WITH ENHANCEMENT ====================
         function buildImageUrl(prompt, dimensions, seed) {
             const [width, height] = dimensions.split('x');
             const params = new URLSearchParams({
@@ -1596,137 +1386,34 @@ Outside, the city was bustling with people."></textarea>
         }
 
         async function generateImage(prompt, dimensions, seed, maxRetries) {
-            // Step 1: Generate original image
             const url = buildImageUrl(prompt, dimensions, seed);
+            // Wait until the image is actually reachable (so gallery image shows properly)
             await loadImageWithRetry(url, 0, maxRetries);
-            
-            return { url, prompt, seed };
+            return { url, prompt, seed, dimensions };
         }
 
-        /**
-         * ✨ Enhanced addImageToGallery with 4K upgrade
-         * Pehle original show karta hai, phir automatically 4K mein enhance kar deta hai
-         */
-        async function addImageToGallery(imageData) {
-            const autoEnhance = document.getElementById('autoEnhanceToggle').checked;
-            const aspectRatio = document.getElementById('aspectRatio').value;
-            
-            const cardId = `img-card-${Date.now()}-${Math.random()}`;
-            
-            // Create card with original image first
+        function addImageToGallery(imageData) {
             const card = document.createElement('div');
             card.className = 'image-card';
-            card.id = cardId;
             card.innerHTML = `
-                <div class="image-wrapper loading">
-                    <span class="quality-badge quality-original">Original</span>
-                    <img src="${imageData.url}" alt="${imageData.prompt}" crossorigin="anonymous" style="opacity: 0;">
-                </div>
+                <img src="${imageData.url}" alt="${imageData.prompt}">
                 <div class="image-info">
                     <div class="image-prompt">${imageData.prompt}</div>
+                    <small style="display:block;margin-bottom:8px;color:#888;font-size:11px;">
+                        Resolution: ${imageData.dimensions}
+                    </small>
                     <div class="image-actions">
-                        <button class="btn-small btn-success" onclick="downloadImage('${imageData.url}', '${imageData.seed}')">📥 Download</button>
-                        <button class="btn-small btn-secondary" onclick="copyPrompt(\`${imageData.prompt}\`)">📋 Copy</button>
-                        <button class="btn-small btn-enhance" onclick="manualEnhance('${cardId}', \`${imageData.prompt}\`, '${aspectRatio}')">✨ Enhance</button>
+                        <button class="btn-small btn-success" onclick="downloadImage('${imageData.url}', '${imageData.seed}')">Download</button>
+                        <button class="btn-small btn-secondary" onclick="copyPrompt(\`${imageData.prompt}\`)">Copy</button>
                     </div>
                 </div>
             `;
-            
             document.getElementById('gallery').appendChild(card);
-            
-            // Show original image
-            const imgElement = card.querySelector('img');
-            imgElement.onload = () => {
-                imgElement.style.opacity = '1';
-                card.querySelector('.image-wrapper').classList.remove('loading');
-            };
-            
-            generatedImages.push({
-                ...imageData,
-                cardId: cardId,
-                enhanced: false
-            });
-            
-            // Auto enhance if enabled
-            if (autoEnhance) {
-                setTimeout(async () => {
-                    try {
-                        await autoEnhanceImage(cardId, imageData.prompt, aspectRatio);
-                    } catch (error) {
-                        console.log('Auto enhancement failed:', error);
-                    }
-                }, 1000);
-            }
-        }
-
-        /**
-         * ✨ Auto Enhancement Function
-         * Background mein automatically enhance karta hai
-         */
-        async function autoEnhanceImage(cardId, prompt, dimensions) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            
-            const wrapper = card.querySelector('.image-wrapper');
-            const img = card.querySelector('img');
-            const badge = card.querySelector('.quality-badge');
-            
-            // Show enhancing state
-            wrapper.classList.add('enhancing');
-            badge.textContent = 'Enhancing...';
-            badge.className = 'quality-badge quality-enhanced';
-            
-            try {
-                // Enhance the image
-                const enhancedUrl = await enhance4K(img.src, prompt, dimensions);
-                
-                // Update image source
-                img.src = enhancedUrl;
-                
-                // Update UI
-                wrapper.classList.remove('enhancing');
-                badge.textContent = '4K Enhanced';
-                
-                // Update stored data
-                const imgIndex = generatedImages.findIndex(i => i.cardId === cardId);
-                if (imgIndex !== -1) {
-                    generatedImages[imgIndex].enhancedUrl = enhancedUrl;
-                    generatedImages[imgIndex].enhanced = true;
-                }
-                
-                // Update download button to download enhanced version
-                const downloadBtn = card.querySelector('.btn-success');
-                downloadBtn.onclick = () => downloadImage(enhancedUrl, Date.now());
-                
-                console.log('✨ Image enhanced to 4K successfully!');
-                
-            } catch (error) {
-                console.error('Enhancement failed:', error);
-                wrapper.classList.remove('enhancing');
-                badge.textContent = 'Original';
-                badge.className = 'quality-badge quality-original';
-            }
-        }
-
-        /**
-         * ✨ Manual Enhancement Function
-         * User manually enhance kar sakta hai
-         */
-        async function manualEnhance(cardId, prompt, dimensions) {
-            showLoading('Enhancing to 4K...', 'This may take a moment');
-            
-            try {
-                await autoEnhanceImage(cardId, prompt, dimensions);
-                hideLoading();
-                alert('✨ Image enhanced to 4K successfully!');
-            } catch (error) {
-                hideLoading();
-                alert('❌ Enhancement failed. Please try again.');
-            }
+            generatedImages.push(imageData);
         }
 
         function updateProgress(current, total, statusMessage) {
-            const percentage = Math.round((current / total) * 100);
+            const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
             document.getElementById('progressFill').style.width = percentage + '%';
             document.getElementById('progressFill').textContent = percentage + '%';
             document.getElementById('statusText').textContent = statusMessage;
@@ -1734,7 +1421,8 @@ Outside, the city was bustling with people."></textarea>
 
         async function startGeneration() {
             const promptInput = document.getElementById('promptInput').value.trim();
-            const aspectRatio = document.getElementById('aspectRatio').value;
+            const baseAspectRatio = document.getElementById('aspectRatio').value;
+            const qualityLevel = document.getElementById('qualityLevel').value || 'standard';
             const imagesPerPrompt = parseInt(document.getElementById('imagesPerPrompt').value);
             const maxRetries = parseInt(document.getElementById('maxRetries').value);
 
@@ -1748,6 +1436,9 @@ Outside, the city was bustling with people."></textarea>
                 alert('Please enter valid prompts!');
                 return;
             }
+
+            // Calculate final resolution based on aspect ratio + quality (this is your 4K enhance system)
+            const finalDimensions = getDimensionsWithQuality(baseAspectRatio, qualityLevel);
 
             isGenerating = true;
             shouldStop = false;
@@ -1765,12 +1456,15 @@ Outside, the city was bustling with people."></textarea>
                 for (let j = 0; j < imagesPerPrompt && !shouldStop; j++) {
                     const seed = Date.now() + Math.random() * 1000000;
                     
-                    updateProgress(completedImages, totalImages, 
-                        `Generating image ${completedImages + 1}/${totalImages}...`);
+                    updateProgress(
+                        completedImages,
+                        totalImages,
+                        `Generating (${finalDimensions}) image ${completedImages + 1}/${totalImages}...`
+                    );
 
                     try {
-                        const imageData = await generateImage(prompt, aspectRatio, Math.floor(seed), maxRetries);
-                        await addImageToGallery(imageData);
+                        const imageData = await generateImage(prompt, finalDimensions, Math.floor(seed), maxRetries);
+                        addImageToGallery(imageData);
                         successCount++;
                     } catch (error) {
                         console.error('Failed:', error);
@@ -1787,13 +1481,11 @@ Outside, the city was bustling with people."></textarea>
             isGenerating = false;
             document.getElementById('generateBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
-            
-            const autoEnhance = document.getElementById('autoEnhanceToggle').checked;
-            const statusMsg = autoEnhance 
-                ? `Complete! Generated ${successCount}/${totalImages} images (Auto-enhancing to 4K...)`
-                : `Complete! Generated ${successCount}/${totalImages} images`;
-            
-            updateProgress(completedImages, totalImages, statusMsg);
+            updateProgress(
+                completedImages,
+                totalImages,
+                `Complete! Generated ${successCount}/${totalImages} images at ${finalDimensions} (Quality: ${qualityLevel.toUpperCase()})`
+            );
         }
 
         function downloadImage(url, seed) {
@@ -1802,7 +1494,7 @@ Outside, the city was bustling with people."></textarea>
                 .then(blob => {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
-                    link.download = `gwh-image-${seed}.png`;
+                    link.download = `ai-image-${seed}.png`;
                     link.click();
                     URL.revokeObjectURL(link.href);
                 });
@@ -1815,9 +1507,7 @@ Outside, the city was bustling with people."></textarea>
             }
 
             for (let i = 0; i < generatedImages.length; i++) {
-                const img = generatedImages[i];
-                const url = img.enhanced ? img.enhancedUrl : img.url;
-                downloadImage(url, img.seed);
+                downloadImage(generatedImages[i].url, generatedImages[i].seed);
                 if (i < generatedImages.length - 1) {
                     await new Promise(resolve => setTimeout(resolve, 500));
                 }
@@ -1840,7 +1530,7 @@ Outside, the city was bustling with people."></textarea>
             }
         }
 
-        // ==================== AI REIMAGINE WITH ENHANCEMENT ====================
+        // ==================== AI REIMAGINE ====================
         let uploadedImageData = null;
 
         document.getElementById('uploadArea').addEventListener('click', () => {
@@ -1869,8 +1559,7 @@ Outside, the city was bustling with people."></textarea>
         }
 
         document.getElementById('applyBtn').addEventListener('click', async () => {
-            showLoading('Reimagining your image...', 'Generating + Enhancing to 4K');
-
+            showLoading('Reimagining your image with selected quality...');
             try {
                 await reimagineImage();
                 document.getElementById('editorDownloadAllBtn').disabled = false;
@@ -1887,22 +1576,18 @@ Outside, the city was bustling with people."></textarea>
                 alert('Please enter a reimagine prompt!');
                 throw new Error('Empty prompt');
             }
-            
-            const aspectRatio = document.getElementById('editorAspectRatio').value;
+
+            // Use same quality system as generator (so reimagined images are also 4K if selected)
+            const baseAspectRatio = document.getElementById('editorAspectRatio').value;
+            const qualityLevelElement = document.getElementById('qualityLevel');
+            const qualityLevel = qualityLevelElement ? (qualityLevelElement.value || 'standard') : 'standard';
+            const finalDimensions = getDimensionsWithQuality(baseAspectRatio, qualityLevel);
+
             const prompt = `Reimagine the uploaded image as: ${reimaginePrompt}, creative transformation, high quality, detailed`;
             const seed = Date.now();
-            
-            // Generate original
-            const originalUrl = buildImageUrl(prompt, aspectRatio, seed);
-            await addResultToEditorGallery(originalUrl, 'Reimagined (Original)');
-            
-            // Auto enhance
-            try {
-                const enhancedUrl = await enhance4K(originalUrl, prompt, aspectRatio);
-                await addResultToEditorGallery(enhancedUrl, 'Reimagined (4K Enhanced)');
-            } catch (error) {
-                console.log('Enhancement failed, showing original only');
-            }
+            const url = buildImageUrl(prompt, finalDimensions, seed);
+
+            await addResultToEditorGallery(url, `Reimagined (${finalDimensions})`);
         }
 
         async function addResultToEditorGallery(url, label) {
@@ -1916,20 +1601,12 @@ Outside, the city was bustling with people."></textarea>
                     clearTimeout(timeout);
                     const card = document.createElement('div');
                     card.className = 'image-card';
-                    
-                    const isEnhanced = label.includes('4K');
-                    const badgeClass = isEnhanced ? 'quality-enhanced' : 'quality-original';
-                    const badgeText = isEnhanced ? '4K Enhanced' : 'Original';
-                    
                     card.innerHTML = `
-                        <div class="image-wrapper">
-                            <span class="quality-badge ${badgeClass}">${badgeText}</span>
-                            <img src="${url}" alt="${label}" crossorigin="anonymous">
-                        </div>
+                        <img src="${url}" alt="${label}">
                         <div class="image-info">
                             <div class="image-prompt">${label}</div>
                             <div class="image-actions">
-                                <button class="btn-small btn-success" onclick="downloadEditorResult('${url}', '${label}')">📥 Download</button>
+                                <button class="btn-small btn-success" onclick="downloadEditorResult('${url}', '${label}')">Download</button>
                             </div>
                         </div>
                     `;
@@ -1953,7 +1630,7 @@ Outside, the city was bustling with people."></textarea>
                 .then(blob => {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
-                    link.download = `gwh-${label}-${Date.now()}.png`;
+                    link.download = `${label}-${Date.now()}.png`;
                     link.click();
                     URL.revokeObjectURL(link.href);
                 });
@@ -1994,7 +1671,7 @@ Outside, the city was bustling with people."></textarea>
                 return;
             }
 
-            showLoading('Converting with selected style...', 'Generating prompts');
+            showLoading('Converting with selected style...');
             
             setTimeout(() => {
                 const sentences = scriptText.split(/[.!?]+/).filter(s => s.trim().length > 0);
@@ -2025,7 +1702,7 @@ Outside, the city was bustling with people."></textarea>
                 container.innerHTML = '';
                 
                 sentences.forEach((sentence, index) => {
-                    const scenePrompt = `${sentence.trim()}, ${styleText}, highly detailed, professional quality, 4k ultra hd`;
+                    const scenePrompt = `${sentence.trim()}, ${styleText}, highly detailed, professional quality, 4k`;
                     s2pGeneratedPrompts.push(scenePrompt);
                     
                     const item = document.createElement('div');
@@ -2037,7 +1714,7 @@ Outside, the city was bustling with people."></textarea>
                         <p><strong>Full Prompt:</strong> ${scenePrompt}</p>
                         <div style="margin-top: 10px;">
                             <button class="btn-small btn-success" onclick="copyScenePrompt(${index})">📋 Copy</button>
-                            <button class="btn-small btn-primary" onclick="generateScene(${index})">🎨 Generate (4K)</button>
+                            <button class="btn-small btn-primary" onclick="generateScene(${index})">🎨 Generate</button>
                         </div>
                     `;
                     container.appendChild(item);
@@ -2073,17 +1750,21 @@ Outside, the city was bustling with people."></textarea>
         });
 
         // ==================== ADMIN PANEL ====================
+        // ✅ FIX 8: Improved loadUsers function
         function loadUsers() {
             const users = JSON.parse(localStorage.getItem('gwh_users') || '[]');
             allUsers = users;
+            console.log('Loading users:', users.length); // Debug log
             renderUsers(users);
         }
 
+        // ✅ FIX 9: Improved renderUsers function
         function renderUsers(users) {
             const tbody = document.getElementById('userTableBody');
             const emptyState = document.getElementById('emptyState');
             const userTable = document.getElementById('userTable');
 
+            // Clear existing content
             tbody.innerHTML = '';
 
             if (users.length === 0) {
@@ -2147,22 +1828,20 @@ Outside, the city was bustling with people."></textarea>
             renderUsers(filtered);
         }
 
+        // ✅ FIX 10: Improved updateStats function
         function updateStats() {
             const users = JSON.parse(localStorage.getItem('gwh_users') || '[]');
             document.getElementById('totalUsers').textContent = users.length;
 
+            // Calculate active users (logged in today)
             const today = new Date().toDateString();
             const activeCount = currentUser && new Date(currentUser.loginTime).toDateString() === today ? 1 : 0;
             document.getElementById('activeUsers').textContent = activeCount;
-            
-            // Update enhanced images count
-            document.getElementById('totalEnhanced').textContent = totalEnhancedImages;
         }
 
         // ==================== UTILITY FUNCTIONS ====================
-        function showLoading(text, subtext = 'Please wait') {
+        function showLoading(text) {
             document.getElementById('loadingText').textContent = text;
-            document.getElementById('loadingSubtext').textContent = subtext;
             document.getElementById('loadingOverlay').classList.add('active');
         }
 
@@ -2176,29 +1855,37 @@ Outside, the city was bustling with people."></textarea>
         document.getElementById('clearBtn').addEventListener('click', clearGallery);
         document.getElementById('downloadAllBtn').addEventListener('click', downloadAllImages);
 
-        console.log('🚀 GWH Platform v2.0.0 (4K Enhanced) Loaded');
-        console.log('✨ Auto 4K Enhancement: Active');
-        console.log('📊 Total Images Enhanced:', totalEnhancedImages);
+        console.log('🚀 GWH Platform v1.0.4 (FIXED + 4K QUALITY) Loaded');
+        console.log('✅ Admin Panel: Live User Display Fixed');
+        console.log('✅ Duplicate Username: Prevention Added');
+        console.log('✅ Reserved Usernames:', RESERVED_USERNAMES);
+        console.log('✅ Quality System: Standard / HD / 4K Ultra');
     </script>
 
-    <!-- Monetag Referral Ad Banner -->
-    <a href="https://monetag.com/?ref_id=z6f8" target="_blank" rel="noopener nofollow sponsored"
-       style="display:block;max-width:600px;margin:20px auto;text-decoration:none;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.15);background:linear-gradient(135deg,#6b5bff,#8a56ff);color:#fff;font-family:system-ui,-apple-system,sans-serif;">
-      
-      <div style="display:flex;align-items:center;gap:20px;padding:20px;">
-        <div style="flex-shrink:0;">
-          <img src="https://monetag.com/favicon.ico" alt="Monetag" style="width:64px;height:64px;border-radius:12px;background:#fff;padding:10px;">
-        </div>
-        <div style="flex:1;">
-          <h3 style="margin:0;font-size:1.4rem;font-weight:700;">Refer & Earn with Monetag 💸</h3>
-          <p style="margin:6px 0 12px 0;font-size:0.95rem;line-height:1.4;">
-            Invite others and earn lifetime revenue share. It's quick, simple, and free to join!
-          </p>
-          <span style="display:inline-block;padding:10px 16px;background:#fff;color:#6b5bff;border-radius:10px;font-weight:700;">
-            Join Now →
-          </span>
-        </div>
-      </div>
-    </a>
+   <!-- Monetag Referral Ad Banner -->
+<a href="https://monetag.com/?ref_id=z6f8" target="_blank" rel="noopener nofollow sponsored"
+   style="display:block;max-width:600px;margin:20px auto;text-decoration:none;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.15);background:linear-gradient(135deg,#6b5bff,#8a56ff);color:#fff;font-family:system-ui,-apple-system,sans-serif;">
+  
+  <div style="display:flex;align-items:center;gap:20px;padding:20px;">
+    <!-- Left Side: Image or Icon -->
+    <div style="flex-shrink:0;">
+      <img src="https://monetag.com/favicon.ico" alt="Monetag" style="width:64px;height:64px;border-radius:12px;background:#fff;padding:10px;">
+    </div>
+
+    <!-- Right Side: Text -->
+    <div style="flex:1;">
+      <h3 style="margin:0;font-size:1.4rem;font-weight:700;">Refer & Earn with Monetag 💸</h3>
+      <p style="margin:6px 0 12px 0;font-size:0.95rem;line-height:1.4;">
+        Invite others and earn lifetime revenue share. It’s quick, simple, and free to join!
+      </p>
+      <span style="display:inline-block;padding:10px 16px;background:#fff;color:#6b5bff;border-radius:10px;font-weight:700;">
+        Join Now →
+      </span>
+    </div>
+  </div>
+</a>
+<div style="display:flex;justify-content:center;">
+  <!-- Paste banner code here -->
+</div>
 </body>
 </html>
