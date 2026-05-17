@@ -471,13 +471,33 @@ input[type=range]{accent-color:var(--purple);}
     <!-- CENTER -->
     <div class="editor-center">
       <div class="preview-area">
-        <div class="preview-screen" id="preview-screen">
-          <div id="preview-placeholder" style="text-align:center;color:var(--text3);">
-            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-            <p style="margin-top:8px;font-size:13px;">Import media to begin</p>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <!-- Move Up -->
+          <div onclick="moveVideo('up')" style="width:28px;height:28px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--purple)';this.style.color='var(--purple2)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
           </div>
-          <video id="preview-video" style="width:100%;height:100%;display:none;object-fit:contain;" preload="auto"></video>
-          <div class="cap-ov" id="cap-ov"></div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <!-- Move Left -->
+            <div onclick="moveVideo('left')" style="width:28px;height:28px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--purple)';this.style.color='var(--purple2)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </div>
+            <div class="preview-screen" id="preview-screen">
+              <div id="preview-placeholder" style="text-align:center;color:var(--text3);">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                <p style="margin-top:8px;font-size:13px;">Import media to begin</p>
+              </div>
+              <video id="preview-video" style="width:100%;height:100%;display:none;object-fit:contain;transition:transform 0.1s;" preload="auto"></video>
+              <div class="cap-ov" id="cap-ov"></div>
+            </div>
+            <!-- Move Right -->
+            <div onclick="moveVideo('right')" style="width:28px;height:28px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--purple)';this.style.color='var(--purple2)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+          <!-- Move Down -->
+          <div onclick="moveVideo('down')" style="width:28px;height:28px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--purple)';this.style.color='var(--purple2)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
         <div class="ai-ind" id="ai-ind"><div class="ai-spinner"></div><span class="ai-ind-text" id="ai-ind-text">AI Working...</span></div>
       </div>
@@ -665,6 +685,12 @@ input[type=range]{accent-color:var(--purple);}
         <div class="tl-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/></svg>Audio</div>
         <div class="tl-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg>Caption</div>
         <div class="tl-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-5 5 1 6-5-3-5 3 1-6-5-5z"/></svg>Effects</div>
+        <div class="tl-lbl" style="color:var(--blue);cursor:pointer;" onclick="addTextTrackClip()">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Text +
+        </div>
+        <div class="tl-lbl" style="color:var(--pink);cursor:pointer;" onclick="addStickerTrackClip()">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>Sticker +
+        </div>
       </div>
       <div class="tl-tracks" id="tl-tracks">
         <div class="tl-ruler"><div class="ruler-mark">0:00</div><div class="ruler-mark">0:05</div><div class="ruler-mark">0:10</div><div class="ruler-mark">0:15</div><div class="ruler-mark">0:20</div><div class="ruler-mark">0:25</div><div class="ruler-mark">0:30</div></div>
@@ -672,6 +698,8 @@ input[type=range]{accent-color:var(--purple);}
         <div class="tl-track" id="audio-track"></div>
         <div class="tl-track" id="caption-track"></div>
         <div class="tl-track" id="effect-track"></div>
+        <div class="tl-track" id="text-track"></div>
+        <div class="tl-track" id="sticker-track"></div>
         <div class="tl-playhead" id="playhead" style="left:100px;"><div class="tl-ph-top"></div></div>
       </div>
     </div>
@@ -1127,17 +1155,104 @@ function deleteSelected(){
 function splitSelected(){
   if(selected.size===0){showNotif('Select a clip to split!');return;}
   selected.forEach(clip=>{
-    const w=parseInt(clip.style.width)||160;
-    const half=Math.max(50,Math.floor(w/2));
-    clip.style.width=half+'px';
-    const clone=clip.cloneNode(true);
-    clone.style.width=(w-half)+'px';
-    clone.style.marginLeft=(parseInt(clip.style.marginLeft)||0)+half+4+'px';
-    clone.classList.remove('selected');
-    clip.parentNode.appendChild(clone);
-    initClip(clone);
+    const clipML=parseInt(clip.style.marginLeft)||0;
+    const clipW=parseInt(clip.style.width)||160;
+    // Cut position = playhead relative to clip start
+    const cutAt=phX - clipML;
+    // Only split if playhead is INSIDE the clip
+    if(cutAt<=10||cutAt>=clipW-10){
+      showNotif('Place playhead inside the clip to split!');
+      return;
+    }
+    // Left part — shrink current clip
+    clip.style.width=cutAt+'px';
+    clip.classList.remove('selected');
+    clip.style.boxShadow='';
+    // Right part — new clip starting after cut
+    const rightClip=document.createElement('div');
+    rightClip.className=clip.className;
+    rightClip.style.width=(clipW-cutAt-4)+'px';
+    rightClip.style.marginLeft=(clipML+cutAt+4)+'px';
+    rightClip.textContent=clip.textContent;
+    clip.parentNode.appendChild(rightClip);
+    initClip(rightClip);
   });
-  showNotif('Clip split!');
+  selected.clear();
+  updateSelInfo();
+  showRightPanel('default');
+  showNotif('✂ Clip split at playhead!');
+}
+
+// TEXT TRACK
+function addTextTrackClip(){
+  const text=prompt('Enter text:','My Text');
+  if(!text)return;
+  const clip=document.createElement('div');
+  clip.className='tl-clip';
+  clip.style.cssText='height:28px;border-radius:6px;display:flex;align-items:center;padding:0 9px;font-size:11px;font-weight:600;cursor:grab;white-space:nowrap;border:2px solid rgba(59,130,246,0.7);background:linear-gradient(135deg,rgba(59,130,246,0.4),rgba(99,102,241,0.3));color:#93c5fd;flex-shrink:0;width:120px;margin-left:4px;';
+  clip.textContent='T '+text.substring(0,12);
+  document.getElementById('text-track').appendChild(clip);
+  initClip(clip);
+  // Add draggable text overlay on preview
+  addPreviewOverlay(text,'text');
+  showNotif('Text added!');
+}
+
+// STICKER TRACK
+function addStickerTrackClip(){
+  const stickers=['😀','🔥','⭐','💯','👍','🎬','🎵','💎','🚀','❤️','😂','🌟'];
+  const st=stickers[Math.floor(Math.random()*stickers.length)];
+  const clip=document.createElement('div');
+  clip.className='tl-clip';
+  clip.style.cssText='height:28px;border-radius:6px;display:flex;align-items:center;padding:0 9px;font-size:11px;cursor:grab;white-space:nowrap;border:2px solid rgba(236,72,153,0.7);background:linear-gradient(135deg,rgba(236,72,153,0.4),rgba(168,85,247,0.3));color:#f9a8d4;flex-shrink:0;width:80px;margin-left:4px;';
+  clip.textContent=st+' Sticker';
+  document.getElementById('sticker-track').appendChild(clip);
+  initClip(clip);
+  addPreviewOverlay(st,'sticker');
+  showNotif('Sticker added!');
+}
+
+// DRAGGABLE OVERLAY ON PREVIEW
+function addPreviewOverlay(content,type){
+  const screen=document.getElementById('preview-screen');
+  const el=document.createElement('div');
+  el.style.cssText=`position:absolute;cursor:move;user-select:none;z-index:50;${type==='text'?'color:#fff;font-size:20px;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,0.8);top:50%;left:50%;transform:translate(-50%,-50%);':'font-size:40px;top:30%;left:50%;transform:translate(-50%,-50%);'}`;
+  el.textContent=content;
+
+  // Drag to move
+  el.addEventListener('mousedown',function(e){
+    e.stopPropagation();
+    const rect=screen.getBoundingClientRect();
+    const startX=e.clientX-el.offsetLeft;
+    const startY=e.clientY-el.offsetTop;
+    el.style.transform='none';
+    function onMove(ev){
+      let x=ev.clientX-startX;
+      let y=ev.clientY-startY;
+      x=Math.max(0,Math.min(x,screen.clientWidth-el.offsetWidth));
+      y=Math.max(0,Math.min(y,screen.clientHeight-el.offsetHeight));
+      el.style.left=x+'px';el.style.top=y+'px';
+    }
+    function onUp(){document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+
+  // Double click to edit text
+  if(type==='text'){
+    el.addEventListener('dblclick',()=>{
+      const newText=prompt('Edit text:',el.textContent);
+      if(newText) el.textContent=newText;
+    });
+  }
+
+  // Right click to delete
+  el.addEventListener('contextmenu',e=>{
+    e.preventDefault();
+    if(confirm('Remove this overlay?')) el.remove();
+  });
+
+  screen.appendChild(el);
 }
 
 // CTX MENU
@@ -1519,6 +1634,20 @@ function hideAiInd(){document.getElementById('ai-ind').classList.remove('show');
 
 // EXPORT
 function startExport(){closeModal('export-modal');showAiInd('Exporting video...');setTimeout(()=>{hideAiInd();showNotif('✅ Video exported!');},3000);}
+
+// VIDEO POSITION
+let vidX=0,vidY=0;
+function moveVideo(dir){
+  const v=document.getElementById('preview-video');
+  if(!v)return;
+  const step=10;
+  if(dir==='up') vidY-=step;
+  else if(dir==='down') vidY+=step;
+  else if(dir==='left') vidX-=step;
+  else if(dir==='right') vidX+=step;
+  v.style.transform=`translate(${vidX}px,${vidY}px)`;
+  showNotif('Position: '+vidX+'px, '+vidY+'px');
+}
 
 // NOTIF
 function showNotif(msg){const n=document.getElementById('notif');document.getElementById('notif-text').textContent=msg;n.classList.add('show');setTimeout(()=>n.classList.remove('show'),3000);}
