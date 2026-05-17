@@ -878,34 +878,52 @@ function addClip(url,name,type,item){
   if(type==='video'){
     clip.className='tl-clip tl-clip-video';
     clip.style.width='160px';
-    // Use small video thumbnail in clip
-    const thumbVid=item&&item.querySelector('video');
-    if(thumbVid){
-      const c=document.createElement('canvas');
-      c.width=thumbVid.videoWidth||60;c.height=thumbVid.videoHeight||34;
-      try{
-        c.getContext('2d').drawImage(thumbVid,0,0,c.width,c.height);
-        const t=c.toDataURL('image/jpeg',0.7);
-        clip.innerHTML=`<img src="${t}" style="height:22px;width:34px;object-fit:cover;border-radius:3px;margin-right:5px;flex-shrink:0;" draggable="false">🎬 ${short}`;
-      }catch(ex){
-        clip.textContent='🎬 '+short;
-      }
-    }else{
-      clip.textContent='🎬 '+short;
-    }
+    clip.textContent='🎬 '+short;
     document.getElementById('video-track').appendChild(clip);
-    document.getElementById('preview-placeholder').style.display='none';
+
+    // Set preview video
     const v=document.getElementById('preview-video');
-    v.src=url;v.style.display='block';
-    v.muted=false;v.volume=1;
+    v.src=url;
+    v.muted=false;
+    v.volume=1.0;
+    v.style.display='block';
+    document.getElementById('preview-placeholder').style.display='none';
+
+    // Click on clip = load this video in preview
+    clip.addEventListener('dblclick',()=>{
+      const v=document.getElementById('preview-video');
+      v.src=url;v.muted=false;v.volume=1.0;v.style.display='block';
+      v.play();
+      isPlaying=true;
+      document.getElementById('play-icon').innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
+    });
+
   }else if(type==='audio'){
     clip.className='tl-clip tl-clip-audio';clip.style.width='190px';
     clip.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;flex-shrink:0;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></svg>🔊 ${short}`;
     document.getElementById('audio-track').appendChild(clip);
+
+    // Audio preview — attach to hidden audio element
+    let audEl=document.getElementById('bg-audio');
+    if(!audEl){
+      audEl=document.createElement('audio');
+      audEl.id='bg-audio';
+      audEl.style.display='none';
+      document.body.appendChild(audEl);
+    }
+    audEl.src=url;
+    audEl.volume=1.0;
+
+    // Double click on audio clip = play it
+    clip.addEventListener('dblclick',()=>{
+      audEl.src=url;
+      audEl.play();
+      showNotif('▶ Playing audio...');
+    });
+
   }else{
     clip.className='tl-clip tl-clip-video';clip.style.width='100px';
-    const img=item&&item.querySelector('img');
-    clip.innerHTML=img?`<img src="${img.src}" style="height:22px;width:34px;object-fit:cover;border-radius:3px;margin-right:5px;flex-shrink:0;" draggable="false">🖼 ${short}`:`🖼 ${short}`;
+    clip.textContent='🖼 '+short;
     document.getElementById('video-track').appendChild(clip);
   }
   initClip(clip);
@@ -1182,29 +1200,30 @@ setInterval(()=>{if(isPlaying){phX+=0.8;const ph=document.getElementById('playhe
 // PLAY
 function togglePlay(){
   const v=document.getElementById('preview-video');
+  const a=document.getElementById('bg-audio');
   const icon=document.getElementById('play-icon');
-  if(!v.src){showNotif('Import a video first!');return;}
-  v.muted=false;
-  v.volume=1.0;
+  const hasVideo=v&&v.src&&v.src!==window.location.href;
+  const hasAudio=a&&a.src&&a.src!==window.location.href;
+  if(!hasVideo&&!hasAudio){showNotif('Import a video or audio first!');return;}
   if(isPlaying){
-    v.pause();
+    if(hasVideo){v.pause();}
+    if(hasAudio){a.pause();}
     icon.innerHTML='<polygon points="5 3 19 12 5 21 5 3" fill="#fff"/>';
     isPlaying=false;
   }else{
-    v.play().then(()=>{
-      icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
-      isPlaying=true;
-    }).catch(err=>{
-      // Browser autoplay policy — user ne click kiya toh chalega
+    if(hasVideo){
       v.muted=false;
-      v.play();
-      icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
-      isPlaying=true;
-    });
+      v.volume=1.0;
+      v.play().catch(()=>{v.muted=false;v.play();});
+    }
+    if(hasAudio){
+      a.muted=false;
+      a.volume=1.0;
+      a.play().catch(()=>{});
+    }
+    icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
+    isPlaying=true;
   }
-  // Sync volume slider
-  const volSlider=document.querySelector('input[type=range][oninput*="vol"]');
-  if(volSlider) v.volume=parseInt(volSlider.value)/100;
 }
 
 // Volume slider sync
