@@ -215,6 +215,20 @@ h1,h2,h3,.logo-text{font-family:'Syne',sans-serif;}
 @keyframes wavebar{from{transform:scaleY(0.3);}to{transform:scaleY(1);}}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
 input[type=range]{accent-color:var(--purple);}
+/* RIGHT PANEL */
+.rp-btn{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:6px 4px;text-align:center;cursor:pointer;font-size:10px;color:var(--text2);transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:3px;}
+.rp-btn:hover{border-color:var(--purple);color:var(--purple2);background:rgba(124,58,237,0.08);}
+.rp-btn-full{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 9px;cursor:pointer;font-size:11px;color:var(--text2);transition:all 0.15s;display:flex;align-items:center;gap:5px;width:100%;margin-bottom:4px;}
+.rp-btn-full:hover{border-color:var(--purple);color:var(--text);}
+.rp-btn-full.red{border-color:rgba(239,68,68,0.3);color:var(--red);}
+.rp-btn-full.red:hover{background:rgba(239,68,68,0.1);}
+.rp-btn-full.ai-act{border-color:rgba(124,58,237,0.3);color:var(--purple2);background:rgba(124,58,237,0.06);}
+.rp-btn-full.ai-act:hover{background:rgba(124,58,237,0.18);border-color:var(--purple);}
+.spd-pre{padding:3px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;font-size:10px;color:var(--text2);cursor:pointer;transition:all 0.15s;}
+.spd-pre:hover,.spd-pre.on{border-color:var(--purple);color:var(--purple2);background:rgba(124,58,237,0.12);}
+.sl-row{display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.sl-lbl{font-size:10px;color:var(--text2);min-width:52px;flex-shrink:0;}
+.sl-val{font-size:10px;color:var(--text2);min-width:26px;text-align:right;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -462,7 +476,7 @@ input[type=range]{accent-color:var(--purple);}
             <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
             <p style="margin-top:8px;font-size:13px;">Import media to begin</p>
           </div>
-          <video id="preview-video" style="width:100%;height:100%;display:none;object-fit:contain;"></video>
+          <video id="preview-video" style="width:100%;height:100%;display:none;object-fit:contain;" preload="auto"></video>
           <div class="cap-ov" id="cap-ov"></div>
         </div>
         <div class="ai-ind" id="ai-ind"><div class="ai-spinner"></div><span class="ai-ind-text" id="ai-ind-text">AI Working...</span></div>
@@ -478,35 +492,156 @@ input[type=range]{accent-color:var(--purple);}
       </div>
     </div>
 
-    <!-- RIGHT -->
-    <div class="editor-right">
-      <div class="props-section">
-        <div class="props-title">Active Transition</div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--purple2);" id="active-trans">None</div>
+    <!-- RIGHT PANEL — Dynamic -->
+    <div class="editor-right" id="right-panel">
+
+      <!-- DEFAULT -->
+      <div id="rp-default">
+        <div style="text-align:center;padding:24px 8px 16px;color:var(--text3);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin:0 auto 8px;display:block;"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <p style="font-size:11px;line-height:1.5;">Click a clip on timeline<br>to see its properties</p>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Global Settings</div>
+          <div class="toggle-row"><span class="prop-label">Remove Silence</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="toggle-row"><span class="prop-label">Stabilization</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          <div class="toggle-row"><span class="prop-label">Denoise Audio</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Active Transition</div>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--purple2);" id="active-trans">None</div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Active Effect</div>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--pink);" id="active-fx">None</div>
+        </div>
       </div>
-      <div class="props-section">
-        <div class="props-title">Active Effect</div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--pink);" id="active-fx">None</div>
+
+      <!-- VIDEO PROPERTIES -->
+      <div id="rp-video" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--purple2)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>Video Clip
+          </div>
+          <div style="font-size:10px;color:var(--text3);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="rp-clip-name"></div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Quick Actions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px;">
+            <div class="rp-btn" onclick="clipAction('extract-audio')">🎵 Extract Audio</div>
+            <div class="rp-btn" onclick="clipAction('detach-audio')">🔌 Detach Audio</div>
+            <div class="rp-btn" onclick="clipAction('freeze')">❄ Freeze Frame</div>
+            <div class="rp-btn" onclick="clipAction('replace')">🔄 Replace</div>
+            <div class="rp-btn" onclick="clipAction('flip-h')">↔ Flip H</div>
+            <div class="rp-btn" onclick="clipAction('flip-v')">↕ Flip V</div>
+          </div>
+          <div class="rp-btn-full" onclick="clipAction('split')">✂ Split at Playhead</div>
+          <div class="rp-btn-full" onclick="clipAction('add-keyframe')" style="background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.35);color:var(--yellow);margin-top:4px;">🔑 Add Keyframe</div>
+          <div class="rp-btn-full red" onclick="clipAction('delete')" style="margin-top:4px;">🗑 Delete Clip</div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Speed</div>
+          <div style="display:flex;gap:4px;margin-bottom:7px;flex-wrap:wrap;">
+            <div class="spd-pre" onclick="setSpeed(this,0.25)">0.25x</div>
+            <div class="spd-pre" onclick="setSpeed(this,0.5)">0.5x</div>
+            <div class="spd-pre on" onclick="setSpeed(this,1)">1x</div>
+            <div class="spd-pre" onclick="setSpeed(this,1.5)">1.5x</div>
+            <div class="spd-pre" onclick="setSpeed(this,2)">2x</div>
+            <div class="spd-pre" onclick="setSpeed(this,4)">4x</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="range" min="10" max="400" value="100" style="flex:1;height:3px;accent-color:var(--purple);" oninput="document.getElementById('spd-val').textContent=(this.value/100).toFixed(2)+'x'">
+            <span id="spd-val" style="font-size:11px;color:var(--text2);min-width:32px;">1.00x</span>
+          </div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Volume</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+            <input type="range" min="0" max="200" value="100" style="flex:1;height:3px;accent-color:var(--purple);" oninput="this.nextElementSibling.textContent=this.value+'%';syncVolume(this.value)">
+            <span style="font-size:11px;color:var(--text2);min-width:32px;">100%</span>
+          </div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Color</div>
+          <div class="sl-row"><span class="sl-lbl">Brightness</span><input type="range" min="-100" max="100" value="0" style="flex:1;height:3px;accent-color:var(--yellow);" oninput="this.nextElementSibling.textContent=this.value"><span class="sl-val">0</span></div>
+          <div class="sl-row"><span class="sl-lbl">Contrast</span><input type="range" min="-100" max="100" value="0" style="flex:1;height:3px;accent-color:var(--purple);" oninput="this.nextElementSibling.textContent=this.value"><span class="sl-val">0</span></div>
+          <div class="sl-row"><span class="sl-lbl">Saturation</span><input type="range" min="-100" max="100" value="0" style="flex:1;height:3px;accent-color:var(--pink);" oninput="this.nextElementSibling.textContent=this.value"><span class="sl-val">0</span></div>
+          <div class="sl-row"><span class="sl-lbl">Temperature</span><input type="range" min="-100" max="100" value="0" style="flex:1;height:3px;accent-color:var(--blue);" oninput="this.nextElementSibling.textContent=this.value"><span class="sl-val">0</span></div>
+          <div class="sl-row"><span class="sl-lbl">Sharpness</span><input type="range" min="0" max="100" value="0" style="flex:1;height:3px;accent-color:var(--teal);" oninput="this.nextElementSibling.textContent=this.value"><span class="sl-val">0</span></div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Transform</div>
+          <div class="sl-row"><span class="sl-lbl">Rotation</span><input type="range" min="-180" max="180" value="0" style="flex:1;height:3px;accent-color:var(--purple);" oninput="this.nextElementSibling.textContent=this.value+'°'"><span class="sl-val">0°</span></div>
+          <div class="sl-row"><span class="sl-lbl">Scale</span><input type="range" min="10" max="300" value="100" style="flex:1;height:3px;accent-color:var(--purple);" oninput="this.nextElementSibling.textContent=this.value+'%'"><span class="sl-val">100%</span></div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Fade</div>
+          <div class="sl-row"><span class="sl-lbl">Fade In</span><input type="range" min="0" max="30" value="0" style="flex:1;height:3px;accent-color:var(--purple);" oninput="this.nextElementSibling.textContent=this.value+'f'"><span class="sl-val">0f</span></div>
+          <div class="sl-row"><span class="sl-lbl">Fade Out</span><input type="range" min="0" max="30" value="0" style="flex:1;height:3px;accent-color:var(--purple);" oninput="this.nextElementSibling.textContent=this.value+'f'"><span class="sl-val">0f</span></div>
+        </div>
       </div>
-      <div class="props-section">
-        <div class="props-title">Video</div>
-        <div class="toggle-row"><span class="prop-label">Remove Silence</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div class="toggle-row"><span class="prop-label">AI Color Grade</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
-        <div class="toggle-row"><span class="prop-label">Stabilization</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+
+      <!-- AUDIO PROPERTIES -->
+      <div id="rp-audio" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></svg>Audio Clip
+          </div>
+          <div style="font-size:10px;color:var(--text3);" id="rp-audio-name"></div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">AI Audio Tools</div>
+          <div class="rp-btn-full ai-act" onclick="audioAction('isolate')" style="margin-bottom:4px;">🎙 Isolate Audio</div>
+          <div class="rp-btn-full ai-act" onclick="audioAction('keep-vocal')" style="margin-bottom:4px;">🎤 Keep Vocal Only</div>
+          <div class="rp-btn-full ai-act" onclick="audioAction('remove-vocal')" style="margin-bottom:4px;">🎵 Remove Vocal (Instrumental)</div>
+          <div class="rp-btn-full ai-act" onclick="audioAction('denoise')">🔇 Remove Background Noise</div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Volume & Pan</div>
+          <div class="sl-row">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+            <input type="range" min="0" max="200" value="100" style="flex:1;height:3px;accent-color:var(--teal);" oninput="this.nextElementSibling.textContent=this.value+'%'">
+            <span class="sl-val">100%</span>
+          </div>
+          <div class="sl-row" style="margin-top:6px;"><span class="sl-lbl">Pan</span><input type="range" min="-100" max="100" value="0" style="flex:1;height:3px;accent-color:var(--teal);" oninput="this.nextElementSibling.textContent=(this.value==0?'C':this.value>0?'R'+this.value:'L'+Math.abs(this.value))"><span class="sl-val">C</span></div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Speed</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <div class="spd-pre" onclick="setSpeed(this,0.5)">0.5x</div>
+            <div class="spd-pre on" onclick="setSpeed(this,1)">1x</div>
+            <div class="spd-pre" onclick="setSpeed(this,1.5)">1.5x</div>
+            <div class="spd-pre" onclick="setSpeed(this,2)">2x</div>
+          </div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Fade</div>
+          <div class="sl-row"><span class="sl-lbl">Fade In</span><input type="range" min="0" max="50" value="0" style="flex:1;height:3px;accent-color:var(--teal);" oninput="this.nextElementSibling.textContent=this.value+'f'"><span class="sl-val">0f</span></div>
+          <div class="sl-row"><span class="sl-lbl">Fade Out</span><input type="range" min="0" max="50" value="0" style="flex:1;height:3px;accent-color:var(--teal);" oninput="this.nextElementSibling.textContent=this.value+'f'"><span class="sl-val">0f</span></div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Equalizer</div>
+          <div style="display:flex;align-items:flex-end;gap:5px;height:56px;justify-content:center;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;"><input type="range" min="-12" max="12" value="0" style="height:40px;writing-mode:vertical-lr;direction:rtl;width:3px;accent-color:var(--teal);"><span style="font-size:8px;color:var(--text3);">60</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;"><input type="range" min="-12" max="12" value="0" style="height:40px;writing-mode:vertical-lr;direction:rtl;width:3px;accent-color:var(--teal);"><span style="font-size:8px;color:var(--text3);">250</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;"><input type="range" min="-12" max="12" value="0" style="height:40px;writing-mode:vertical-lr;direction:rtl;width:3px;accent-color:var(--teal);"><span style="font-size:8px;color:var(--text3);">1k</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;"><input type="range" min="-12" max="12" value="0" style="height:40px;writing-mode:vertical-lr;direction:rtl;width:3px;accent-color:var(--teal);"><span style="font-size:8px;color:var(--text3);">4k</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;"><input type="range" min="-12" max="12" value="0" style="height:40px;writing-mode:vertical-lr;direction:rtl;width:3px;accent-color:var(--teal);"><span style="font-size:8px;color:var(--text3);">16k</span></div>
+          </div>
+        </div>
+        <div class="props-section">
+          <div class="props-title">Actions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+            <div class="rp-btn" onclick="audioAction('split')">✂ Split</div>
+            <div class="rp-btn" onclick="audioAction('duplicate')">📋 Duplicate</div>
+            <div class="rp-btn" onclick="audioAction('mute')">🔇 Mute</div>
+            <div class="rp-btn" onclick="audioAction('normalize')">📊 Normalize</div>
+          </div>
+          <div class="rp-btn-full red" onclick="audioAction('delete')" style="margin-top:5px;">🗑 Delete</div>
+        </div>
       </div>
-      <div class="props-section">
-        <div class="props-title">Audio</div>
-        <div class="toggle-row"><span class="prop-label">Denoise</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div class="toggle-row"><span class="prop-label">Normalize</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-      </div>
-      <div class="props-section">
-        <div class="props-title">Speed</div>
-        <div style="display:flex;align-items:center;gap:7px;"><input type="range" min="25" max="400" value="100" style="flex:1;" oninput="document.getElementById('spd').textContent=this.value+'%'"><span id="spd" style="font-size:12px;color:var(--text2);min-width:34px;">100%</span></div>
-      </div>
-      <div class="props-section">
-        <div class="props-title">Volume</div>
-        <div style="display:flex;align-items:center;gap:7px;"><input type="range" min="0" max="200" value="100" style="flex:1;" oninput="document.getElementById('vol').textContent=this.value+'%'"><span id="vol" style="font-size:12px;color:var(--text2);min-width:34px;">100%</span></div>
-      </div>
+
     </div>
   </div>
 
@@ -612,66 +747,157 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('open');});
 
 // FILE IMPORT
+// Store all imported items for "Add All" feature
+let allMediaItems=[];
+
 function handleFiles(input){
   const files=Array.from(input.files);
   if(!files.length)return;
+
+  const newItems=[];
+
   files.forEach(file=>{
     const url=URL.createObjectURL(file);
     const grid=document.getElementById('media-grid');
     const item=document.createElement('div');
     item.className='media-item';
+    item._url=url;
+    item._name=file.name;
+    item._type=file.type.startsWith('video/')?'video':file.type.startsWith('audio/')?'audio':'image';
+    item._added=false;
 
     if(file.type.startsWith('video/')){
-      item.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;border:2px solid var(--purple2);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;"></div></div>`;
       const vid=document.createElement('video');
-      vid.muted=true;vid.playsInline=true;
-      vid.style.cssText='position:fixed;left:-9999px;top:-9999px;width:320px;height:180px;';
-      document.body.appendChild(vid);
-      let captured=false;
-      function capture(){
-        if(captured)return;captured=true;
-        try{
-          const c=document.createElement('canvas');
-          c.width=vid.videoWidth||320;c.height=vid.videoHeight||180;
-          c.getContext('2d').drawImage(vid,0,0,c.width,c.height);
-          const thumb=c.toDataURL('image/jpeg',0.85);
-          if(vid.parentNode)document.body.removeChild(vid);
-          item.innerHTML=`<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;display:block;" draggable="false"><div class="tov" style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.15s;display:flex;align-items:center;justify-content:center;"><div class="pov" style="width:26px;height:26px;background:rgba(124,58,237,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s;"><svg width="9" height="9" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div style="position:absolute;bottom:0;left:0;right:0;padding:3px 5px;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-size:10px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${file.name.substring(0,20)}</div>`;
-          item.onmouseenter=()=>{item.querySelector('.tov').style.background='rgba(0,0,0,0.35)';item.querySelector('.pov').style.opacity='1';};
-          item.onmouseleave=()=>{item.querySelector('.tov').style.background='rgba(0,0,0,0)';item.querySelector('.pov').style.opacity='0';};
-        }catch(e){item.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;color:var(--text3);font-size:10px;">🎬<span>${file.name.substring(0,12)}</span></div>`;}
-      }
-      vid.addEventListener('loadedmetadata',()=>{vid.currentTime=0.01;});
-      vid.addEventListener('seeked',capture,{once:true});
-      setTimeout(()=>{if(vid.parentNode&&vid.readyState>=2)capture();},900);
-      vid.src=url;vid.load();
-      item.onclick=()=>addClip(url,file.name,'video',item);
+      vid.src=url;
+      vid.muted=true;
+      vid.playsInline=true;
+      vid.preload='auto';
+      vid.style.cssText='width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;';
+
+      const lbl=document.createElement('div');
+      lbl.style.cssText='position:absolute;bottom:0;left:0;right:0;padding:3px 5px;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-size:10px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;';
+      lbl.textContent=file.name.substring(0,20);
+
+      const ov=document.createElement('div');
+      ov.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.15s;display:flex;align-items:center;justify-content:center;';
+      ov.innerHTML=`<div class="pov" style="width:28px;height:28px;background:rgba(124,58,237,0.92);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>`;
+
+      const badge=document.createElement('div');
+      badge.className='added-badge';
+      badge.style.cssText='display:none;position:absolute;top:4px;left:4px;background:var(--green);border-radius:5px;padding:1px 5px;font-size:9px;color:#fff;font-weight:700;';
+      badge.textContent='✓ Added';
+
+      item.innerHTML='';
+      item.appendChild(vid);
+      item.appendChild(lbl);
+      item.appendChild(ov);
+      item.appendChild(badge);
+
+      // Load video data then seek to show first frame
+      vid.addEventListener('loadeddata',()=>{ vid.currentTime=0.5; });
+      vid.addEventListener('seeked',()=>{ /* frame is now visible */ });
+      vid.load();
+
+      item.onmouseenter=()=>{if(!item._added){ov.style.background='rgba(0,0,0,0.35)';ov.querySelector('.pov').style.opacity='1';}};
+      item.onmouseleave=()=>{ov.style.background='rgba(0,0,0,0)';ov.querySelector('.pov').style.opacity='0';};
+      item.onclick=()=>doAddToTimeline(item);
 
     }else if(file.type.startsWith('audio/')){
       const bars=Array.from({length:14},(_,i)=>`<div style="width:3px;height:${25+Math.floor(Math.random()*55)}%;background:linear-gradient(to top,#0d9488,#06b6d4);border-radius:2px;animation:wavebar 0.7s ${i*0.05}s ease-in-out infinite alternate;"></div>`).join('');
-      item.innerHTML=`<div style="width:100%;height:100%;background:linear-gradient(135deg,rgba(13,148,136,0.18),rgba(6,182,212,0.05));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:6px;"><div style="display:flex;align-items:flex-end;gap:2px;height:30px;width:90%;justify-content:center;">${bars}</div><span style="font-size:9px;color:#5eead4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90%;">${file.name.substring(0,15)}</span></div>`;
-      item.onclick=()=>addClip(url,file.name,'audio',item);
+      item.innerHTML=`
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,rgba(13,148,136,0.18),rgba(6,182,212,0.05));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:6px;">
+          <div style="display:flex;align-items:flex-end;gap:2px;height:30px;width:90%;justify-content:center;">${bars}</div>
+          <span style="font-size:9px;color:#5eead4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90%;">${file.name.substring(0,15)}</span>
+        </div>
+        <div class="added-badge" style="display:none;position:absolute;top:4px;left:4px;background:var(--green);border-radius:5px;padding:1px 5px;font-size:9px;color:#fff;font-weight:700;">✓ Added</div>`;
+      item.onclick=()=>doAddToTimeline(item);
 
-    }else if(file.type.startsWith('image/')){
-      item.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;" draggable="false"><div style="position:absolute;bottom:0;left:0;right:0;padding:3px 5px;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-size:9px;color:#fff;">${file.name.substring(0,18)}</div>`;
-      item.onclick=()=>addClip(url,file.name,'image',item);
+    }else{
+      item.innerHTML=`
+        <img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;" draggable="false">
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:3px 5px;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-size:9px;color:#fff;">${file.name.substring(0,18)}</div>
+        <div class="added-badge" style="display:none;position:absolute;top:4px;left:4px;background:var(--green);border-radius:5px;padding:1px 5px;font-size:9px;color:#fff;font-weight:700;">✓ Added</div>`;
+      item.onclick=()=>doAddToTimeline(item);
     }
+
     grid.appendChild(item);
+    newItems.push(item);
+    allMediaItems.push(item);
   });
-  showNotif(files.length>1?files.length+' files imported!':'Imported: '+files[0].name.substring(0,18));
+  updateAddAllBtn();
+  showNotif(files.length>1?files.length+' files imported! Click each or "Add All"':'Imported: '+files[0].name.substring(0,18));
 }
 
-// ADD TO TIMELINE
+function doAddToTimeline(item){
+  if(item._added)return;
+  addClip(item._url,item._name,item._type,item);
+  item._added=true;
+  const badge=item.querySelector('.added-badge');
+  if(badge)badge.style.display='block';
+  item.style.opacity='0.55';
+  updateAddAllBtn();
+}
+
+function updateAddAllBtn(){
+  let btn=document.getElementById('add-all-btn');
+  const unadded=allMediaItems.filter(i=>!i._added);
+  if(unadded.length>1){
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id='add-all-btn';
+      btn.style.cssText='width:100%;padding:9px;background:linear-gradient(135deg,#10b981,#0d9488);border:none;border-radius:8px;color:#fff;font-family:Syne,sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;';
+      btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add All to Timeline';
+      btn.onclick=addAllToTimeline;
+      const grid=document.getElementById('media-grid');
+      grid.parentNode.insertBefore(btn,grid);
+    }
+    btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add All (${unadded.length}) to Timeline`;
+    btn.style.display='flex';
+  }else if(btn){
+    btn.style.display='none';
+  }
+}
+
+function addAllToTimeline(){
+  const unadded=allMediaItems.filter(i=>!i._added);
+  if(!unadded.length){showNotif('All files already added!');return;}
+  unadded.forEach(item=>{
+    addClip(item._url,item._name,item._type,item);
+    item._added=true;
+    const badge=item.querySelector('.added-badge');
+    if(badge)badge.style.display='block';
+    item.style.opacity='0.6';
+  });
+  updateAddAllBtn();
+  showNotif('✅ All '+unadded.length+' files added to timeline!');
+}
+
 function addClip(url,name,type,item){
   const clip=document.createElement('div');
   const short=name.substring(0,13);
   if(type==='video'){
-    clip.className='tl-clip tl-clip-video';clip.style.width='160px';
-    const img=item&&item.querySelector('img');
-    clip.innerHTML=img?`<img src="${img.src}" style="height:20px;width:28px;object-fit:cover;border-radius:3px;margin-right:5px;flex-shrink:0;" draggable="false">🎬 ${short}`:`🎬 ${short}`;
+    clip.className='tl-clip tl-clip-video';
+    clip.style.width='160px';
+    // Use small video thumbnail in clip
+    const thumbVid=item&&item.querySelector('video');
+    if(thumbVid){
+      const c=document.createElement('canvas');
+      c.width=thumbVid.videoWidth||60;c.height=thumbVid.videoHeight||34;
+      try{
+        c.getContext('2d').drawImage(thumbVid,0,0,c.width,c.height);
+        const t=c.toDataURL('image/jpeg',0.7);
+        clip.innerHTML=`<img src="${t}" style="height:22px;width:34px;object-fit:cover;border-radius:3px;margin-right:5px;flex-shrink:0;" draggable="false">🎬 ${short}`;
+      }catch(ex){
+        clip.textContent='🎬 '+short;
+      }
+    }else{
+      clip.textContent='🎬 '+short;
+    }
     document.getElementById('video-track').appendChild(clip);
     document.getElementById('preview-placeholder').style.display='none';
-    const v=document.getElementById('preview-video');v.src=url;v.style.display='block';
+    const v=document.getElementById('preview-video');
+    v.src=url;v.style.display='block';
+    v.muted=false;v.volume=1;
   }else if(type==='audio'){
     clip.className='tl-clip tl-clip-audio';clip.style.width='190px';
     clip.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;flex-shrink:0;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></svg>🔊 ${short}`;
@@ -679,7 +905,7 @@ function addClip(url,name,type,item){
   }else{
     clip.className='tl-clip tl-clip-video';clip.style.width='100px';
     const img=item&&item.querySelector('img');
-    clip.innerHTML=img?`<img src="${img.src}" style="height:20px;width:28px;object-fit:cover;border-radius:3px;margin-right:5px;flex-shrink:0;" draggable="false">🖼 ${short}`:`🖼 ${short}`;
+    clip.innerHTML=img?`<img src="${img.src}" style="height:22px;width:34px;object-fit:cover;border-radius:3px;margin-right:5px;flex-shrink:0;" draggable="false">🖼 ${short}`:`🖼 ${short}`;
     document.getElementById('video-track').appendChild(clip);
   }
   initClip(clip);
@@ -721,9 +947,150 @@ function initClip(clip){
 }
 
 function toggleSel(clip){
-  if(clip.classList.contains('selected')){clip.classList.remove('selected');selected.delete(clip);}
-  else{clip.classList.add('selected');selected.add(clip);}
+  if(clip.classList.contains('selected')){
+    clip.classList.remove('selected');
+    clip.style.boxShadow='';
+    selected.delete(clip);
+    showRightPanel('default');
+  }else{
+    // Deselect all others
+    selected.forEach(c=>{c.classList.remove('selected');c.style.boxShadow='';});
+    selected.clear();
+    clip.classList.add('selected');
+    selected.add(clip);
+    // Show correct panel
+    if(clip.classList.contains('tl-clip-audio')){
+      showRightPanel('audio',clip);
+    }else{
+      showRightPanel('video',clip);
+    }
+  }
   updateSelInfo();
+}
+
+function showRightPanel(type,clip){
+  const rpDefault=document.getElementById('rp-default');
+  const rpVideo=document.getElementById('rp-video');
+  const rpAudio=document.getElementById('rp-audio');
+  const rp=document.getElementById('right-panel');
+
+  // Hide all first
+  rpDefault.style.display='none';
+  rpVideo.style.display='none';
+  rpAudio.style.display='none';
+  rp.scrollTop=0;
+
+  if(type==='video'){
+    rpVideo.style.display='block';
+    // Clip name — strip emojis
+    if(clip){
+      let name=clip.innerText||clip.textContent;
+      name=name.replace(/[🎬🖼❄🔑✂🔄↔↕]/gu,'').trim().substring(0,16);
+      const el=document.getElementById('rp-clip-name');
+      if(el) el.textContent=name||'Video Clip';
+    }
+    // Highlight selected clip border color
+    if(clip) clip.style.boxShadow='0 0 0 2px #fff, 0 0 12px rgba(124,58,237,0.6)';
+
+  }else if(type==='audio'){
+    rpAudio.style.display='block';
+    if(clip){
+      let name=clip.innerText||clip.textContent;
+      name=name.replace(/[🔊🎵🎤🎙]/gu,'').trim().substring(0,16);
+      const el=document.getElementById('rp-audio-name');
+      if(el) el.textContent=name||'Audio Clip';
+    }
+    if(clip) clip.style.boxShadow='0 0 0 2px #fff, 0 0 12px rgba(13,148,136,0.6)';
+
+  }else{
+    rpDefault.style.display='block';
+    // Remove glow from all clips
+    document.querySelectorAll('.tl-clip').forEach(c=>c.style.boxShadow='');
+  }
+}
+
+function setSpeed(el,val){
+  document.querySelectorAll('.spd-pre').forEach(s=>s.classList.remove('on'));
+  el.classList.add('on');
+  const slider=document.getElementById('spd-val');
+  if(slider) slider.textContent=val+'x';
+  showNotif('Speed: '+val+'x');
+}
+
+function syncVolume(val){
+  const v=document.getElementById('preview-video');
+  if(v) v.volume=Math.min(1,parseInt(val)/100);
+}
+
+function clipAction(action){
+  const clip=selected.size>0?[...selected][0]:null;
+  const actions={
+    'extract-audio':'🎵 Audio extracted to Audio track!',
+    'detach-audio':'🔌 Audio detached!',
+    'freeze':'❄ Freeze frame added!',
+    'replace':'🔄 Select new file to replace clip',
+    'flip-h':'↔ Flipped horizontally!',
+    'flip-v':'↕ Flipped vertically!',
+    'split':'✂ Clip split at playhead!',
+    'add-keyframe':'🔑 Keyframe added!',
+    'delete':'🗑 Clip deleted!',
+  };
+  if(action==='delete'&&clip){clip.remove();selected.clear();updateSelInfo();showRightPanel('default');}
+  else if(action==='extract-audio'&&clip){
+    const at=document.getElementById('audio-track');
+    const ac=document.createElement('div');
+    ac.className='tl-clip tl-clip-audio';ac.style.width='180px';
+    ac.innerHTML='🔊 Extracted Audio';
+    at.appendChild(ac);initClip(ac);
+  }
+  else if(action==='add-keyframe'){
+    const list=document.getElementById('keyframe-list');
+    if(list){
+      const kf=document.createElement('div');
+      kf.style.cssText='display:flex;align-items:center;justify-content:space-between;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:5px;padding:4px 8px;font-size:10px;color:var(--yellow);margin-top:3px;';
+      kf.innerHTML='🔑 '+Math.floor(phX/80*5)/10+'s <span onclick="this.parentElement.remove()" style="cursor:pointer;color:var(--red);">✕</span>';
+      list.appendChild(kf);
+    }
+  }
+  showNotif(actions[action]||action+' done!');
+}
+
+function audioAction(action){
+  const clip=selected.size>0?[...selected][0]:null;
+  const aiActions=['isolate','keep-vocal','remove-vocal','denoise'];
+  if(aiActions.includes(action)){
+    const labels={
+      'isolate':'Isolating audio track...',
+      'keep-vocal':'Separating vocals...',
+      'remove-vocal':'Removing vocals (instrumental)...',
+      'denoise':'Removing background noise...',
+    };
+    const done={
+      'isolate':'✅ Audio isolated!',
+      'keep-vocal':'✅ Vocals kept! Background removed.',
+      'remove-vocal':'✅ Vocals removed! Instrumental ready.',
+      'denoise':'✅ Background noise removed!',
+    };
+    showAiInd(labels[action]);
+    addMsg(labels[action],'ai');
+    setTimeout(()=>{hideAiInd();showNotif(done[action]);addMsg(done[action],'ai');},2000);
+  }else if(action==='delete'&&clip){
+    clip.remove();selected.clear();updateSelInfo();showRightPanel('default');
+    showNotif('🗑 Audio deleted!');
+  }else if(action==='mute'&&clip){
+    clip.style.opacity=clip.style.opacity==='0.4'?'1':'0.4';
+    showNotif(clip.style.opacity==='0.4'?'🔇 Muted!':'🔊 Unmuted!');
+  }else if(action==='duplicate'&&clip){
+    const cl=clip.cloneNode(true);
+    cl.style.marginLeft=(parseInt(clip.style.marginLeft)||0)+8+'px';
+    cl.classList.remove('selected');
+    clip.parentNode.appendChild(cl);initClip(cl);
+    showNotif('📋 Duplicated!');
+  }else if(action==='normalize'){
+    showNotif('📊 Audio normalized!');
+  }else if(action==='split'){
+    splitSelected();
+  }
 }
 
 function updateSelInfo(){
@@ -772,7 +1139,14 @@ document.addEventListener('click',()=>document.getElementById('ctx-menu').classL
 window.addEventListener('DOMContentLoaded',()=>{
   ['video-track','audio-track','caption-track','effect-track'].forEach(id=>{
     const t=document.getElementById(id);
-    if(t)t.addEventListener('click',e=>{if(e.target===t){selected.forEach(c=>c.classList.remove('selected'));selected.clear();updateSelInfo();}});
+    if(t)t.addEventListener('click',e=>{
+      if(e.target===t){
+        selected.forEach(c=>{c.classList.remove('selected');c.style.boxShadow='';});
+        selected.clear();
+        updateSelInfo();
+        showRightPanel('default');
+      }
+    });
   });
   initPlayhead();
 });
@@ -810,17 +1184,203 @@ function togglePlay(){
   const v=document.getElementById('preview-video');
   const icon=document.getElementById('play-icon');
   if(!v.src){showNotif('Import a video first!');return;}
-  if(isPlaying){v.pause();icon.innerHTML='<polygon points="5 3 19 12 5 21 5 3" fill="#fff"/>';}
-  else{v.play();icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';}
-  isPlaying=!isPlaying;
+  v.muted=false;
+  v.volume=1.0;
+  if(isPlaying){
+    v.pause();
+    icon.innerHTML='<polygon points="5 3 19 12 5 21 5 3" fill="#fff"/>';
+    isPlaying=false;
+  }else{
+    v.play().then(()=>{
+      icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
+      isPlaying=true;
+    }).catch(err=>{
+      // Browser autoplay policy — user ne click kiya toh chalega
+      v.muted=false;
+      v.play();
+      icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
+      isPlaying=true;
+    });
+  }
+  // Sync volume slider
+  const volSlider=document.querySelector('input[type=range][oninput*="vol"]');
+  if(volSlider) v.volume=parseInt(volSlider.value)/100;
 }
 
-// TRANSITIONS
+// Volume slider sync
+document.addEventListener('DOMContentLoaded',()=>{
+  const volSlider=document.querySelector('input[type=range][oninput*="vol"]');
+  if(volSlider){
+    volSlider.addEventListener('input',function(){
+      const v=document.getElementById('preview-video');
+      if(v) v.volume=parseInt(this.value)/100;
+    });
+  }
+  // Video ended
+  const v=document.getElementById('preview-video');
+  if(v){
+    v.addEventListener('ended',()=>{
+      isPlaying=false;
+      document.getElementById('play-icon').innerHTML='<polygon points="5 3 19 12 5 21 5 3" fill="#fff"/>';
+    });
+  }
+});
+
+// TRANSITIONS — Drag & Drop between clips
+let draggingTrans=null;
+
 function selTrans(el,name){
   document.querySelectorAll('.tr-item').forEach(t=>t.classList.remove('sel'));
   el.classList.add('sel');
   document.getElementById('active-trans').textContent=name;
-  showNotif('Transition: '+name);
+  // Make it draggable
+  el.setAttribute('draggable','true');
+  showNotif('Drag "'+name+'" between two clips on timeline!');
+}
+
+// Make transition items draggable
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.tr-item').forEach(el=>{
+    el.setAttribute('draggable','true');
+    el.addEventListener('dragstart',e=>{
+      draggingTrans=el.textContent.trim();
+      e.dataTransfer.effectAllowed='copy';
+      e.dataTransfer.setData('text/plain',draggingTrans);
+      el.style.opacity='0.5';
+    });
+    el.addEventListener('dragend',e=>{
+      el.style.opacity='1';
+    });
+  });
+
+  // Video track drop zone
+  setupTrackDrop('video-track');
+  setupTrackDrop('audio-track');
+});
+
+function setupTrackDrop(trackId){
+  const track=document.getElementById(trackId);
+  if(!track)return;
+
+  track.addEventListener('dragover',e=>{
+    e.preventDefault();
+    e.dataTransfer.dropEffect='copy';
+    // Highlight drop zone between clips
+    const dropPos=getDropPos(track,e.clientX);
+    highlightDropZone(track,dropPos);
+  });
+
+  track.addEventListener('dragleave',e=>{
+    clearDropZones(track);
+  });
+
+  track.addEventListener('drop',e=>{
+    e.preventDefault();
+    clearDropZones(track);
+    const transName=e.dataTransfer.getData('text/plain')||draggingTrans;
+    if(!transName)return;
+
+    const clips=Array.from(track.querySelectorAll('.tl-clip'));
+    if(clips.length<2){showNotif('Need at least 2 clips on track!');return;}
+
+    // Find which gap user dropped into
+    const dropX=e.clientX-track.getBoundingClientRect().left+track.scrollLeft;
+    let bestGap=-1;
+    let bestDist=Infinity;
+
+    for(let i=0;i<clips.length-1;i++){
+      const c1=clips[i];
+      const c2=clips[i+1];
+      const c1Right=c1.offsetLeft+(parseInt(c1.style.marginLeft)||0)+(parseInt(c1.style.width)||160);
+      const c2Left=c2.offsetLeft+(parseInt(c2.style.marginLeft)||0);
+      const gapCenter=(c1Right+c2Left)/2;
+      const dist=Math.abs(dropX-gapCenter);
+      if(dist<bestDist){bestDist=dist;bestGap=i;}
+    }
+
+    if(bestGap<0){showNotif('Drop between two clips!');return;}
+
+    // Insert transition connector between clips[bestGap] and clips[bestGap+1]
+    const c1=clips[bestGap];
+    placeTransitionBetween(track,c1,clips[bestGap+1],transName);
+    showNotif('✅ "'+transName+'" applied between clips!');
+    document.getElementById('active-trans').textContent=transName;
+  });
+}
+
+function getDropPos(track,clientX){
+  return clientX-track.getBoundingClientRect().left+track.scrollLeft;
+}
+
+function highlightDropZone(track,dropX){
+  clearDropZones(track);
+  const clips=Array.from(track.querySelectorAll('.tl-clip'));
+  for(let i=0;i<clips.length-1;i++){
+    const c1=clips[i];
+    const c2=clips[i+1];
+    const c1Right=(parseInt(c1.style.marginLeft)||0)+(parseInt(c1.style.width)||160);
+    const c2Left=(parseInt(c2.style.marginLeft)||0);
+    const center=(c1Right+c2Left)/2;
+    if(Math.abs(dropX-center)<60){
+      // show highlight line
+      let hl=document.createElement('div');
+      hl.className='trans-drop-hl';
+      hl.style.cssText=`position:absolute;left:${center-1}px;top:2px;bottom:2px;width:3px;background:var(--purple2);border-radius:2px;z-index:15;pointer-events:none;box-shadow:0 0 8px var(--purple);`;
+      track.appendChild(hl);
+      break;
+    }
+  }
+}
+
+function clearDropZones(track){
+  track.querySelectorAll('.trans-drop-hl').forEach(e=>e.remove());
+}
+
+function placeTransitionBetween(track,c1,c2,name){
+  // Remove existing transition between these two clips
+  const existingKey=c1.dataset.transAfter;
+  if(existingKey){
+    const old=track.querySelector('.trans-node[data-key="'+existingKey+'"]');
+    if(old)old.remove();
+  }
+
+  // Calc position — right edge of c1
+  const c1ML=parseInt(c1.style.marginLeft)||0;
+  const c1W=parseInt(c1.style.width)||160;
+  const pos=c1ML+c1W-14;
+
+  const icons={
+    'None':'✕','Fade':'🌫','Slide Left':'◀','Slide Right':'▶','Zoom In':'🔍','Zoom Out':'🔎',
+    'Wipe':'⬅','Blur':'💨','Spin':'🔄','Glitch':'⚡','Flash':'💡','Bounce':'🏀',
+    'Ripple':'💧','Spiral':'🌀','Cube':'📦','Flip':'🔃','Diagonal':'↗','Push':'↔',
+    'Film Burn':'🎞','Light Leak':'☀','Cross Fade':'✨','Luma Fade':'🌟','Dip Black':'⬛','Dip White':'⬜',
+  };
+  const icon=icons[name]||'✨';
+  const key='tr_'+Date.now();
+  c1.dataset.transAfter=key;
+
+  const node=document.createElement('div');
+  node.className='trans-node';
+  node.dataset.key=key;
+  node.title=name+' — Click to remove';
+  node.style.cssText=`position:absolute;left:${pos}px;top:50%;transform:translateY(-50%);width:28px;height:28px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;z-index:10;border:2px solid #fff;box-shadow:0 2px 8px rgba(124,58,237,0.6);`;
+  node.textContent=icon;
+  node.addEventListener('click',e=>{
+    e.stopPropagation();
+    node.style.transform='translateY(-50%) scale(0)';
+    setTimeout(()=>node.remove(),200);
+    showNotif('Transition removed!');
+  });
+
+  // Tooltip
+  const tip=document.createElement('div');
+  tip.style.cssText='position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:#1a1e2a;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:10px;white-space:nowrap;color:var(--text2);pointer-events:none;opacity:0;transition:opacity 0.15s;';
+  tip.textContent=name;
+  node.appendChild(tip);
+  node.addEventListener('mouseenter',()=>tip.style.opacity='1');
+  node.addEventListener('mouseleave',()=>tip.style.opacity='0');
+
+  track.appendChild(node);
 }
 
 // EFFECTS
