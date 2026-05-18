@@ -1474,106 +1474,126 @@ function initPlayhead(){
   });
 }
 
-// PLAYHEAD — moves during playback AND shows correct clip automatically
+// PLAYHEAD — moves during playback, shows correct clip
 let lastActiveUrl=null;
 
 setInterval(()=>{
   if(!isPlaying) return;
+
+  // Move playhead
   phX+=0.8;
   const ph=document.getElementById('playhead');
   if(ph) ph.style.left=phX+'px';
 
-  // Find which video clip playhead is currently over
+  // Find clip under playhead
   const track=document.getElementById('video-track');
   if(!track) return;
-  const clips=Array.from(track.querySelectorAll('.tl-clip')).filter(c=>c._url);
+  const clips=Array.from(track.querySelectorAll('.tl-clip')).filter(c=>c._url)
+    .sort((a,b)=>(parseInt(a.style.marginLeft)||0)-(parseInt(b.style.marginLeft)||0));
 
-  let activeClip=null;
+  if(clips.length===0) return;
+
+  // Find which clip is under playhead right now
+  let currentClip=null;
   for(const clip of clips){
     const ml=parseInt(clip.style.marginLeft)||0;
     const w=parseInt(clip.style.width)||160;
     if(phX>=ml && phX<ml+w){
-      activeClip=clip;
+      currentClip=clip;
       break;
     }
   }
 
-  if(activeClip&&activeClip._url&&activeClip._url!==lastActiveUrl){
-    // Only switch if it's a NEW clip
-    lastActiveUrl=activeClip._url;
+  const lastClip=clips[clips.length-1];
+  const lastEnd=(parseInt(lastClip.style.marginLeft)||0)+(parseInt(lastClip.style.width)||160);
+
+  // Playhead passed all clips — STOP
+  if(phX>=lastEnd){
+    isPlaying=false;
+    lastActiveUrl=null;
+    const v=document.getElementById('preview-video');
+    if(v) v.pause();
+    document.getElementById('play-icon').innerHTML='<polygon points="5 3 19 12 5 21 5 3" fill="#fff"/>';
+    clips.forEach(c=>c.style.outline='');
+    showNotif('✅ Playback complete!');
+    return;
+  }
+
+  // Switch to new clip only if changed
+  if(currentClip && currentClip._url !== lastActiveUrl){
+    lastActiveUrl=currentClip._url;
     const v=document.getElementById('preview-video');
     if(v){
-      v.src=activeClip._url;
+      v.src=currentClip._url;
       v.muted=false;
       v.volume=1.0;
       v.style.display='block';
       document.getElementById('preview-placeholder').style.display='none';
       v.play().catch(()=>{});
-      // Highlight active clip
-      clips.forEach(c=>{c.style.outline='';});
-      activeClip.style.outline='2px solid var(--green)';
     }
+    // Green outline on active clip
+    clips.forEach(c=>c.style.outline='');
+    currentClip.style.outline='2px solid var(--green)';
   }
 
-  // If playhead goes past all clips — stop
-  if(clips.length>0){
-    const lastClip=clips[clips.length-1];
-    const lastEnd=(parseInt(lastClip.style.marginLeft)||0)+(parseInt(lastClip.style.width)||160);
-    if(phX>lastEnd){
-      isPlaying=false;
-      lastActiveUrl=null;
-      const v=document.getElementById('preview-video');
-      if(v) v.pause();
-      document.getElementById('play-icon').innerHTML='<polygon points="5 3 19 12 5 21 5 3" fill="#fff"/>';
-      clips.forEach(c=>c.style.outline='');
-      showNotif('✅ Playback complete!');
-    }
-  }
 },50);
 
-// AUTO SEQUENCE — play clips in order
-let clipQueue=[];
-let clipQueueIdx=0;
-
-function buildClipQueue(){
-  const track=document.getElementById('video-track');
-  if(!track) return [];
-  const clips=Array.from(track.querySelectorAll('.tl-clip'));
-  // Sort by marginLeft position
-  return clips
-    .filter(c=>c._url)
-    .sort((a,b)=>(parseInt(a.style.marginLeft)||0)-(parseInt(b.style.marginLeft)||0));
-}
-
-// PLAY
 function togglePlay(){
   const v=document.getElementById('preview-video');
   const a=document.getElementById('bg-audio');
   const icon=document.getElementById('play-icon');
-  const hasVideo=v&&v.src&&v.src!==window.location.href;
-  const hasAudio=a&&a.src&&a.src!==window.location.href;
-  if(!hasVideo&&!hasAudio){showNotif('Import a video or audio first!');return;}
 
   if(isPlaying){
-    if(hasVideo)v.pause();
-    if(hasAudio)a.pause();
+    // PAUSE
+    if(v) v.pause();
+    if(a&&a.src) a.pause();
     icon.innerHTML='<polygon points="5 3 19 12 5 21 5 3" fill="#fff"/>';
     isPlaying=false;
     lastActiveUrl=null;
     document.querySelectorAll('.tl-clip').forEach(c=>c.style.outline='');
-  }else{
-    lastActiveUrl=null; // Reset so first clip loads fresh
-    clipQueue=buildClipQueue();
-    if(clipQueue.length>0&&hasVideo){
-      // Find which clip is currently loaded
-      clipQueueIdx=clipQueue.findIndex(c=>c._url===v.src);
-      if(clipQueueIdx<0) clipQueueIdx=0;
-    }
-    if(hasVideo){v.muted=false;v.volume=1.0;v.play().catch(()=>{v.muted=false;v.play();});}
-    if(hasAudio){a.muted=false;a.volume=1.0;a.play().catch(()=>{});}
-    icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
-    isPlaying=true;
+    return;
   }
+
+  // PLAY — find clip under current playhead position
+  const track=document.getElementById('video-track');
+  const clips=track?Array.from(track.querySelectorAll('.tl-clip'))
+    .filter(c=>c._url)
+    .sort((a,b)=>(parseInt(a.style.marginLeft)||0)-(parseInt(b.style.marginLeft)||0)):[];
+
+  // Find clip at current phX
+  let startClip=null;
+  for(const clip of clips){
+    const ml=parseInt(clip.style.marginLeft)||0;
+    const w=parseInt(clip.style.width)||160;
+    if(phX>=ml && phX<ml+w){startClip=clip;break;}
+  }
+
+  // If playhead is not on any clip, find next clip after playhead
+  if(!startClip){
+    startClip=clips.find(c=>(parseInt(c.style.marginLeft)||0)>phX)||clips[0];
+    if(startClip) phX=parseInt(startClip.style.marginLeft)||0;
+    const ph=document.getElementById('playhead');
+    if(ph) ph.style.left=phX+'px';
+  }
+
+  if(startClip&&startClip._url){
+    lastActiveUrl=null; // Reset so it triggers switch
+    if(v){
+      v.src=startClip._url;
+      v.muted=false;v.volume=1.0;
+      v.style.display='block';
+      document.getElementById('preview-placeholder').style.display='none';
+      v.play().catch(()=>{v.muted=false;v.play();});
+    }
+  } else if(a&&a.src&&a.src!==window.location.href){
+    a.muted=false;a.volume=1.0;a.play().catch(()=>{});
+  } else {
+    showNotif('Import a video first!');
+    return;
+  }
+
+  icon.innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
+  isPlaying=true;
 }
 
 // Auto-advance to next clip when current ends
