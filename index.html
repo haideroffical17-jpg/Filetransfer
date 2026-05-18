@@ -902,36 +902,74 @@ function addAllToTimeline(){
 
 function addClip(url,name,type,item){
   const clip=document.createElement('div');
-  const short=name.substring(0,13);
+  const short=name.substring(0,14);
+
   if(type==='video'){
     clip.className='tl-clip tl-clip-video';
-    clip.style.width='160px';
-    clip.textContent='🎬 '+short;
+    clip.style.cssText+='width:170px;display:flex;align-items:center;gap:0;padding:0;overflow:hidden;position:relative;';
+    clip._url=url;
+
+    // Thumbnail inside clip — small video element
+    const thumbVid=document.createElement('video');
+    thumbVid.src=url;
+    thumbVid.muted=true;
+    thumbVid.playsInline=true;
+    thumbVid.preload='metadata';
+    thumbVid.style.cssText='height:26px;width:44px;object-fit:cover;flex-shrink:0;border-radius:4px 0 0 4px;pointer-events:none;';
+    thumbVid.addEventListener('loadedmetadata',()=>{thumbVid.currentTime=0.5;});
+
+    // Clip name label
+    const lbl=document.createElement('span');
+    lbl.style.cssText='padding:0 8px;font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#c4b5fd;';
+    lbl.innerHTML=`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px;"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>${short}`;
+
+    clip.appendChild(thumbVid);
+    clip.appendChild(lbl);
+
     document.getElementById('video-track').appendChild(clip);
 
-    // Set preview video
+    // First clip auto-loads in preview
     const v=document.getElementById('preview-video');
-    v.src=url;
-    v.muted=false;
-    v.volume=1.0;
-    v.style.display='block';
-    document.getElementById('preview-placeholder').style.display='none';
-
-    // Click on clip = load this video in preview
-    clip.addEventListener('dblclick',()=>{
-      const v=document.getElementById('preview-video');
+    if(!v.src||v.src===window.location.href){
       v.src=url;v.muted=false;v.volume=1.0;v.style.display='block';
-      v.play();
-      isPlaying=true;
-      document.getElementById('play-icon').innerHTML='<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>';
+      document.getElementById('preview-placeholder').style.display='none';
+    }
+
+    // Single click = load THIS clip in preview
+    clip.addEventListener('click',function(e){
+      if(e.detail===1){
+        setTimeout(()=>{
+          if(e.detail===1){
+            const v=document.getElementById('preview-video');
+            v.src=url;v.muted=false;v.volume=1.0;v.style.display='block';
+            document.getElementById('preview-placeholder').style.display='none';
+            if(isPlaying){v.play();}
+            showNotif('▶ '+name.substring(0,20));
+          }
+        },200);
+      }
     });
 
   }else if(type==='audio'){
-    clip.className='tl-clip tl-clip-audio';clip.style.width='190px';
-    clip.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;flex-shrink:0;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></svg>🔊 ${short}`;
+    clip.className='tl-clip tl-clip-audio';
+    clip.style.cssText+='width:190px;display:flex;align-items:center;gap:0;padding:0;overflow:hidden;';
+    clip._url=url;
+
+    // Waveform bars mini
+    const wv=document.createElement('div');
+    wv.style.cssText='display:flex;align-items:flex-end;gap:1px;height:26px;width:36px;padding:4px 4px;background:rgba(13,148,136,0.3);flex-shrink:0;border-radius:4px 0 0 4px;';
+    wv.innerHTML=Array.from({length:8},(_,i)=>`<div style="flex:1;height:${30+Math.floor(Math.random()*60)}%;background:#0d9488;border-radius:1px;animation:wavebar 0.7s ${i*0.08}s ease-in-out infinite alternate;"></div>`).join('');
+
+    const lbl=document.createElement('span');
+    lbl.style.cssText='padding:0 8px;font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#5eead4;';
+    lbl.innerHTML=`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></svg>${short}`;
+
+    clip.appendChild(wv);
+    clip.appendChild(lbl);
+
     document.getElementById('audio-track').appendChild(clip);
 
-    // Audio preview — attach to hidden audio element
+    // Audio element
     let audEl=document.getElementById('bg-audio');
     if(!audEl){
       audEl=document.createElement('audio');
@@ -939,18 +977,20 @@ function addClip(url,name,type,item){
       audEl.style.display='none';
       document.body.appendChild(audEl);
     }
-    audEl.src=url;
-    audEl.volume=1.0;
+    if(!audEl.src||audEl.src===window.location.href){
+      audEl.src=url;audEl.volume=1.0;
+    }
 
-    // Double click on audio clip = play it
-    clip.addEventListener('dblclick',()=>{
-      audEl.src=url;
-      audEl.play();
-      showNotif('▶ Playing audio...');
+    // Single click = load this audio
+    clip.addEventListener('click',function(){
+      audEl.src=url;audEl.volume=1.0;
+      if(isPlaying) audEl.play();
+      showNotif('🔊 '+name.substring(0,20));
     });
 
   }else{
-    clip.className='tl-clip tl-clip-video';clip.style.width='100px';
+    clip.className='tl-clip tl-clip-video';
+    clip.style.cssText+='width:100px;';
     clip.textContent='🖼 '+short;
     document.getElementById('video-track').appendChild(clip);
   }
