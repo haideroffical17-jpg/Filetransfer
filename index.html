@@ -223,63 +223,59 @@ h1,h2,h3,.logo-text{font-family:'Syne',sans-serif;}
 .tl-playhead{position:absolute;top:22px;bottom:0;width:2px;background:var(--red);left:0px;z-index:20;cursor:ew-resize;}
 .tl-ph-top{position:absolute;top:-10px;left:-7px;width:16px;height:12px;background:var(--red);clip-path:polygon(0 0,100% 0,50% 100%);cursor:ew-resize;}
 
-/* premium CapCut transition styles */
+/* Premium timeline transition node styling as requested */
 .trans-node {
   position: absolute;
-  height: 28px; 
-  width: 44px;
+  height: 32px; 
+  width: 22px;
   background: repeating-linear-gradient(
     -45deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.08) 5px,
-    rgba(255, 255, 255, 0.18) 5px,
-    rgba(255, 255, 255, 0.18) 10px
-  ), rgba(17, 20, 32, 0.85);
-  border: 1.5px solid rgba(255, 255, 255, 0.85);
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.1) 4px,
+    rgba(255, 255, 255, 0.22) 4px,
+    rgba(255, 255, 255, 0.22) 8px
+  ), rgba(11, 13, 19, 0.95);
+  border: 1.8px solid #ffffff;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s ease;
+  z-index: 30;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .trans-node:hover {
   border-color: var(--purple2);
-  transform: translateY(-50%) scale(1.08);
-  background: repeating-linear-gradient(
-    -45deg,
-    rgba(124, 58, 237, 0.15),
-    rgba(124, 58, 237, 0.15) 5px,
-    rgba(124, 58, 237, 0.25) 5px,
-    rgba(124, 58, 237, 0.25) 10px
-  ), rgba(17, 20, 32, 0.95);
+  transform: translateY(-50%) scale(1.12);
+  box-shadow: 0 0 10px rgba(157, 92, 246, 0.8);
 }
 .trans-icon-pill {
-  width: 18px;
-  height: 18px;
-  background: #fff;
-  color: #111420;
-  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #ffffff;
+  font-size: 11px;
   font-weight: 800;
-  font-size: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  user-select: none;
 }
-.trans-node::before, .trans-node::after {
-  content: '⁝';
+.trans-dots-left, .trans-dots-right {
   position: absolute;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 9px;
-  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   top: 50%;
   transform: translateY(-50%);
 }
-.trans-node::before { left: 4px; }
-.trans-node::after { right: 4px; }
+.trans-dots-left { left: 2px; }
+.trans-dots-right { right: 2px; }
+.trans-dot {
+  width: 1.8px;
+  height: 1.8px;
+  background-color: rgba(255, 255, 255, 0.65);
+  border-radius: 50%;
+}
 
 /* MODALS */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;}
@@ -447,31 +443,31 @@ input[type=range]{accent-color:var(--purple);}
         <div class="panel-scroll">
           <div class="sec-lbl" style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;">Basic Transitions</div>
           <div class="trans-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;">
-            <div class="tr-item sel" onclick="selTrans(this,'None')">
+            <div class="tr-item sel" data-trans="None" onclick="selTrans(this,'None')">
               <div class="tr-preview-box" style="color:var(--text3);font-size:11px;">✕</div>
               <div style="font-size:10px;color:var(--text2);">None</div>
             </div>
-            <div class="tr-item" onclick="selTrans(this,'Fade')">
+            <div class="tr-item" data-trans="Fade" onclick="selTrans(this,'Fade')">
               <div class="tr-preview-box"><div class="tr-bar tr-bar-fade"></div></div>
               <div style="font-size:10px;color:var(--text2);">🌫 Fade</div>
             </div>
-            <div class="tr-item" onclick="selTrans(this,'Slide Left')">
+            <div class="tr-item" data-trans="Slide Left" onclick="selTrans(this,'Slide Left')">
               <div class="tr-preview-box"><div class="tr-bar tr-bar-slide"></div></div>
               <div style="font-size:10px;color:var(--text2);">◀ Slide L</div>
             </div>
-            <div class="tr-item" onclick="selTrans(this,'Slide Right')">
+            <div class="tr-item" data-trans="Slide Right" onclick="selTrans(this,'Slide Right')">
               <div class="tr-preview-box"><div class="tr-bar tr-bar-slide" style="animation-direction:reverse;"></div></div>
               <div style="font-size:10px;color:var(--text2);">▶ Slide R</div>
             </div>
-            <div class="tr-item" onclick="selTrans(this,'Zoom In')">
+            <div class="tr-item" data-trans="Zoom In" onclick="selTrans(this,'Zoom In')">
               <div class="tr-preview-box"><div class="tr-bar tr-bar-zoom"></div></div>
               <div style="font-size:10px;color:var(--text2);">🔍 Zoom In</div>
             </div>
-            <div class="tr-item" onclick="selTrans(this,'Spin')">
+            <div class="tr-item" data-trans="Spin" onclick="selTrans(this,'Spin')">
               <div class="tr-preview-box"><div class="tr-bar tr-bar-spin"></div></div>
               <div style="font-size:10px;color:var(--text2);">🔄 Spin</div>
             </div>
-            <div class="tr-item" onclick="selTrans(this,'Blur')">
+            <div class="tr-item" data-trans="Blur" onclick="selTrans(this,'Blur')">
               <div class="tr-preview-box"><div class="tr-bar tr-bar-blur"></div></div>
               <div style="font-size:10px;color:var(--text2);">💨 Blur</div>
             </div>
@@ -479,15 +475,15 @@ input[type=range]{accent-color:var(--purple);}
           
           <div class="sec-lbl" style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;">Cinematic Transitions</div>
           <div class="trans-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
-            <div class="tr-item" onclick="selTrans(this,'Film Burn')">
+            <div class="tr-item" data-trans="Film Burn" onclick="selTrans(this,'Film Burn')">
               <div class="tr-preview-box"><div class="tr-bar tr-bar-burn"></div></div>
               <div style="font-size:10px;color:var(--text2);">🎞 Film Burn</div>
             </div>
-            <div class="tr-item" onclick="selTrans(this,'Flash')">
+            <div class="tr-item" data-trans="Flash" onclick="selTrans(this,'Flash')">
               <div class="tr-preview-box"><div class="tr-bar tr-bar-flash"></div></div>
               <div style="font-size:10px;color:var(--text2);">⚡ Flash</div>
             </div>
-            <div class="tr-item" onclick="selTrans(this,'Dip Black')">
+            <div class="tr-item" data-trans="Dip Black" onclick="selTrans(this,'Dip Black')">
               <div class="tr-preview-box" style="background:#000;"><div class="tr-bar" style="background:#222;"></div></div>
               <div style="font-size:10px;color:var(--text2);">⬛ Dip Black</div>
             </div>
@@ -2228,8 +2224,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('.tr-item').forEach(el=>{
     el.setAttribute('draggable','true');
     el.addEventListener('dragstart',e=>{
-      const labelElement = el.querySelector('div:last-child');
-      draggingTrans = labelElement ? labelElement.textContent.replace(/[🌫◀▶🔍🔄💨🎞⚡⬛]/gu, '').trim() : el.textContent.trim();
+      // exact data attributes extraction configured to prevent label strip issues
+      draggingTrans = el.getAttribute('data-trans') || el.textContent.trim();
       e.dataTransfer.effectAllowed='copy';
       e.dataTransfer.setData('text/plain',draggingTrans);
       el.style.opacity='0.5';
@@ -2326,15 +2322,15 @@ function placeTransitionBetween(track,c1,c2,name){
 
   const c1ML=c1.offsetLeft;
   const c1W=c1.offsetWidth;
-  const pos=c1ML+c1W-22; // Center bridge connector perfectly between adjacent clips
+  const pos=c1ML+c1W-11; // Perfectly centered on the border line (22px / 2 = 11px)
 
   const icons={
     'None':'✕','Fade':'🌫','Slide Left':'◀','Slide Right':'▶','Zoom In':'🔍','Zoom Out':'🔎',
     'Wipe':'⬅','Blur':'💨','Spin':'🔄','Glitch':'⚡','Flash':'💡','Bounce':'🏀',
     'Ripple':'💧','Spiral':'🌀','Cube':'📦','Flip':'🔃','Diagonal':'↗','Push':'↔',
-    'Film Burn':'🎞','Light Leak':'☀','Cross Fade':'✨','Luma Fade':'🌟','Dip Black':'⬛','Dip White':'⬜',
+    'Film Burn':'🔥','Light Leak':'☀','Cross Fade':'⋈','Luma Fade':'🌟','Dip Black':'⬛','Dip White':'⬜',
   };
-  const icon=icons[name]||'✨';
+  const icon=icons[name]||'⋈';
   const key='tr_'+Date.now();
   c1.dataset.transAfter=key;
 
@@ -2344,8 +2340,24 @@ function placeTransitionBetween(track,c1,c2,name){
   node.title=name+' — Click to remove';
   node.style.cssText=`position:absolute;left:${pos}px;top:50%;transform:translateY(-50%);`;
   
-  // Striped transition pill box with center icon
-  node.innerHTML=`<div class="trans-icon-pill">${icon}</div>`;
+  // Custom double drag-handle dots structure matching the layout precisely
+  node.innerHTML=`
+    <div class="trans-dots-left">
+      <div class="trans-dot"></div>
+      <div class="trans-dot"></div>
+      <div class="trans-dot"></div>
+      <div class="trans-dot"></div>
+      <div class="trans-dot"></div>
+    </div>
+    <div class="trans-icon-pill">${icon}</div>
+    <div class="trans-dots-right">
+      <div class="trans-dot"></div>
+      <div class="trans-dot"></div>
+      <div class="trans-dot"></div>
+      <div class="trans-dot"></div>
+      <div class="trans-dot"></div>
+    </div>
+  `;
   
   node.addEventListener('click',e=>{
     e.stopPropagation();
@@ -2405,6 +2417,7 @@ const TPL_STYLES={
   gradient:'background:linear-gradient(90deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;',
 };
 
+// Auto generate captions transition state logic
 function generateCaptions(){
   const cl=document.getElementById('cap-list');
   cl.innerHTML='<div style="font-size:11px;color:var(--purple2);text-align:center;padding:10px;display:flex;align-items:center;gap:7px;justify-content:center;"><div style="width:12px;height:12px;border:2px solid var(--purple2);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;"></div>AI generating captions...</div>';
@@ -2614,7 +2627,7 @@ function getProjectState(){
     key: n.dataset.key,
     left: n.style.left,
     title: n.title,
-    text: n.textContent
+    text: n.querySelector('.trans-icon-pill').textContent
   }));
 
   return trackData;
@@ -2696,7 +2709,7 @@ function loadProjectState(trackData) {
     });
   });
   
-  // Transition Nodes rebuild
+  // Transition Nodes rebuild with custom dots layout retained correctly
   if (trackData.transitions) {
     trackData.transitions.forEach(tr => {
       const track = document.getElementById(tr.trackId);
@@ -2707,7 +2720,24 @@ function loadProjectState(trackData) {
       node.dataset.key = tr.key;
       node.title = tr.title;
       node.style.cssText = `position:absolute;left:${tr.left};top:50%;transform:translateY(-50%);`;
-      node.innerHTML = `<div class="trans-icon-pill">${tr.text}</div>`;
+      
+      node.innerHTML = `
+        <div class="trans-dots-left">
+          <div class="trans-dot"></div>
+          <div class="trans-dot"></div>
+          <div class="trans-dot"></div>
+          <div class="trans-dot"></div>
+          <div class="trans-dot"></div>
+        </div>
+        <div class="trans-icon-pill">${tr.text}</div>
+        <div class="trans-dots-right">
+          <div class="trans-dot"></div>
+          <div class="trans-dot"></div>
+          <div class="trans-dot"></div>
+          <div class="trans-dot"></div>
+          <div class="trans-dot"></div>
+        </div>
+      `;
       
       node.addEventListener('click', e => {
         e.stopPropagation();
@@ -2902,7 +2932,7 @@ setInterval(()=>{
 },10000);
 
 // NOTIF
-function showNotif(msg){const n=document.getElementById('notif');document.getElementById('notif-text').textContent=msg;n.classList.add('show');setTimeout(()=>n.classList.remove('show'),3000);}
+function showNotif(msg){const n=document.getElementById('notif');document.getElementById('notif-text').textContent=msg;n.classList.add('show');}
 </script>
 </body>
 </html>
