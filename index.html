@@ -615,7 +615,7 @@ input[type=range]{accent-color:var(--purple);}
         <div style="width:1px;height:20px;background:var(--border);margin:0 4px;"></div>
         <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Platform:</span>
         <div class="plat-btn" onclick="setRatio(this,'9/16','180px','320px')">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72(2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
           TikTok
         </div>
         <div class="plat-btn" onclick="setRatio(this,'16/9','560px','315px')">
@@ -653,7 +653,7 @@ input[type=range]{accent-color:var(--purple);}
           <div onclick="scaleVideo(-10)" style="width:22px;height:22px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px;font-weight:700;">-</div>
           <span id="scale-val" style="font-size:11px;color:var(--purple2);min-width:36px;text-align:center;">100%</span>
           <div onclick="scaleVideo(10)" style="width:22px;height:22px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px;font-weight:700;">+</div>
-          <input type="range" id="scale-slider" min="10" max="300" value="100" style="width:80px;height:3px;accent-color:var(--purple);" oninput="applyScale(parseInt(this.value))">
+          <input type="range" id="scale-slider" min="10" max="1000" value="100" style="width:80px;height:3px;accent-color:var(--purple);" oninput="applyScale(parseInt(this.value))">
           <div onclick="resetTransform()" style="padding:3px 7px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;font-size:10px;color:var(--text3);cursor:pointer;">Reset</div>
         </div>
 
@@ -751,7 +751,7 @@ input[type=range]{accent-color:var(--purple);}
         <div class="props-section">
           <div class="props-title">Transform</div>
           <div class="sl-row"><span class="sl-lbl">Rotation</span><input type="range" id="prop-rotation-slider" min="-180" max="180" value="0" style="flex:1;height:3px;accent-color:var(--purple);" oninput="updateSelectedClipSetting('rotation', this.value)" onchange="saveHistoryState()"><span class="sl-val">0°</span></div>
-          <div class="sl-row"><span class="sl-lbl">Scale</span><input type="range" id="prop-scale-slider" min="10" max="300" value="100" style="flex:1;height:3px;accent-color:var(--purple);" oninput="updateSelectedClipSetting('scale', this.value)" onchange="saveHistoryState()"><span class="sl-val">100%</span></div>
+          <div class="sl-row"><span class="sl-lbl">Scale</span><input type="range" id="prop-scale-slider" min="10" max="1000" value="100" style="flex:1;height:3px;accent-color:var(--purple);" oninput="updateSelectedClipSetting('scale', this.value)" onchange="saveHistoryState()"><span class="sl-val">100%</span></div>
         </div>
         <div class="props-section">
           <div class="props-title">Fade</div>
@@ -2522,7 +2522,7 @@ function moveVideo(dir){
 }
 
 function scaleVideo(delta){
-  vidScale=Math.max(10,Math.min(300,vidScale+delta));
+  vidScale=Math.max(10,Math.min(1000,vidScale+delta));
   applyScale(vidScale);
   const slider=document.getElementById('scale-slider');
   if(slider)slider.value=vidScale;
