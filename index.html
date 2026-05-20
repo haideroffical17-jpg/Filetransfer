@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="google-site-verification" content="S4-pqyrlNmuj7ykhfWVXQtLXcelNhohB8W4NGAqz6tw" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VYROVA — AI Video Editor</title>
@@ -1538,16 +1537,21 @@ function playClip(clip, seekRatio){
   vid.oncanplay=null;
 
   vid.onended=function(){
-    if(!isPlaying) return;
+    console.log('VIDEO ENDED — lastActiveUrl:', lastActiveUrl?.slice(-20));
+    if(!isPlaying){console.log('not playing, skip');return;}
     const clips=getSortedClips();
+    console.log('total clips:', clips.length);
     const idx=clips.findIndex(c=>c._url===lastActiveUrl);
+    console.log('current idx:', idx, 'next idx:', idx+1);
     const next=clips[idx+1];
     if(next&&next._url){
+      console.log('loading next:', next._url.slice(-20));
       phX=(parseInt(next.style.marginLeft)||0)+1;
       const ph=document.getElementById('playhead');
       if(ph) ph.style.left=phX+'px';
       playClip(next, 0);
     } else {
+      console.log('NO NEXT — stopping');
       stopPlayback();
       showNotif('✅ Playback complete!');
     }
