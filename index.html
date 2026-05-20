@@ -222,6 +222,65 @@ h1,h2,h3,.logo-text{font-family:'Syne',sans-serif;}
 .tl-clip-effect{background:linear-gradient(135deg,rgba(245,158,11,0.5),rgba(239,68,68,0.3));border-color:rgba(245,158,11,0.6);color:#fcd34d;}
 .tl-playhead{position:absolute;top:22px;bottom:0;width:2px;background:var(--red);left:0px;z-index:20;cursor:ew-resize;}
 .tl-ph-top{position:absolute;top:-10px;left:-7px;width:16px;height:12px;background:var(--red);clip-path:polygon(0 0,100% 0,50% 100%);cursor:ew-resize;}
+
+/* premium CapCut transition styles */
+.trans-node {
+  position: absolute;
+  height: 28px; 
+  width: 44px;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.08) 5px,
+    rgba(255, 255, 255, 0.18) 5px,
+    rgba(255, 255, 255, 0.18) 10px
+  ), rgba(17, 20, 32, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+.trans-node:hover {
+  border-color: var(--purple2);
+  transform: translateY(-50%) scale(1.08);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(124, 58, 237, 0.15),
+    rgba(124, 58, 237, 0.15) 5px,
+    rgba(124, 58, 237, 0.25) 5px,
+    rgba(124, 58, 237, 0.25) 10px
+  ), rgba(17, 20, 32, 0.95);
+}
+.trans-icon-pill {
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  color: #111420;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.trans-node::before, .trans-node::after {
+  content: '⁝';
+  position: absolute;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 9px;
+  font-weight: bold;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.trans-node::before { left: 4px; }
+.trans-node::after { right: 4px; }
+
 /* MODALS */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
@@ -1935,6 +1994,18 @@ let lastActiveClip=null;
 setInterval(()=>{
   if(!isPlaying) return;
 
+  // Real-time smooth playhead progress sync with video player's actual time
+  const v = document.getElementById('preview-video');
+  if (v && lastActiveClip && v.duration) {
+    const progress = v.currentTime / v.duration;
+    phX = lastActiveClip.offsetLeft + progress * lastActiveClip.offsetWidth;
+  } else {
+    phX += 0.8; // Smooth fallback rate
+  }
+
+  const ph = document.getElementById('playhead');
+  if (ph) ph.style.left = phX + 'px';
+
   const track=document.getElementById('video-track');
   if(!track) return;
   const clips=getSortedClips();
@@ -2253,9 +2324,9 @@ function placeTransitionBetween(track,c1,c2,name){
     if(old)old.remove();
   }
 
-  const c1ML=parseInt(c1.style.marginLeft)||0;
-  const c1W=parseInt(c1.style.width)||170;
-  const pos=c1ML+c1W-14;
+  const c1ML=c1.offsetLeft;
+  const c1W=c1.offsetWidth;
+  const pos=c1ML+c1W-22; // Center bridge connector perfectly between adjacent clips
 
   const icons={
     'None':'✕','Fade':'🌫','Slide Left':'◀','Slide Right':'▶','Zoom In':'🔍','Zoom Out':'🔎',
@@ -2271,8 +2342,10 @@ function placeTransitionBetween(track,c1,c2,name){
   node.className='trans-node';
   node.dataset.key=key;
   node.title=name+' — Click to remove';
-  node.style.cssText=`position:absolute;left:${pos}px;top:50%;transform:translateY(-50%);width:28px;height:28px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;z-index:10;border:2px solid #fff;box-shadow:0 2px 8px rgba(124,58,237,0.6);`;
-  node.textContent=icon;
+  node.style.cssText=`position:absolute;left:${pos}px;top:50%;transform:translateY(-50%);`;
+  
+  // Striped transition pill box with center icon
+  node.innerHTML=`<div class="trans-icon-pill">${icon}</div>`;
   
   node.addEventListener('click',e=>{
     e.stopPropagation();
@@ -2286,7 +2359,7 @@ function placeTransitionBetween(track,c1,c2,name){
   });
 
   const tip=document.createElement('div');
-  tip.style.cssText='position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:#1a1e2a;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:10px;white-space:nowrap;color:var(--text2);pointer-events:none;opacity:0;transition:opacity 0.15s;';
+  tip.style.cssText='position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:#1a1e2a;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:10px;white-space:nowrap;color:var(--text2);pointer-events:none;opacity:0;transition:opacity 0.15s;';
   tip.textContent=name;
   node.appendChild(tip);
   node.addEventListener('mouseenter',()=>tip.style.opacity='1');
@@ -2633,8 +2706,8 @@ function loadProjectState(trackData) {
       node.className = 'trans-node';
       node.dataset.key = tr.key;
       node.title = tr.title;
-      node.style.cssText = `position:absolute;left:${tr.left};top:50%;transform:translateY(-50%);width:28px;height:28px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;z-index:10;border:2px solid #fff;box-shadow:0 2px 8px rgba(124,58,237,0.6);`;
-      node.textContent = tr.text;
+      node.style.cssText = `position:absolute;left:${tr.left};top:50%;transform:translateY(-50%);`;
+      node.innerHTML = `<div class="trans-icon-pill">${tr.text}</div>`;
       
       node.addEventListener('click', e => {
         e.stopPropagation();
@@ -2649,7 +2722,7 @@ function loadProjectState(trackData) {
       });
 
       const tip = document.createElement('div');
-      tip.style.cssText = 'position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:#1a1e2a;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:10px;white-space:nowrap;color:var(--text2);pointer-events:none;opacity:0;transition:opacity 0.15s;';
+      tip.style.cssText = 'position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:#1a1e2a;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:10px;white-space:nowrap;color:var(--text2);pointer-events:none;opacity:0;transition:opacity 0.15s;';
       tip.textContent = tr.title.split(' — ')[0];
       node.appendChild(tip);
       node.addEventListener('mouseenter', () => tip.style.opacity = '1');
